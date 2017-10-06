@@ -1,3 +1,4 @@
 mypy
-pylint
 nose
+coverage
+nose-progressive
