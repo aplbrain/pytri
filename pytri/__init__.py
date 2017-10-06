@@ -16,4 +16,78 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from typing import abstractmethod, TypeVar
+
 __version__ = "0.0.1"
+
+
+class Layer:
+    """
+    The base (abstract) class for a Pytri/Substrate Layer.
+
+    Must be implemented; this doesn't do anything.
+    """
+
+    @abstractmethod
+    def export_data(self, **kwargs) -> dict:
+        """
+        Export the data to a JSON-like dict to be inlined in JavaScript.
+
+        Arguments:
+            Any
+
+        Returns:
+            dict: The data that a layer will require in JS.
+
+        """
+        pass
+
+
+VisualizerType = TypeVar('VisualizerType', bound='Visualizer')
+class Visualizer:
+    """
+    Base class for a Pytri Visualizer to interface with Substrate.
+
+    This closely, but not identically, mirrors the substrate.js Visualizer.
+    """
+
+    def add_layer(self, layer: Layer, name: str = None) -> Layer:
+        """
+        Add a layer to the scene.
+
+        Arguments:
+            layer (substrate.Layer): layer to add
+            name (str: None): optional name. If not provided, a name will be
+                generated randomly.
+
+        Returns:
+            Layer: A pointer to the inserted substrate layer
+
+        """
+        pass
+
+    def show(self) -> VisualizerType:
+        """
+        Render the Visualizer element in the Jupyter notebook.
+
+        Arguments:
+            None
+
+        Returns:
+            Visualizer: self
+
+        """
+        pass
+
+    def save(self, filename: str) -> VisualizerType:
+        """
+        Render the current scene down to disk.
+
+        Arguments:
+            filename (str): The file to save
+
+        Returns:
+            Visualizer: self
+
+        """
+        pass
