@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
-from jque import __version__
+from pytri import __version__
 
 
 here = path.abspath(path.dirname(__file__))
@@ -20,11 +20,11 @@ dependency_links = [
 ]
 
 setup(
-    name='jque',
+    name='pytri',
     version=__version__,
-    description='Query JSON in memory as though it were a Mongo database.',
+    description='A python wrapper for substrate.',
     long_description=long_description,
-    download_url='https://github.com/j6k4m8/jque/tarball/' + __version__,
+    download_url='https://github.com/j6k4m8/pytri/tarball/' + __version__,
     license='Apache 2.0',
     classifiers=[
       'Development Status :: 4 - Beta',
@@ -33,11 +33,10 @@ setup(
       'Programming Language :: Python :: 3.5',
     ],
     keywords=[
-            "json",
-            "mongo",
-            "mongodb",
-            "query",
-            "ql"
+            "webgl",
+            "threejs",
+            "python",
+            "jupyter"
         ],
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
