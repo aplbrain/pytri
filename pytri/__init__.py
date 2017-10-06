@@ -51,6 +51,17 @@ class Visualizer:
     This closely, but not identically, mirrors the substrate.js Visualizer.
     """
 
+    def __init__(
+            self,
+            renderLayers=dict(),
+            targetElement='viz',
+            width=500,
+            height=500):
+        self.renderLayers = renderLayers
+        self.targetElement = targetElement
+        self.width = width
+        self.height = height
+
     def add_layer(self, layer: Layer, name: str = None) -> Layer:
         """
         Add a layer to the scene.
