@@ -44,7 +44,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            ./.circleci/run-tests.sh
+            sh ./.circleci/run-tests.sh
 
       - store_artifacts:
           path: test-reports
