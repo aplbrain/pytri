@@ -17,6 +17,7 @@ limitations under the License.
 """
 
 from typing import abstractmethod, TypeVar
+from uuid import uuid4
 
 __version__ = "0.0.1"
 
@@ -75,7 +76,10 @@ class Visualizer:
             Layer: A pointer to the inserted substrate layer
 
         """
-        pass
+        if not name:
+            name = uuid4().hex
+        self.renderLayers[name] = layer
+        return layer
 
     def show(self) -> VisualizerType:
         """
