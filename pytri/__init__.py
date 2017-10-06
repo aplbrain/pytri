@@ -122,4 +122,11 @@ class Visualizer:
         return self
 
     def _to_html(self) -> str:
-        pass
+        html_str = """
+	    <html>
+	    <body>
+		<div id="viz">Hello, world!</div>
+	    </body>
+	    </html>
+        """
+        return html_str
