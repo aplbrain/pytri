@@ -81,15 +81,15 @@ class Visualizer:
         self.renderLayers[name] = layer
         return layer
 
-    def show(self) -> VisualizerType:
+    def remove_layer(self, name: str) -> Layer:
         """
-        Render the Visualizer element in the Jupyter notebook.
+        Remove a layer to the scene.
 
         Arguments:
-            None
+            name (str: None): name of layer
 
         Returns:
-            Visualizer: self
+            Layer: A pointer to the removed substrate layer
 
         """
         pass
@@ -105,4 +105,20 @@ class Visualizer:
             Visualizer: self
 
         """
+        pass
+
+    def show(self) -> VisualizerType:
+        """
+        Render the Visualizer element in the Jupyter notebook.
+
+        Arguments:
+            None
+
+        Returns:
+            Visualizer: self
+
+        """
+        pass
+
+    def _to_html(self) -> str:
         pass
