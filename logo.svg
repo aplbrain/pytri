@@ -1,4 +1,4 @@
- <?xml version="1.0" standalone="no"?>
+<?xml version="1.0" standalone="yes" ?>
 <svg width="400" height="250" version="1.1" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <filter id="f2" x="0" y="0" width="100%" height="100%">
@@ -23,5 +23,5 @@
             <polygon points="27 28.5 20 30 60 40 120 20 114 18.5 60.5 36" stroke="transparent" fill="blue" opacity=0.9 />
             <polygon points="20 30 26 31.2 86 11 80 10" stroke="transparent" fill="blue" opacity=0.9 />
         </g>
-</g>
+    </g>
 </svg>
