@@ -129,4 +129,4 @@ var Layer = function () {
     return Layer;
 }();
 
-exports.default = Layer;
+// exports.default = Layer;

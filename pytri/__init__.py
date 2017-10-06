@@ -127,11 +127,79 @@ class Visualizer:
 	    <html>
 	    <body>
 		<div id="render-target"></div>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
-                <script src="./js/TrackballControls.js"></script>
-                <script src="./js/Layer.js"></script>
-                <script src="./js/Visualizer.js"></script>
-                <script src="./js/bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+        <script src="./js/TrackballControls.js"></script>
+        <script src="./js/bundle.js"></script>
+        <script>
+            class Axes extends Layer {
+                requestInit(scene) {
+                    scene.add(new window.THREE.AxisHelper(5));
+                }
+            }
+
+            class GraphLayer extends Layer {
+
+                constructor(props) {
+                    super(props);
+                    this.getData = props.getData;  // get data = function that returns dict with nodes and edges
+                }
+
+                requestInit(scene) {
+                    let self = this;
+                    self.needsUpdate = true;
+
+                    let data = self.getData();
+                    self.children = [];
+
+                    var nodesGeometry = new THREE.Geometry();
+                    // var nodesGeometry = new THREE.Geometry();
+                    var nodeGeometry = new THREE.SphereGeometry(0.5, 8, 8);
+                    for (var n in data.nodes) {
+                        var sphere = new THREE.Mesh(
+                            nodeGeometry,
+                            new THREE.MeshBasicMaterial({
+                                color: 0xff0022,
+                                transparent: true,
+                                opacity: 1
+                            })
+                        );
+                        sphere._id = n;
+                        sphere.position.set(
+                            data.nodes[n].x, data.nodes[n].y, data.nodes[n].z);
+                        self.children.push(sphere);
+                        scene.add(sphere);
+                    }
+
+                    for (var i = 0; i < data.edges.length; i++) {
+                        var edgeGeometry = new THREE.Geometry();
+                        var edgeMaterial = new THREE.LineBasicMaterial({
+                            color: 0xbabe00 * data.edges[i].weight,
+                            transparent: true,
+                            opacity: data.edges[i].weight,
+                            linewidth: data.edges[i].weight,
+                        });
+                        edgeGeometry.vertices.push(
+                            new THREE.Vector3(...data.edges[i].start),
+                            new THREE.Vector3(...data.edges[i].end)
+                        );
+
+                        var line = new THREE.Line(edgeGeometry, edgeMaterial);
+                        line._weight = data.edges[i].weight / data.max_weight;
+                        self.children.push(line);
+                        scene.add(line);
+                    }
+                }
+            }
+
+            V.addLayer('axes', new Axes())
+            V.addLayer('graph', new GraphLayer({
+                getData: () => {
+                    return """ + self.renderLayers['graph'].export_data() + """
+                }
+            }));
+
+            V.resize(undefined, 300)
+                </script>
             </body>
 	    </html>
         """
