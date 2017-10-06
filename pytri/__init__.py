@@ -126,8 +126,13 @@ class Visualizer:
         html_str = """
 	    <html>
 	    <body>
-		<div id="viz">Hello, world!</div>
-	    </body>
+		<div id="render-target"></div>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+                <script src="./js/TrackballControls.js"></script>
+                <script src="./js/Layer.js"></script>
+                <script src="./js/Visualizer.js"></script>
+                <script src="./js/bundle.js"></script>
+            </body>
 	    </html>
         """
         return html_str
