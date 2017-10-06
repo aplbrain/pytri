@@ -118,7 +118,8 @@ class Visualizer:
             Visualizer: self
 
         """
-        pass
+        display(HTML(self._to_html()))
+        return self
 
     def _to_html(self) -> str:
         pass
