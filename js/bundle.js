@@ -217,6 +217,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /*
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Copyright 2016 The Johns Hopkins University Applied Physics Laboratory
+<<<<<<< HEAD
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Licensed under the Apache License, Version 2.0 (the "License");
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      you may not use this file except in compliance with the License.
@@ -224,6 +225,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          http://www.apache.org/licenses/LICENSE-2.0
 
+=======
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     You may obtain a copy of the License at
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         http://www.apache.org/licenses/LICENSE-2.0
+
+>>>>>>> 2a0d00c011f4b92bc9e0a532abf24269efde6384
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Unless required by applicable law or agreed to in writing, software
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      distributed under the License is distributed on an "AS IS" BASIS,
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -504,6 +514,10 @@ class SphereLayer extends __WEBPACK_IMPORTED_MODULE_1_apl_substrate_components_L
         /*
         This function must be implemented in any layer that will be removed.
         */
+<<<<<<< HEAD
+=======
+        console.log(this.s)
+>>>>>>> 2a0d00c011f4b92bc9e0a532abf24269efde6384
         scene.remove(this.s);
     }
 }
@@ -511,11 +525,18 @@ class SphereLayer extends __WEBPACK_IMPORTED_MODULE_1_apl_substrate_components_L
 
 let V = new __WEBPACK_IMPORTED_MODULE_0_apl_substrate_components_Visualizer___default.a({
     renderLayers: {
+<<<<<<< HEAD
         // axis: new Axes(),           // This layer doesn't go anywhere`
         // light: new Lighting(),      // This layer doesn't go anywhere
         // sphere: new SphereLayer(),  // This layer can be deleted and re-added
     },
     backgroundColor: new THREE.Color(0xffffff),
+=======
+        axis: new Axes(),           // This layer doesn't go anywhere`
+        light: new Lighting(),      // This layer doesn't go anywhere
+        sphere: new SphereLayer(),  // This layer can be deleted and re-added
+    },
+>>>>>>> 2a0d00c011f4b92bc9e0a532abf24269efde6384
     targetElement: "render-target"
 });
 
@@ -1542,4 +1563,8 @@ THREE.MorphBlendMesh.prototype.update=function(a){for(var b=0,c=this.animationsL
 
 
 /***/ })
+<<<<<<< HEAD
 /******/ ]);
+=======
+/******/ ]);
+>>>>>>> 2a0d00c011f4b92bc9e0a532abf24269efde6384
