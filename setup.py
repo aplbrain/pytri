@@ -3,6 +3,7 @@ from setuptools.command.sdist import sdist
 from setuptools.command.build_py import build_py
 from setuptools.command.egg_info import egg_info
 from subprocess import check_call
+from distutils import log
 from codecs import open
 from os import path
 from pytri import __version__
@@ -11,7 +12,14 @@ import sys
 import platform
 
 
-here = path.abspath(path.dirname(__file__))
+here = path.dirname(path.abspath(__file__))
+node_root = path.join(here, 'js')
+is_repo = path.exists(path.join(here, '.git'))
+
+npm_path = os.pathsep.join([
+    path.join(node_root, 'node_modules', '.bin'),
+                os.environ.get('PATH', os.defpath),
+])
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:

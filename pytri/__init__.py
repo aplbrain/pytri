@@ -21,6 +21,14 @@ from typing import abstractmethod, TypeVar
 __version__ = "0.0.1"
 
 
+def _jupyter_nbextension_paths():
+    return [{
+        'section': 'notebook',
+        'src': 'static',
+        'dest': 'pytri',
+        'require': 'pytri/static'
+    }]
+
 class Layer:
     """
     The base (abstract) class for a Pytri/Substrate Layer.
