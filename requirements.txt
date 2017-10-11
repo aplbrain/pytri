@@ -3,3 +3,4 @@ typing
 nose
 coverage
 nose-progressive
+ipywidgets>=7.0.0
