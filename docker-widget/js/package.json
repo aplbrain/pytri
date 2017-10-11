@@ -19,8 +19,9 @@
     "dist/*.js"
   ],
   "scripts": {
-    "clean": "rimraf dist/",
+    "clean": "rimraf dist && rimraf ../pytri/static",
     "prepublish": "webpack",
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {

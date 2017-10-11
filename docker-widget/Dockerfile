@@ -15,7 +15,9 @@ RUN npm install -g n
 RUN n latest
 
 RUN pip3 install --upgrade pip && \
-    pip3 install jupyter
-    # python3 ./setup.py install
+    pip3 install jupyter && \
+    pip3 install -e . && \
+    jupyter nbextension install --py --symlink --sys-prefix pytri && \
+    jupyter nbextension enable --py --sys-prefix pytri
 
 CMD bash
