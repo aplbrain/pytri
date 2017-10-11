@@ -1,12 +1,12 @@
 {
   "name": "pytri",
   "version": "0.0.1",
-  "description": "A python wrapper for substrate",
-  "author": "Joseph Downs",
+  "description": "A python wrapper for substrate.",
+  "author": "Jordan Matelsky",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com//pytri.git"
+    "url": "https://github.com/j6k4m8/pytri.git"
   },
   "keywords": [
     "jupyter",
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@jupyter-widgets/base": "^1.0.0",
+    "apl-substrate":"^1.0.0",
     "lodash": "^4.17.4"
   }
 }
