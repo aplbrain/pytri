@@ -1,93 +1,65 @@
 #!/usr/bin/env python3
 
-"""
-Copyright 2017 The Johns Hopkins University Applied Physics Laboratory.
+from IPython.display import Javascript, HTML, display
+import requests
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
-
-from typing import abstractmethod, TypeVar
 
 __version__ = "0.0.1"
 
 
-class Layer:
-    """
-    The base (abstract) class for a Pytri/Substrate Layer.
+class pytri:
 
-    Must be implemented; this doesn't do anything.
-    """
+	def __init__(self):
+		scripts = [
+		    "https://threejs.org/examples/js/controls/TrackballControls.js",
+		]
 
-    @abstractmethod
-    def export_data(self, **kwargs) -> dict:
-        """
-        Export the data to a JSON-like dict to be inlined in JavaScript.
+		threesrc = requests.get("https://threejs.org/build/three.js").text.split('\n')
+		threesrc = threesrc[6:-2]
 
-        Arguments:
-            Any
+		js = "exports = window.THREE || {}; " + "\n".join(threesrc) + "window.THREE = exports;"
 
-        Returns:
-            dict: The data that a layer will require in JS.
+		for script in scripts:
+		    js += requests.get(script).text.strip()
 
-        """
-        pass
+		with open("./substrate.min.js", 'r') as fh:
+		    js += ";\n\n" + fh.read().strip()
+
+		self.js = js
+
+	def show(self):
+		display(HTML("<script>{}</script>".format(self.js) + """
+			<div id="target"></div>
+			<script>
+			
+			V = new Visualizer({
+				targetElement: "target",
+			    backgroundColor: new window.THREE.Color(0xffffff),
+				renderLayers: {
+					// None yet!
+				}
+			});
+
+			V.triggerRender();
+			V.resize(undefined, 400)
+			</script>
+		"""))
+
+	def remove_layer(self, name):
+		display(Javascript("""
+			V.removeLayer('{}')
+		""".format(name)))
+
+	def axes(self):
+		display(Javascript("""
+			class AxisLayer extends Layer {
+				requestRender(scene) {
+			        let axes = new window.THREE.AxisHelper(5);
+			        this.children.push(axes)
+					scene.add(axes)
+				}
+			}
+			V.addLayer('axes', new AxisLayer())
+		"""))
 
 
-VisualizerType = TypeVar('VisualizerType', bound='Visualizer')
-class Visualizer:
-    """
-    Base class for a Pytri Visualizer to interface with Substrate.
-
-    This closely, but not identically, mirrors the substrate.js Visualizer.
-    """
-
-    def add_layer(self, layer: Layer, name: str = None) -> Layer:
-        """
-        Add a layer to the scene.
-
-        Arguments:
-            layer (substrate.Layer): layer to add
-            name (str: None): optional name. If not provided, a name will be
-                generated randomly.
-
-        Returns:
-            Layer: A pointer to the inserted substrate layer
-
-        """
-        pass
-
-    def show(self) -> VisualizerType:
-        """
-        Render the Visualizer element in the Jupyter notebook.
-
-        Arguments:
-            None
-
-        Returns:
-            Visualizer: self
-
-        """
-        pass
-
-    def save(self, filename: str) -> VisualizerType:
-        """
-        Render the current scene down to disk.
-
-        Arguments:
-            filename (str): The file to save
-
-        Returns:
-            Visualizer: self
-
-        """
-        pass
