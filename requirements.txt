@@ -3,3 +3,5 @@ typing
 nose
 coverage
 nose-progressive
+IPython
+requests
