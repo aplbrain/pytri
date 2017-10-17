@@ -30,7 +30,7 @@ dependency_links = [
 setup(
     name='pytri',
     version=__version__,
-    description='mo pytri mo fun',
+    description='Visualize using substrate. For Jupyter notebooks.',
     long_description=long_description,
     # download_url='https://github.com/j6k4m8/jque/tarball/' + __version__,
     license='Apache 2.0',

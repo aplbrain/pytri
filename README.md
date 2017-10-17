@@ -21,16 +21,11 @@ pip3 install -r requirements.txt
 ## Usage
 
 ```python
-from pytri import Visualizer, GraphLayer
+from pytri import pytri
 
-V = Visualizer()
+p = pytri()
 
-V.add_layer(
-    GraphLayer(data={
-        "nodes": [{}, {}, {}],
-        "edges": [[0, 1], [1, 2], [2, 0]]
-    })
-)
-
-V.show()
+p.axes()
+p.scatter([[1, 2, 3], [4, 5, 6]])
+p.show()
 ```
