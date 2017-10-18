@@ -69,6 +69,7 @@ class pytri:
         """))
 
     def scatter(self, data, r=0.15, c=0x00babe):
+        d = data.tolist()
         _js = ("""
         class ScatterLayer extends Layer {
             constructor(opts) {
@@ -112,7 +113,7 @@ class pytri:
             colors: {}
         }}))
         """.format(
-            json.dumps(data),
+            json.dumps(d),
             r,
             c
         ))
@@ -122,8 +123,6 @@ class pytri:
     def graph(self, data, r=0.15, c=0xbabe00):
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-
-        print(data)
         _js = ("""
         class GraphLayer extends Layer {
             constructor(opts) {
