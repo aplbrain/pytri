@@ -122,7 +122,6 @@ class pytri:
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
 
-        print(data)
         _js = ("""
         class GraphLayer extends Layer {
             constructor(opts) {
