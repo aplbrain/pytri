@@ -8,6 +8,7 @@ import json
 import networkx as nx
 from networkx.readwrite import json_graph
 
+print("blah")
 
 __version__ = "0.0.1"
 
@@ -37,23 +38,22 @@ class pytri:
         display(HTML("<script>{}</script>".format(self.js) + 
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
             <script>
-            
-            V = new Visualizer({
-                targetElement: "pytri-target-"""+self.uid + """",
+            V = {}
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
                 backgroundColor: new window.THREE.Color(0xffffff),
                 renderLayers: {
                     // None yet!
                 }
             });
-
-            V.triggerRender();
-            V.resize(undefined, 400)
+            V['"""+self.uid+"""'].triggerRender();
+            V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
         """))
 
     def remove_layer(self, name):
         display(Javascript("""
-            V.removeLayer('{}')
+            V['"""+self.uid+"""'].removeLayer('{}')
         """.format(name)))
 
     def axes(self):
@@ -65,7 +65,7 @@ class pytri:
                     scene.add(axes)
                 }
             }
-            V.addLayer('axes', new AxisLayer())
+            V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
         """))
 
     def scatter(self, data, r=0.15, c=0x00babe):
@@ -106,7 +106,7 @@ class pytri:
             }
         }
         """ + """
-        V.addLayer('scatter', new ScatterLayer({{
+        V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
             colors: {}
@@ -117,6 +117,7 @@ class pytri:
             c
         ))
         display(Javascript(_js))
+
 
     def graph(self, data, r=0.15, c=0xbabe00):
         if isinstance(data, nx.Graph):
@@ -177,7 +178,7 @@ class pytri:
             }
         }
         """ + """
-        V.addLayer('graph', new GraphLayer({{
+        V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
             data: {},
             radius: {},
             colors: {}
