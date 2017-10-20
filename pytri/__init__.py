@@ -4,14 +4,19 @@ from IPython.display import Javascript, HTML, display
 import requests
 import uuid
 import json
+import dicom
+import os
+import gzip
+import matplotlib.pyplot as plt
+
+import numpy as np
 
 import networkx as nx
 from networkx.readwrite import json_graph
 
-print("blah")
+print("welp")
 
 __version__ = "0.0.1"
-
 
 class pytri:
 
@@ -30,18 +35,24 @@ class pytri:
 
         with open("./substrate.min.js", 'r') as fh:
             js += ";\n\n" + fh.read().strip()
+        
+        js2 = ""
+        with open("./StableGPUParticleSystem.js", 'r') as fh:
+            js2 += ";\n\n" + fh.read().strip()
 
         self.js = js
+        self.gpups = js2
         self.uid = str(uuid.uuid4())
 
     def show(self):
         display(HTML("<script>{}</script>".format(self.js) + 
+            "<script>{}</script>".format(self.gpups) +
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
             <script>
             V = {}
             V['"""+self.uid+"""'] = new Visualizer({
                 targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0xffffff),
+                backgroundColor: new window.THREE.Color(0x000000),
                 renderLayers: {
                     // None yet!
                 }
@@ -188,5 +199,117 @@ class pytri:
             c
         ))
         display(Javascript(_js))
+    
+    def dicom(self, d_path, r = 0.05, cm=0xffffff):
+        # TODO: handle compressed files, entire folders.
+        # if df_path.endswith(".dcm") == False:
+        #     raise TypeError('Invalid file path')
+        fnames = []
+        for dirName, subdirList, fileList in os.walk(d_path):
+            for filename in fileList:
+                if filename.endswith(".dcm"):
+                    fnames.append(os.path.join(dirName, filename))
+
+        ref_file = dicom.read_file(fnames[0])  # if this were a directory, would also have to get z axis info
+        pixel_dims = (int(ref_file.Rows), int(ref_file.Columns), len(fnames))
+        pixel_spacing = (float(ref_file.PixelSpacing[0]), float(ref_file.PixelSpacing[1]), float(ref_file.SliceThickness))
+
+        dicom_to_numpy = np.zeros(pixel_dims, dtype=ref_file.pixel_array.dtype)
+
+        for fname in fnames:
+            ds = dicom.read_file(fname)
+            dicom_to_numpy[:, :, fnames.index(fname)] = ds.pixel_array
+        dicom_to_list = dicom_to_numpy.tolist()
+        print(np.shape(dicom_to_numpy))
+        _js = ("""
+        class DICOMLayer extends Layer {
+            constructor(opts) {
+                super(opts);
+                this.data = opts.data;
+                this.shape = opts.shape;
+                console.log(this.data)
+                this.colormap = opts.colormap || (_ => 0xffffff);
+            }
+
+            reload(data) {
+                this.scene.remove(this.pSys);
+                this.requestInit(this.scene);
+            }
+
+            rescale(pt) {
+                return [
+                    pt[0] * 2,
+                    pt[1] * 2,
+                    pt[2] * 2
+                ];
+                // let rescaler : number = 10;
+                // return pt * rescaler;
+            }
+
+            getAt(i, j, k) {
+                return this.data[
+                    i + this.shape[0] * (j + this.shape[1] * k)
+                ]
+            }
+
+            requestInit(scene) {
+                let self = this;
+                this.scene = scene;
+                let data = this.data;
+                let shape = this.shape;
+                //self.data = data;
+                console.log(self.data)
+                //self.shape = shape.reverse();
+                console.log(self.shape)
+
+
+                let particleSystem = new window.THREE.GPUParticleSystem({
+                    maxParticles: self.shape[0] * self.shape[1] * self.shape[2]
+                });
+
+                this.pSys = particleSystem;
+                scene.add(particleSystem);
+
+                for (var i = 0; i < self.shape[0]; i++) {
+                    for (var j = 0; j < self.shape[1]; j++) {
+                        for (var k = 0; k < self.shape[2]; k++) {
+                            let vec = new window.THREE.Vector3(
+                                ...self.rescale(
+                                    [(i - self.shape[0]/2),
+                                    (j - self.shape[1]/2),
+                                    (k - self.shape[2]/2)]
+                                )
+                            );
+                            let val = self.getAt(i, j, k);
+                            if (val > 60) {
+                                particleSystem.spawnParticle({
+                                    position: vec,
+                                    color: self.colormap(val / 10),
+                                    colorRandomness: 0,
+                                    size: val / 20,
+                                });
+                            }
+                        }
+                    }
+                };
+                particleSystem.scale.set(1.1, 1.1, 1.1);
+            }
+        }
+        """ + """
+        V['"""+self.uid+"""'].addLayer('dicom', new DICOMLayer({{
+            data: {},
+            shape: {},
+            radius: {},
+            colormap: {}
+        }}))
+        """.format(
+            json.dumps(dicom_to_list),
+            np.shape(dicom_to_numpy),
+            r,
+            cm
+        ))
+        display(Javascript(_js))
+
+    
 
 
