@@ -44,7 +44,7 @@ class pytri:
         self.gpups = js2
         self.uid = str(uuid.uuid4())
 
-    def show(self):
+    def show(self, background=0xffffff):
         display(HTML("<script>{}</script>".format(self.js) + 
             "<script>{}</script>".format(self.gpups) +
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
@@ -52,7 +52,7 @@ class pytri:
             V = {}
             V['"""+self.uid+"""'] = new Visualizer({
                 targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0x000000),
+                backgroundColor: new window.THREE.Color({}),""".format(background)+"""
                 renderLayers: {
                     // None yet!
                 }
