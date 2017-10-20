@@ -221,6 +221,7 @@ class pytri:
             dicom_to_numpy[:, :, fnames.index(fname)] = ds.pixel_array
         dicom_to_list = dicom_to_numpy.tolist()
         print(np.shape(dicom_to_numpy))
+        sample = [[[-1, 0, 1], [1, 0, -1]], [[-4, -1, -2], [4, 2, 5]]]
         _js = ("""
         class DICOMLayer extends Layer {
             constructor(opts) {
@@ -303,8 +304,8 @@ class pytri:
             colormap: {}
         }}))
         """.format(
-            json.dumps(dicom_to_list),
-            np.shape(dicom_to_numpy),
+            json.dumps(sample),
+            (3, 2, 2),
             r,
             cm
         ))

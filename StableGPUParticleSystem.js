@@ -303,7 +303,7 @@ THREE.GPUParticleContainer = function( maxParticles, particleSystem ) {
 
 	// material
 
-	this.particleShaderMat = this.GPUParticleSystem.particleShaderMat;
+	this.particleShaderMat = new THREE.PointsMaterial( { color: 0x000000} ) //= this.GPUParticleSystem.particleShaderMat;
 
 	var position = new THREE.Vector3();
 	var velocity = new THREE.Vector3();
