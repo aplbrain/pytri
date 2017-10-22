@@ -2,8 +2,10 @@
  * GPU Particle System
  * @author flimshaw - Charlie Hoey - http://charliehoey.com
  * @author j6m8 - Jordan Matelsky - http://jordan.matelsky.com
+ * @author hpcowley - Hannah Cowley
  *
  * Modification by j6m8: Stable color and position, for data-sensitive tasks.
+ * Modification by hpcowley: Removal of features unnecessary for pytri
  *
  * A simple to use, general purpose GPU system. Particles are spawn-and-forget with
  * several options available, and do not require monitoring or cleanup after spawning.
@@ -303,7 +305,7 @@ THREE.GPUParticleContainer = function( maxParticles, particleSystem ) {
 
 	// material
 
-	this.particleShaderMat = new THREE.PointsMaterial( { color: 0x000000} ) //= this.GPUParticleSystem.particleShaderMat;
+	this.particleShaderMat = new THREE.PointsMaterial( { color: 0x00babe} ) //= this.GPUParticleSystem.particleShaderMat;
 
 	var position = new THREE.Vector3();
 	var velocity = new THREE.Vector3();

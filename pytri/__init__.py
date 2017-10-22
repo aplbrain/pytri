@@ -14,7 +14,7 @@ import numpy as np
 import networkx as nx
 from networkx.readwrite import json_graph
 
-print("welp")
+print("iigiowahio")
 
 __version__ = "0.0.1"
 
@@ -221,14 +221,13 @@ class pytri:
             dicom_to_numpy[:, :, fnames.index(fname)] = ds.pixel_array
         dicom_to_list = dicom_to_numpy.tolist()
         print(np.shape(dicom_to_numpy))
-        sample = [[[-1, 0, 1], [1, 0, -1]], [[-4, -1, -2], [4, 2, 5]]]
+        sample = [[[1, 0, 1], [0, 1, 0]], [[1, 0, 0], [0, 1, 5]]]
         _js = ("""
         class DICOMLayer extends Layer {
             constructor(opts) {
                 super(opts);
                 this.data = opts.data;
                 this.shape = opts.shape;
-                console.log(this.data)
                 this.colormap = opts.colormap || (_ => 0xffffff);
             }
 
@@ -249,7 +248,7 @@ class pytri:
 
             getAt(i, j, k) {
                 return this.data[
-                    i + this.shape[0] * (j + this.shape[1] * k)
+                    k + this.shape[0] * (j + this.shape[1] * i)
                 ]
             }
 
@@ -258,10 +257,6 @@ class pytri:
                 this.scene = scene;
                 let data = this.data;
                 let shape = this.shape;
-                //self.data = data;
-                console.log(self.data)
-                //self.shape = shape.reverse();
-                console.log(self.shape)
 
 
                 let particleSystem = new window.THREE.GPUParticleSystem({
@@ -271,25 +266,25 @@ class pytri:
                 this.pSys = particleSystem;
                 scene.add(particleSystem);
 
-                for (var i = 0; i < self.shape[0]; i++) {
+                for (var i = 0; i < self.shape[2]; i++) {
                     for (var j = 0; j < self.shape[1]; j++) {
-                        for (var k = 0; k < self.shape[2]; k++) {
-                            let vec = new window.THREE.Vector3(
-                                ...self.rescale(
-                                    [(i - self.shape[0]/2),
+                        for (var k = 0; k < self.shape[0]; k++) {
+                            let pos = self.rescale([(i - self.shape[2]/2),
                                     (j - self.shape[1]/2),
-                                    (k - self.shape[2]/2)]
-                                )
-                            );
-                            let val = self.getAt(i, j, k);
-                            if (val > 60) {
+                                    (k - self.shape[0]/2)]);
+                            console.log(pos);
+                            let vec = new window.THREE.Vector3(pos[2], pos[1], pos[0]);
+                            console.log(vec)
+                            let val = self.data[i][j][k];
+                            //console.log(val)
+                            //if (val > 60) {
                                 particleSystem.spawnParticle({
                                     position: vec,
-                                    color: self.colormap(val / 10),
+                                    color: self.colormap, //self.colormap(val / 10),
                                     colorRandomness: 0,
                                     size: val / 20,
                                 });
-                            }
+                            //}
                         }
                     }
                 };
@@ -304,8 +299,8 @@ class pytri:
             colormap: {}
         }}))
         """.format(
-            json.dumps(sample),
-            (3, 2, 2),
+            json.dumps(dicom_to_list),
+            list(np.shape(dicom_to_numpy)),
             r,
             cm
         ))
