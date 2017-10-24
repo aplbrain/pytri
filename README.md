@@ -5,7 +5,7 @@
 
 <p align="center">
     <span>A python wrapper for <a href="https://github.com/jhuapl-boss/substrate">substrate</a>.</span><br />
-    <a href="https://circleci.com/gh/j6k4m8/pytri"><img alt="CircleCI" src="https://circleci.com/gh/j6k4m8/pytri.svg?style=svg" /></a>
+    <a href="https://circleci.com/gh/iscoe/pytri"><img alt="CircleCI" src="https://circleci.com/gh/iscoe/pytri.svg?style=svg" /></a>
 </p>
 
 ## Installation and Configuration
