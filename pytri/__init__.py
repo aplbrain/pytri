@@ -8,7 +8,6 @@ import json
 import networkx as nx
 from networkx.readwrite import json_graph
 
-print("blah")
 
 __version__ = "0.0.1"
 
