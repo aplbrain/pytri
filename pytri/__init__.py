@@ -1,10 +1,25 @@
 #!/usr/bin/env python3
+"""
+Copyright 2017 The Johns Hopkins University Applied Physics Laboratory.
 
-from IPython.display import Javascript, HTML, display
-import requests
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
 import uuid
 import json
 
+import requests
+from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
 
@@ -13,8 +28,20 @@ __version__ = "0.0.1"
 
 
 class pytri:
+    """
+    The global class for Pytri visualization.
+
+    .
+    """
 
     def __init__(self):
+        """
+        Create a new visualizer frame.
+
+        Arguments:
+            None
+
+        """
         scripts = [
             "https://threejs.org/examples/js/controls/TrackballControls.js",
         ]
@@ -34,29 +61,56 @@ class pytri:
         self.uid = str(uuid.uuid4())
 
     def show(self):
-        display(HTML("<script>{}</script>".format(self.js) + 
+        """
+        Render the frame to the Jupyter notebook.
+
+        Arguments:
+            None
+
+        """
+        display(HTML(
+            "<script>{}</script>".format(self.js) +
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
             <script>
-            
-            V = new Visualizer({
-                targetElement: "pytri-target-"""+self.uid + """",
+            V = {}
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
                 backgroundColor: new window.THREE.Color(0xffffff),
                 renderLayers: {
                     // None yet!
                 }
             });
-
-            V.triggerRender();
-            V.resize(undefined, 400)
+            V['"""+self.uid+"""'].triggerRender();
+            V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
         """))
 
     def remove_layer(self, name):
+        """
+        Remove a layer by name.
+
+        Arguments:
+            name (str)
+
+        Returns:
+            None
+
+        """
         display(Javascript("""
-            V.removeLayer('{}')
+            V['"""+self.uid+"""'].removeLayer('{}')
         """.format(name)))
 
     def axes(self):
+        """
+        Add axes to the visualization.
+
+        Arguments:
+            None
+
+        Returns:
+            None
+
+        """
         display(Javascript("""
             class AxisLayer extends Layer {
                 requestInit(scene) {
@@ -65,10 +119,23 @@ class pytri:
                     scene.add(axes)
                 }
             }
-            V.addLayer('axes', new AxisLayer())
+            V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
         """))
 
     def scatter(self, data, r=0.15, c=0x00babe):
+        """
+        Add a 3D scatter to the scene.
+
+        Arguments:
+            data (np.ndarray)
+            r (float | list)
+            c (hex | list)
+
+        Returns:
+            None
+
+        """
+        d = data.tolist()
         _js = ("""
         class ScatterLayer extends Layer {
             constructor(opts) {
@@ -101,27 +168,39 @@ class pytri:
                     sph.position.set(...this.data[i]);
                     this.children.push(sph)
                     scene.add(sph)
-                    
+
                 }
             }
         }
         """ + """
-        V.addLayer('scatter', new ScatterLayer({{
+        V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
             colors: {}
         }}))
         """.format(
-            json.dumps(data),
+            json.dumps(d),
             r,
             c
         ))
         display(Javascript(_js))
 
+
     def graph(self, data, r=0.15, c=0xbabe00):
+        """
+        Add a graph to the visualizer.
+
+        Arguments:
+            data (networkx.graph)
+            r (float | list)
+            c (float | list)
+
+        Returns:
+            None
+
+        """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-
         _js = ("""
         class GraphLayer extends Layer {
             constructor(opts) {
@@ -176,7 +255,7 @@ class pytri:
             }
         }
         """ + """
-        V.addLayer('graph', new GraphLayer({{
+        V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
             data: {},
             radius: {},
             colors: {}
@@ -187,5 +266,3 @@ class pytri:
             c
         ))
         display(Javascript(_js))
-
-
