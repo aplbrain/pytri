@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Copyright 2017 The Johns Hopkins University Applied Physics Laboratory.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -200,7 +199,7 @@ class pytri:
             json.dumps(d),
             r,
             c
-        ))
+        )
         display(Javascript(_js))
 
 
