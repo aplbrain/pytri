@@ -224,6 +224,11 @@ class pytri:
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
+        
+        if type(next(iter(data['nodes']))['pos']) is dict:
+            dict_pos = 1
+        elif type(next(iter(data['nodes']))['pos']) is tuple:
+            dict_pos = 0
         _js = ("""
         class GraphLayer extends Layer {
             constructor(opts) {
@@ -238,6 +243,13 @@ class pytri:
                     this.c_array = true;
                 }
                 this.setData(opts.data);
+                this.attr_dict = false;
+                this.attr_tup = false;
+                if (opts.dict_pos) {
+                    this.attr_dict = true;
+                } else if (!opts.dict_pos) {
+                    this.attr_tup = true;
+                }
             }
 
             setData(data) {
@@ -247,22 +259,25 @@ class pytri:
 
             requestInit(scene) {
                 for (let i = 0; i < this.data.nodes.length; i++) {
-                    console.log(this.data.nodes[i])
                     let sph = new window.THREE.Mesh(
                         new window.THREE.SphereGeometry(this.radius, 6, 6),
                         new window.THREE.MeshBasicMaterial({
                             color: this.c_array ? this.colors[i] : this.colors
                         })
                         );
-                    let n = this.data.nodes[i].pos
-                    sph.position.set(n.x, n.y, n.z);
+                    if (this.attr_dict) {
+                        let n = this.data.nodes[i].pos
+                        sph.position.set(n.x, n.y, n.z);
+                    } else if (this.attr_tup) {
+                        console.log(this.data.nodes[i])
+                        sph.position.set(...this.data.nodes[i].pos)
+                    }
+                    
                     this.children.push(sph)
                     scene.add(sph)
                 }
 
                 for (var i = 0; i < this.data.links.length; i++) {
-                    console.log(this.data.links[i].source)
-                    console.log(this.data.links[i].target)
                     var edgeGeometry = new window.THREE.Geometry();
                     var edgeMaterial = new window.THREE.LineBasicMaterial({
                         color: 0xbabe00 * (this.data.links[i].weight || 1),
@@ -270,13 +285,21 @@ class pytri:
                         opacity: this.data.links[i].weight || 1,
                         linewidth: this.data.links[i].weight || 1,
                     });
-                    let sn = this.data.nodes[this.data.links[i].source].pos
-                    let tn = this.data.nodes[this.data.links[i].target].pos
-                    edgeGeometry.vertices.push(
-                        new window.THREE.Vector3(sn.x, sn.y, sn.z),
-                        new window.THREE.Vector3(tn.x, tn.y, tn.z)
+                    if (this.attr_dict) {
+                        let sn = this.data.nodes[this.data.links[i].source].pos
+                        let tn = this.data.nodes[this.data.links[i].target].pos
+                        edgeGeometry.vertices.push(
+                            new window.THREE.Vector3(sn.x, sn.y, sn.z),
+                            new window.THREE.Vector3(tn.x, tn.y, tn.z)
                         );
-
+                    } else if (this.attr_tup) {
+                        console.log(this.data.nodes[this.data.links[i].source].pos)
+                        console.log(this.data.nodes[this.data.links[i].target].pos)
+                        edgeGeometry.vertices.push(
+                            new window.THREE.Vector3(...this.data.nodes[this.data.links[i].source].pos),
+                            new window.THREE.Vector3(...this.data.nodes[this.data.links[i].target].pos)
+                        );
+                    }
                     var line = new window.THREE.Line(edgeGeometry, edgeMaterial);
                     this.children.push(line);
                     scene.add(line);
@@ -297,11 +320,13 @@ class pytri:
         V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
             data: {},
             radius: {},
-            colors: {}
+            colors: {},
+            dict_pos: {}
         }}))
         """.format(
             json.dumps(data),
             r,
-            c
+            c,
+            dict_pos
         ))
         display(Javascript(_js))
