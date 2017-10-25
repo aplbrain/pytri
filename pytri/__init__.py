@@ -72,14 +72,16 @@ class pytri:
             "<script>{}</script>".format(self.js) +
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
             <script>
-            V = {}
-            V['"""+self.uid+"""'] = new Visualizer({
-                targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0xffffff),
-                renderLayers: {
-                    // None yet!
-                }
-            });
+            V = V || {}
+            if (typeof V['"""+self.uid+"""'] === "undefined") {
+                V['"""+self.uid+"""'] = new Visualizer({
+                    targetElement: "pytri-target-"""+self.uid+"""",
+                    backgroundColor: new window.THREE.Color(0xffffff),
+                    renderLayers: {
+                        // None yet!
+                    }
+                });
+            }
             V['"""+self.uid+"""'].triggerRender();
             V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
@@ -119,6 +121,16 @@ class pytri:
                     scene.add(axes)
                 }
             }
+            if (typeof V['"""+self.uid+"""'] === 'undefined') {
+                V = V || {};
+                V['"""+self.uid+"""'] = new Visualizer({
+                    targetElement: "pytri-target-"""+self.uid+"""",
+                    backgroundColor: new window.THREE.Color(0xffffff),
+                    renderLayers: {
+                        // None yet!
+                    }
+                });
+            }
             V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
         """))
 
@@ -137,6 +149,7 @@ class pytri:
         """
         d = data.tolist()
         _js = ("""
+        
         class ScatterLayer extends Layer {
             constructor(opts) {
                 super(opts);
@@ -173,6 +186,16 @@ class pytri:
             }
         }
         """ + """
+        if (typeof V['"""+self.uid+"""'] === 'undefined') {
+            V = V || {};
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
+                backgroundColor: new window.THREE.Color(0xffffff),
+                renderLayers: {
+                    // None yet!
+                }
+            });
+        }
         V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
@@ -224,18 +247,22 @@ class pytri:
 
             requestInit(scene) {
                 for (let i = 0; i < this.data.nodes.length; i++) {
+                    console.log(this.data.nodes[i])
                     let sph = new window.THREE.Mesh(
                         new window.THREE.SphereGeometry(this.radius, 6, 6),
                         new window.THREE.MeshBasicMaterial({
                             color: this.c_array ? this.colors[i] : this.colors
                         })
                         );
-                    sph.position.set(...this.data.nodes[i].pos);
+                    let n = this.data.nodes[i].pos
+                    sph.position.set(n.x, n.y, n.z);
                     this.children.push(sph)
                     scene.add(sph)
                 }
 
                 for (var i = 0; i < this.data.links.length; i++) {
+                    console.log(this.data.links[i].source)
+                    console.log(this.data.links[i].target)
                     var edgeGeometry = new window.THREE.Geometry();
                     var edgeMaterial = new window.THREE.LineBasicMaterial({
                         color: 0xbabe00 * (this.data.links[i].weight || 1),
@@ -243,9 +270,11 @@ class pytri:
                         opacity: this.data.links[i].weight || 1,
                         linewidth: this.data.links[i].weight || 1,
                     });
+                    let sn = this.data.nodes[this.data.links[i].source].pos
+                    let tn = this.data.nodes[this.data.links[i].target].pos
                     edgeGeometry.vertices.push(
-                        new window.THREE.Vector3(...this.data.nodes[this.data.links[i].source].pos),
-                        new window.THREE.Vector3(...this.data.nodes[this.data.links[i].target].pos)
+                        new window.THREE.Vector3(sn.x, sn.y, sn.z),
+                        new window.THREE.Vector3(tn.x, tn.y, tn.z)
                         );
 
                     var line = new window.THREE.Line(edgeGeometry, edgeMaterial);
@@ -255,6 +284,16 @@ class pytri:
             }
         }
         """ + """
+        if (typeof V['"""+self.uid+"""'] === 'undefined') {
+            V = V || {};
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
+                backgroundColor: new window.THREE.Color(0xffffff),
+                renderLayers: {
+                    // None yet!
+                }
+            });
+        }
         V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
             data: {},
             radius: {},
