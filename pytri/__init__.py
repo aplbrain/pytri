@@ -72,14 +72,16 @@ class pytri:
             "<script>{}</script>".format(self.js) +
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
             <script>
-            V = {}
-            V['"""+self.uid+"""'] = new Visualizer({
-                targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0xffffff),
-                renderLayers: {
-                    // None yet!
-                }
-            });
+            V = V || {}
+            if (typeof V['"""+self.uid+"""'] === "undefined") {
+                V['"""+self.uid+"""'] = new Visualizer({
+                    targetElement: "pytri-target-"""+self.uid+"""",
+                    backgroundColor: new window.THREE.Color(0xffffff),
+                    renderLayers: {
+                        // None yet!
+                    }
+                });
+            }
             V['"""+self.uid+"""'].triggerRender();
             V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
@@ -119,6 +121,16 @@ class pytri:
                     scene.add(axes)
                 }
             }
+            if (typeof V['"""+self.uid+"""'] === 'undefined') {
+                V = V || {};
+                V['"""+self.uid+"""'] = new Visualizer({
+                    targetElement: "pytri-target-"""+self.uid+"""",
+                    backgroundColor: new window.THREE.Color(0xffffff),
+                    renderLayers: {
+                        // None yet!
+                    }
+                });
+            }
             V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
         """))
 
@@ -137,6 +149,7 @@ class pytri:
         """
         d = data.tolist()
         _js = ("""
+        
         class ScatterLayer extends Layer {
             constructor(opts) {
                 super(opts);
@@ -173,6 +186,16 @@ class pytri:
             }
         }
         """ + """
+        if (typeof V['"""+self.uid+"""'] === 'undefined') {
+            V = V || {};
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
+                backgroundColor: new window.THREE.Color(0xffffff),
+                renderLayers: {
+                    // None yet!
+                }
+            });
+        }
         V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
@@ -261,6 +284,16 @@ class pytri:
             }
         }
         """ + """
+        if (typeof V['"""+self.uid+"""'] === 'undefined') {
+            V = V || {};
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
+                backgroundColor: new window.THREE.Color(0xffffff),
+                renderLayers: {
+                    // None yet!
+                }
+            });
+        }
         V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
             data: {},
             radius: {},
