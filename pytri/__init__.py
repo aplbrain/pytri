@@ -61,7 +61,7 @@ class pytri:
         self.uid = str(uuid.uuid4())
 
         display(HTML(
-             "<div id='pytri-target-decoy'></div>" +
+            "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
             """
             <script>
@@ -96,7 +96,7 @@ class pytri:
             V['"""+self.uid+"""'].triggerRender();
             V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
-            """.format(self.uid)))
+            """
 
     def remove_layer(self, name):
         """
