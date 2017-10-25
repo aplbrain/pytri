@@ -11,7 +11,7 @@
 ## Installation and Configuration
 - Clone the repository.
 ```shell
-git clone https://github.com/j6k4m8/pytri.git
+git clone https://github.com/iscoe/pytri.git
 ```
 - Install all dependencies.
 ```shell
