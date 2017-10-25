@@ -224,7 +224,6 @@ class pytri:
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-        
         if type(next(iter(data['nodes']))['pos']) is dict:
             dict_pos = 1
         elif type(next(iter(data['nodes']))['pos']) is tuple:
@@ -269,7 +268,6 @@ class pytri:
                         let n = this.data.nodes[i].pos
                         sph.position.set(n.x, n.y, n.z);
                     } else if (this.attr_tup) {
-                        console.log(this.data.nodes[i])
                         sph.position.set(...this.data.nodes[i].pos)
                     }
                     
@@ -293,8 +291,6 @@ class pytri:
                             new window.THREE.Vector3(tn.x, tn.y, tn.z)
                         );
                     } else if (this.attr_tup) {
-                        console.log(this.data.nodes[this.data.links[i].source].pos)
-                        console.log(this.data.nodes[this.data.links[i].target].pos)
                         edgeGeometry.vertices.push(
                             new window.THREE.Vector3(...this.data.nodes[this.data.links[i].source].pos),
                             new window.THREE.Vector3(...this.data.nodes[this.data.links[i].target].pos)
