@@ -97,6 +97,7 @@ class pytri:
             V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
             """
+        ))
 
     def remove_layer(self, name):
         """
