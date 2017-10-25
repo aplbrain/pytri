@@ -72,7 +72,7 @@ class pytri:
             "<script>{}</script>".format(self.js) +
             "<div id='pytri-target-{}'></div>".format(self.uid) + """
             <script>
-            V = V || {}
+            window.V = window.V || {}
             if (typeof V['"""+self.uid+"""'] === "undefined") {
                 V['"""+self.uid+"""'] = new Visualizer({
                     targetElement: "pytri-target-"""+self.uid+"""",
@@ -121,8 +121,8 @@ class pytri:
                     scene.add(axes)
                 }
             }
+            window.V = window.V || {}
             if (typeof V['"""+self.uid+"""'] === 'undefined') {
-                V = V || {};
                 V['"""+self.uid+"""'] = new Visualizer({
                     targetElement: "pytri-target-"""+self.uid+"""",
                     backgroundColor: new window.THREE.Color(0xffffff),
@@ -186,8 +186,8 @@ class pytri:
             }
         }
         """ + """
+        window.V = window.V || {}
         if (typeof V['"""+self.uid+"""'] === 'undefined') {
-            V = V || {};
             V['"""+self.uid+"""'] = new Visualizer({
                 targetElement: "pytri-target-"""+self.uid+"""",
                 backgroundColor: new window.THREE.Color(0xffffff),
@@ -284,8 +284,8 @@ class pytri:
             }
         }
         """ + """
+        window.V = window.V || {}
         if (typeof V['"""+self.uid+"""'] === 'undefined') {
-            V = V || {};
             V['"""+self.uid+"""'] = new Visualizer({
                 targetElement: "pytri-target-"""+self.uid+"""",
                 backgroundColor: new window.THREE.Color(0xffffff),
