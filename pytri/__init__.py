@@ -60,6 +60,26 @@ class pytri:
         self.js = js
         self.uid = str(uuid.uuid4())
 
+        display(HTML(
+            "<div id='pytri-target-decoy'></div>" +
+            "<script>{}</script>".format(self.js) +
+            """
+            <script>
+            window.V = window.V || {}
+            V['"""+self.uid+"""'] = new Visualizer({
+                targetElement: "pytri-target-decoy",
+                backgroundColor: new window.THREE.Color(0xffffff),
+                renderLayers: {
+                    // None yet!
+                }
+            });
+            V['"""+self.uid+"""'].init();
+            let dd = document.getElementById("pytri-target-decoy");
+            dd.remove();
+            </script>
+            """
+        ))
+
     def show(self):
         """
         Render the frame to the Jupyter notebook.
@@ -69,23 +89,15 @@ class pytri:
 
         """
         display(HTML(
-            "<script>{}</script>".format(self.js) +
-            "<div id='pytri-target-{}'></div>".format(self.uid) + """
+            """<div id='pytri-target-"""+self.uid+"""'></div>"""  +
+            """
             <script>
-            window.V = window.V || {}
-            if (typeof V['"""+self.uid+"""'] === "undefined") {
-                V['"""+self.uid+"""'] = new Visualizer({
-                    targetElement: "pytri-target-"""+self.uid+"""",
-                    backgroundColor: new window.THREE.Color(0xffffff),
-                    renderLayers: {
-                        // None yet!
-                    }
-                });
-            }
+            V['"""+self.uid+"""'].props.targetElement = "pytri-target-"""+self.uid+"""";
             V['"""+self.uid+"""'].triggerRender();
             V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
-        """))
+            """
+        ))
 
     def remove_layer(self, name):
         """
@@ -120,16 +132,6 @@ class pytri:
                     this.children.push(axes)
                     scene.add(axes)
                 }
-            }
-            window.V = window.V || {}
-            if (typeof V['"""+self.uid+"""'] === 'undefined') {
-                V['"""+self.uid+"""'] = new Visualizer({
-                    targetElement: "pytri-target-"""+self.uid+"""",
-                    backgroundColor: new window.THREE.Color(0xffffff),
-                    renderLayers: {
-                        // None yet!
-                    }
-                });
             }
             V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
         """))
@@ -186,16 +188,6 @@ class pytri:
             }
         }
         """ + """
-        window.V = window.V || {}
-        if (typeof V['"""+self.uid+"""'] === 'undefined') {
-            V['"""+self.uid+"""'] = new Visualizer({
-                targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0xffffff),
-                renderLayers: {
-                    // None yet!
-                }
-            });
-        }
         V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
@@ -284,16 +276,6 @@ class pytri:
             }
         }
         """ + """
-        window.V = window.V || {}
-        if (typeof V['"""+self.uid+"""'] === 'undefined') {
-            V['"""+self.uid+"""'] = new Visualizer({
-                targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0xffffff),
-                renderLayers: {
-                    // None yet!
-                }
-            });
-        }
         V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
             data: {},
             radius: {},
