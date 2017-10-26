@@ -9,6 +9,14 @@
 </p>
 
 ## Installation and Configuration
+
+### New Hotness:
+```shell
+pip install -U pytri
+```
+
+### Old and Busted:
+
 - Clone the repository.
 ```shell
 git clone https://github.com/iscoe/pytri.git
