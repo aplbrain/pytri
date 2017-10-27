@@ -17,12 +17,12 @@ limitations under the License.
 
 import uuid
 import json
-
+from os.path import join, split
 import requests
+
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
-from os.path import join, split
 
 
 __version__ = "0.0.1"
