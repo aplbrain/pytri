@@ -2,8 +2,9 @@ FROM ubuntu
 
 EXPOSE 8888
 
-COPY . /home/widget
+RUN mkdir /home/widget
 WORKDIR /home/widget
+VOLUME /home/widget
 
 RUN apt-get update && \
     apt-get -y install curl && \
