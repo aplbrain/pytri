@@ -22,6 +22,7 @@ import requests
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
+from os.path import join, split
 
 
 __version__ = "0.0.1"
@@ -54,7 +55,9 @@ class pytri:
         for script in scripts:
             js += requests.get(script).text.strip()
 
-        with open("./substrate.min.js", 'r') as fh:
+        s_path, _ = split(__file__)
+        s_file = join(s_path, "js", "substrate.min.js")
+        with open(s_file, 'r') as fh:
             js += ";\n\n" + fh.read().strip()
 
         self.js = js
@@ -151,7 +154,7 @@ class pytri:
         """
         d = data.tolist()
         _js = ("""
-        
+
         class ScatterLayer extends Layer {
             constructor(opts) {
                 super(opts);
