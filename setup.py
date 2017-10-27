@@ -32,7 +32,7 @@ setup(
     version=__version__,
     description='Visualize using substrate. For Jupyter notebooks.',
     long_description=long_description,
-    # download_url='https://github.com/j6k4m8/jque/tarball/' + __version__,
+    download_url='https://github.com/iscoe/pytri/tarball/' + __version__,
     license='Apache 2.0',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -41,7 +41,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords=[
-        "viz", "fun"
+        "viz", "substrate", "3D", "visualization"
     ],
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
