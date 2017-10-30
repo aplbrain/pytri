@@ -61,6 +61,7 @@ class pytri:
 
         self.js = js
         self.uid = str(uuid.uuid4())
+        self.layers = set()
 
         display(HTML(
             "<div id='pytri-target-decoy'></div>" +
@@ -115,6 +116,22 @@ class pytri:
         display(Javascript("""
             V['"""+self.uid+"""'].removeLayer('{}')
         """.format(name)))
+        self.layers.remove(name)
+
+    def clear(self):
+        """
+        Remove all layers from scene.
+
+        Arguments:
+            None
+
+        Returns:
+            None
+
+        """
+        store_layers = {name for name in self.layers}
+        for name in store_layers:
+            self.remove_layer(name)
 
     def axes(self):
         """
@@ -137,6 +154,7 @@ class pytri:
             }
             V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
         """))
+        self.layers.add('axes')
 
     def scatter(self, data, r=0.15, c=0x00babe):
         """
@@ -169,6 +187,7 @@ class pytri:
             c
         ))
         display(Javascript(_js))
+        self.layers.add('scatter')
 
 
     def graph(self, data, r=0.15, c=0xbabe00):
@@ -239,3 +258,4 @@ class pytri:
             alpha
         )
         display(Javascript(_js))
+        self.layers.add('graph')
