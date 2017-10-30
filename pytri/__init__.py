@@ -18,13 +18,13 @@ import uuid
 import json
 from os.path import join, split
 import requests
-
+import numpy as np
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
 
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 class pytri:
@@ -204,4 +204,39 @@ class pytri:
             r,
             c
         ))
+        display(Javascript(_js))
+
+    def fibers(self, data, c=0xbabe00, alpha=0.5):
+        """
+        Add a fiber group to the visualizer.
+
+        Arguments:
+            data (List[][])
+            c (hex)
+            alpha (0..1)
+
+        Returns:
+            None
+
+        """
+        if isinstance(data, np.ndarray):
+            data = data.tolist()
+
+        _js = ""
+        fibers_path, _ = split(__file__)
+        fibers_file = join(fibers_path, "js", "FibersLayer.js")
+        with open(fibers_file, 'r') as fh:
+            _js += ";\n\n" + fh.read().strip()
+
+        _js += """
+        V['"""+self.uid+"""'].addLayer('fibers', new FibersLayer({{
+            data: {},
+            colors: {},
+            alpha: {},
+        }}))
+        """.format(
+            json.dumps(data),
+            c,
+            alpha
+        )
         display(Javascript(_js))
