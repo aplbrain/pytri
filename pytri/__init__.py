@@ -240,3 +240,29 @@ class pytri:
             alpha
         )
         display(Javascript(_js))
+
+
+    def grid(self, data=None):
+        """
+        Add a grid to the visualizer.
+
+        Arguments:
+            data (dict)
+
+        Returns:
+            None
+
+        """
+        if isinstance(data, np.ndarray):
+            data = data.tolist()
+
+        _js = ""
+        grid_path, _ = split(__file__)
+        grid_file = join(grid_path, "js", "GridLayer.js")
+        with open(grid_file, 'r') as fh:
+            _js += ";\n\n" + fh.read().strip()
+
+        _js += """
+        V['"""+self.uid+"""'].addLayer('grid', new GridLayer({}))
+        """
+        display(Javascript(_js))
