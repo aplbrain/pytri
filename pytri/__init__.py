@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Copyright 2017 The Johns Hopkins University Applied Physics Laboratory.
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -177,6 +178,7 @@ class pytri:
             params = {}
 
         try:
+            # Test that the file containers a `class Foo extends Layer`:
             _js_layer_name = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*", _js
             )[1]
@@ -184,6 +186,7 @@ class pytri:
             raise ValueError(
                 "layer_js must include a class that extends Layer."
             )
+        # Interpolate: V[id].addLayer(name, new Layer(params));
         _js += "V['{}'].addLayer('{}', new {}({}))".format(
             self.uid, name, _js_layer_name, json.dumps(params)
         )
@@ -204,7 +207,7 @@ class pytri:
             None
 
         """
-        axis_js = """
+        _js = """
             class AxisLayer extends Layer {
                 requestInit(scene) {
                     let axes = new window.THREE.AxisHelper(5);
@@ -213,7 +216,7 @@ class pytri:
                 }
             }
         """
-        return self.add_layer(axis_js, name='axes')
+        return self.add_layer(_js, name='axes')
 
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
         """
@@ -232,13 +235,11 @@ class pytri:
             data = data.tolist()
 
         _js = self._fetch_layer_file("ScatterLayer.js")
-
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
             "colors": c
-        }, name)
-
+        }, name=name)
 
     def graph(self, data, r=0.15, c=0xbabe00, name=None) -> str:
         """

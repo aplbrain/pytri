@@ -9,7 +9,6 @@ class ScatterLayer extends Layer {
             this.c_array = true;
         }
         this.data = opts.data;
-        console.log(opts);
     }
 
     requestInit(scene) {
