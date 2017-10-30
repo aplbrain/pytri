@@ -119,6 +119,16 @@ class pytri:
         self.layers.remove(name)
 
     def clear(self):
+        """
+        Remove all layers from scene.
+
+        Arguments:
+            None
+
+        Returns:
+            None
+
+        """
         store_layers = {name for name in self.layers}
         for name in store_layers:
             self.remove_layer(name)
@@ -166,7 +176,6 @@ class pytri:
         with open(scatter_file, 'r') as fh:
             _js += ";\n\n" + fh.read().strip()
         _js += ("""
-        console.log("butts")
         V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
