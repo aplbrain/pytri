@@ -18,8 +18,8 @@ import uuid
 import json
 from os.path import join, split
 import requests
-from IPython.display import Javascript, HTML, display
 import numpy as np
+from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
 
