@@ -158,7 +158,6 @@ class pytri:
         with open(scatter_file, 'r') as fh:
             _js += ";\n\n" + fh.read().strip()
         _js += ("""
-        console.log("butts")
         V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
             data: {},
             radius: {},
