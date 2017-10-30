@@ -21,4 +21,4 @@ pytri.graph(data, [radii], [colors])
         * `graph.add_node(id, pos ={'x': x_pos, 'y': y_pos, 'z': z_pos})`
 * `radii` (Optional): Radius of nodes in the visualization.
 * `colors` (Optional): Colors of nodes in the visualization.
-<blockquote class="blockquote">// TODO: Example</blockquote>
+
