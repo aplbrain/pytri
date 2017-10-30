@@ -118,6 +118,11 @@ class pytri:
         """.format(name)))
         self.layers.remove(name)
 
+    def clear(self):
+        store_layers = {name for name in self.layers}
+        for name in store_layers:
+            self.remove_layer(name)
+
     def axes(self):
         """
         Add axes to the visualization.
