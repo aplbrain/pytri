@@ -19,12 +19,13 @@ import uuid
 import json
 
 import requests
+import numpy as np
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
 
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 class pytri:
@@ -151,7 +152,7 @@ class pytri:
         """
         d = data.tolist()
         _js = ("""
-        
+
         class ScatterLayer extends Layer {
             constructor(opts) {
                 super(opts);
@@ -285,5 +286,86 @@ class pytri:
             json.dumps(data),
             r,
             c
+        ))
+        display(Javascript(_js))
+
+    def fibers(self, data, c=0xbabe00, alpha=0.5):
+        """
+        Add a fiber group to the visualizer.
+
+        Arguments:
+            data (List[][])
+            c (hex)
+            alpha (0..1)
+
+        Returns:
+            None
+
+        """
+        if isinstance(data, np.ndarray):
+            data = data.tolist()
+        _js = ("""
+        class FibersLayer extends Layer {
+
+            constructor(props) {
+                super(props);
+                this.data = props.data;
+                this.downsample = props.downsample || 1;
+                this.alpha = props.alpha || 1;
+            }
+
+            toggleVisible() {
+                this.children.forEach(c => {
+                    c.visible = !c.visible;
+                })
+            }
+
+            reload(fibers) {
+                let self = this;
+                self.children = [];
+                self.fibers = fibers;
+
+                for (var i = 0; i < self.fibers.length; i++) {
+                    var fiberGeometry = new window.THREE.Geometry();
+                    for (var j = 0; j < self.fibers[i].length; j++) {
+                        if (j % self.downsample === 0) {
+                            fiberGeometry.vertices.push(
+                                new window.THREE.Vector3(...self.fibers[i][j])
+                            );
+                        }
+                    }
+                    var line = new window.THREE.Line(
+                        fiberGeometry,
+                        new window.THREE.LineBasicMaterial({
+                            color: 0x00ffff,
+                            transparent: true,
+                            opacity: self.alpha
+                        })
+                    );
+                    self.children.push(line);
+
+                    self.scene.add(line);
+                }
+            }
+
+
+            requestInit(scene) {
+                let self = this;
+                self.scene = scene;
+                let fibers = self.data;
+                self.reload(fibers);
+            }
+        }
+
+        """ + """
+        V['"""+self.uid+"""'].addLayer('fibers', new FibersLayer({{
+            data: {},
+            colors: {},
+            alpha: {},
+        }}))
+        """.format(
+            json.dumps(data),
+            c,
+            alpha
         ))
         display(Javascript(_js))
