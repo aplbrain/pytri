@@ -17,8 +17,8 @@ limitations under the License.
 import uuid
 import json
 from os.path import join, split
-import requests
 import re
+import requests
 import numpy as np
 from IPython.display import Javascript, HTML, display
 import networkx as nx
@@ -134,6 +134,24 @@ class pytri:
         for name in store_layers:
             self.remove_layer(name)
 
+    def _fetch_layer_file(self, fname: str) -> str:
+        """
+        Fetch a layer file from local package resources.
+
+        Arguments:
+            fname (str)
+
+        Returns:
+            str JS
+
+        """
+        _js = ""
+        path, _ = split(__file__)
+        file = join(path, "js", fname)
+        with open(file, 'r') as fh:
+            _js = fh.read().strip()
+        return _js
+
     def add_layer(self, layer_js: str, params: dict = None, name: str = None) -> str:
         """
         Add a custom JS layer to the visualization.
@@ -212,20 +230,17 @@ class pytri:
         """
         if isinstance(data, np.ndarray):
             data = data.tolist()
-        _js = ""
-        scatter_path, _ = split(__file__)
-        scatter_file = join(scatter_path, "js", "ScatterLayer.js")
-        with open(scatter_file, 'r') as fh:
-            _js = fh.read().strip()
+
+        _js = self._fetch_layer_file("ScatterLayer.js")
 
         return self.add_layer(_js, {
-            "data": json.dumps(data),
+            "data": data,
             "radius": r,
             "colors": c
         }, name)
 
 
-    def graph(self, data, r=0.15, c=0xbabe00):
+    def graph(self, data, r=0.15, c=0xbabe00, name=None) -> str:
         """
         Add a graph to the visualizer.
 
@@ -241,25 +256,14 @@ class pytri:
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
 
-        _js = ""
-        graph_path, _ = split(__file__)
-        graph_file = join(graph_path, "js", "GraphLayer.js")
-        with open(graph_file, 'r') as fh:
-            _js += ";\n\n" + fh.read().strip()
-        _js += ("""
-        V['"""+self.uid+"""'].addLayer('graph', new GraphLayer({{
-            data: {},
-            radius: {},
-            colors: {}
-        }}))
-        """.format(
-            json.dumps(data),
-            r,
-            c
-        ))
-        display(Javascript(_js))
+        _js = self._fetch_layer_file("GraphLayer.js")
+        return self.add_layer(_js, {
+            "data": data,
+            "radius": r,
+            "colors": c
+        }, name=name)
 
-    def fibers(self, data, c=0xbabe00, alpha=0.5):
+    def fibers(self, data, c=0xbabe00, alpha=0.5, name=None) -> str:
         """
         Add a fiber group to the visualizer.
 
@@ -275,22 +279,9 @@ class pytri:
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
-        _js = ""
-        fibers_path, _ = split(__file__)
-        fibers_file = join(fibers_path, "js", "FibersLayer.js")
-        with open(fibers_file, 'r') as fh:
-            _js += ";\n\n" + fh.read().strip()
-
-        _js += """
-        V['"""+self.uid+"""'].addLayer('fibers', new FibersLayer({{
-            data: {},
-            colors: {},
-            alpha: {},
-        }}))
-        """.format(
-            json.dumps(data),
-            c,
-            alpha
-        )
-        display(Javascript(_js))
-        self.layers.add('graph')
+        _js = self._fetch_layer_file("FibersLayer.js")
+        return self.add_layer(_js, {
+            "data": data,
+            "colors": c,
+            "alpha": alpha
+        }, name=name)

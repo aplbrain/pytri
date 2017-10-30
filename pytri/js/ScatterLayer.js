@@ -1,7 +1,6 @@
 class ScatterLayer extends Layer {
     constructor(opts) {
         super(opts);
-        this.setData = this.setData.bind(this);
         this.radius = opts.radius || 0.15;
         this.colors = opts.colors || 0x00babe;
         if (typeof(this.colors) == "number") {
@@ -9,12 +8,8 @@ class ScatterLayer extends Layer {
         } else {
             this.c_array = true;
         }
-        this.setData(opts.data);
-    }
-
-    setData(data) {
-        this.data = data;
-        this.requestInit;
+        this.data = opts.data;
+        console.log(opts);
     }
 
     requestInit(scene) {
@@ -26,8 +21,8 @@ class ScatterLayer extends Layer {
                 })
             );
             sph.position.set(...this.data[i]);
-            this.children.push(sph)
-            scene.add(sph)
+            this.children.push(sph);
+            scene.add(sph);
 
         }
     }
