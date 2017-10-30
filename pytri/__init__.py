@@ -18,6 +18,7 @@ import uuid
 import json
 from os.path import join, split
 import requests
+import re
 import numpy as np
 from IPython.display import Javascript, HTML, display
 import networkx as nx
@@ -133,7 +134,48 @@ class pytri:
         for name in store_layers:
             self.remove_layer(name)
 
-    def axes(self):
+    def add_layer(self, layer_js: str, params: dict = None, name: str = None) -> str:
+        """
+        Add a custom JS layer to the visualization.
+
+        Arguments:
+            layer_js (str): The contents of a JS file
+            params (dict): The data to pass into the layer constructor
+            name (str): Optional name for the layer
+
+        Returns:
+            str: Name, as inserted
+
+        """
+        if layer_js.startswith("http"):
+            raise NotImplementedError("Cannot accept layers over HTTP yet.")
+
+        _js = layer_js
+
+        if name is None:
+            name = str(uuid.uuid4())
+
+        if params is None:
+            params = {}
+
+        try:
+            _js_layer_name = re.match(
+                r"[\s\S]*class (\w+) extends .*Layer[\s\S]*", _js
+            )[1]
+        except TypeError as _:
+            raise ValueError(
+                "layer_js must include a class that extends Layer."
+            )
+        _js += "V['{}'].addLayer('{}', new {}({}))".format(
+            self.uid, name, _js_layer_name, json.dumps(params)
+        )
+
+        display(Javascript(_js))
+
+        self.layers.add(name)
+        return name
+
+    def axes(self) -> str:
         """
         Add axes to the visualization.
 
@@ -144,7 +186,7 @@ class pytri:
             None
 
         """
-        display(Javascript("""
+        axis_js = """
             class AxisLayer extends Layer {
                 requestInit(scene) {
                     let axes = new window.THREE.AxisHelper(5);
@@ -152,11 +194,10 @@ class pytri:
                     scene.add(axes)
                 }
             }
-            V['"""+self.uid+"""'].addLayer('axes', new AxisLayer())
-        """))
-        self.layers.add('axes')
+        """
+        return self.add_layer(axis_js, name='axes')
 
-    def scatter(self, data, r=0.15, c=0x00babe):
+    def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
         """
         Add a 3D scatter to the scene.
 
@@ -169,25 +210,19 @@ class pytri:
             None
 
         """
-        d = data.tolist()
+        if isinstance(data, np.ndarray):
+            data = data.tolist()
         _js = ""
         scatter_path, _ = split(__file__)
         scatter_file = join(scatter_path, "js", "ScatterLayer.js")
         with open(scatter_file, 'r') as fh:
-            _js += ";\n\n" + fh.read().strip()
-        _js += ("""
-        V['"""+self.uid+"""'].addLayer('scatter', new ScatterLayer({{
-            data: {},
-            radius: {},
-            colors: {}
-        }}))
-        """.format(
-            json.dumps(d),
-            r,
-            c
-        ))
-        display(Javascript(_js))
-        self.layers.add('scatter')
+            _js = fh.read().strip()
+
+        return self.add_layer(_js, {
+            "data": json.dumps(data),
+            "radius": r,
+            "colors": c
+        }, name)
 
 
     def graph(self, data, r=0.15, c=0xbabe00):
