@@ -1,0 +1,4 @@
+- **0.1.0**
+    - `pytri#fibers`
+- **0.0.1** (October 26, 2017)
+    - Initial push to PyPI
