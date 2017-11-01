@@ -163,8 +163,8 @@ class pytri:
         Returns:
             str JS
         """
-        fetch_url = "https://raw.githubusercontent.com/iscoe/substrate-layers/add-layers/layers/"
-        # Substrate-Layers repo, add-layers branch: https://raw.githubusercontent.com/iscoe/substrate-layers/add-layers/
+        fetch_url = "https://raw.githubusercontent.com/iscoe/substrate-layers/layers/"
+        # Substrate-Layers repo, layers dir: https://raw.githubusercontent.com/iscoe/substrate-layers/layers/
         full_url = fetch_url + fname
         _js = requests.get(full_url).text
         return(_js)
