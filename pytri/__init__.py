@@ -152,22 +152,22 @@ class pytri:
         with open(file, 'r') as fh:
             _js = fh.read().strip()
         return _js
-    
+
     def _fetch_layer_github(self, fname: str) -> str:
         """
         Fetch a layer file from the iscoe/substrate-layers repo.
 
         Arguments:
             fname (str)
-        
+
         Returns:
             str JS
         """
+        # Substrate-Layers repo, layers dir:
         fetch_url = "https://raw.githubusercontent.com/iscoe/substrate-layers/layers/"
-        # Substrate-Layers repo, layers dir: https://raw.githubusercontent.com/iscoe/substrate-layers/layers/
         full_url = fetch_url + fname
         _js = requests.get(full_url).text
-        return(_js)
+        return _js
 
     def add_layer(self, layer_js: str, params: dict = None, name: str = None) -> str:
         """
