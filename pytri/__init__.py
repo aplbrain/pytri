@@ -152,6 +152,22 @@ class pytri:
         with open(file, 'r') as fh:
             _js = fh.read().strip()
         return _js
+    
+    def _fetch_layer_github(self, fname: str) -> str:
+        """
+        Fetch a layer file from the iscoe/substrate-layers repo.
+
+        Arguments:
+            fname (str)
+        
+        Returns:
+            str JS
+        """
+        fetch_url = "https://raw.githubusercontent.com/iscoe/substrate-layers/add-layers/layers/"
+        # Substrate-Layers repo, add-layers branch: https://raw.githubusercontent.com/iscoe/substrate-layers/add-layers/
+        full_url = fetch_url + fname
+        _js = requests.get(full_url).text
+        return(_js)
 
     def add_layer(self, layer_js: str, params: dict = None, name: str = None) -> str:
         """
@@ -234,7 +250,8 @@ class pytri:
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
-        _js = self._fetch_layer_file("ScatterLayer.js")
+        #_js = self._fetch_layer_file("ScatterLayer.js")
+        _js = self._fetch_layer_github("ScatterLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -257,7 +274,8 @@ class pytri:
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
 
-        _js = self._fetch_layer_file("GraphLayer.js")
+        #_js = self._fetch_layer_file("GraphLayer.js")
+        _js = self._fetch_layer_github("GraphLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -280,7 +298,8 @@ class pytri:
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
-        _js = self._fetch_layer_file("FibersLayer.js")
+        #_js = self._fetch_layer_file("FibersLayer.js")
+        _js = self._fetch_layer_github("FibersLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "colors": c,
