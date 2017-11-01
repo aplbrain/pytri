@@ -250,8 +250,8 @@ class pytri:
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
-        #_js = self._fetch_layer_file("ScatterLayer.js")
-        _js = self._fetch_layer_github("ScatterLayer.js")
+        _js = self._fetch_layer_file("ScatterLayer.js")
+        #_js = self._fetch_layer_github("ScatterLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -274,8 +274,8 @@ class pytri:
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
 
-        #_js = self._fetch_layer_file("GraphLayer.js")
-        _js = self._fetch_layer_github("GraphLayer.js")
+        _js = self._fetch_layer_file("GraphLayer.js")
+        #_js = self._fetch_layer_github("GraphLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -298,8 +298,8 @@ class pytri:
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
-        #_js = self._fetch_layer_file("FibersLayer.js")
-        _js = self._fetch_layer_github("FibersLayer.js")
+        _js = self._fetch_layer_file("FibersLayer.js")
+        #_js = self._fetch_layer_github("FibersLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "colors": c,
