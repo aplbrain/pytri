@@ -183,7 +183,10 @@ class pytri:
 
         """
         if layer_js.startswith("http"):
-            raise NotImplementedError("Cannot accept layers over HTTP yet.")
+            fetch_url = layer_js
+            layer_js = requests.get(fetch_url).text
+            print(layer_js)
+            #raise NotImplementedError("Cannot accept layers over HTTP yet.")
 
         _js = layer_js
 
@@ -198,6 +201,7 @@ class pytri:
             _js_layer_name = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*", _js
             )[1]
+            print(_js_layer_name)
         except TypeError as _:
             raise ValueError(
                 "layer_js must include a class that extends Layer."
@@ -206,6 +210,7 @@ class pytri:
         _js += "V['{}'].addLayer('{}', new {}({}))".format(
             self.uid, name, _js_layer_name, json.dumps(params)
         )
+        print(json.dumps(params))
 
         display(Javascript(_js))
 
