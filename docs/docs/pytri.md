@@ -38,6 +38,8 @@ Add a custom JS layer to the visualization.
 
 ### Arguments:
 * layer_js (`str`): The contents of a JS file
+    * String representation of a local JS file
+    * Url to a JS file (ie: `"https://raw.githubusercontent.com/user/repo/branch/file"`)
 * params (`dict`:`None`): The data to pass into the layer constructor
 * name (`str`:`None`): Optional name for the layer
 
