@@ -12,7 +12,9 @@ class MeshLayer extends Layer {
         let mesh = new window.THREE.OBJLoader().parse(self.data);
         self._meshGeometry = new window.THREE.Mesh(
             new window.THREE.Geometry().fromBufferGeometry(mesh.children[0].geometry),
-            new window.THREE.MeshNormalMaterial()
+            new window.THREE.MeshNormalMaterial({
+                side: window.THREE.DoubleSide
+            })
         );
         self.children = [self._meshGeometry];
 
