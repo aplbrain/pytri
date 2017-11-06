@@ -225,7 +225,7 @@ class pytri:
             None
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         _js = """
@@ -249,7 +249,7 @@ class pytri:
             c (hex | list)
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         if isinstance(data, np.ndarray):
@@ -273,7 +273,7 @@ class pytri:
             c (float | list)
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         if isinstance(data, nx.Graph):
@@ -297,7 +297,7 @@ class pytri:
             alpha (0..1)
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         if isinstance(data, np.ndarray):
@@ -309,4 +309,25 @@ class pytri:
             "data": data,
             "colors": c,
             "alpha": alpha
+        }, name=name)
+
+    def mesh(self, data, name=None) -> str:
+        """
+        Add a mesh to the scene. Currently only supports OBJ.
+
+        Arguments:
+            data (List[str]): OBJ file
+
+        Returns:
+            str: Name, as inserted
+
+        """
+        display(Javascript(
+            url="https://raw.githubusercontent.com/mrdoob/three.js" +
+            "/master/examples/js/loaders/OBJLoader.js"
+        ))
+
+        _js = self._fetch_layer_file("MeshLayer.js")
+        return self.add_layer(_js, {
+            "data": data
         }, name=name)
