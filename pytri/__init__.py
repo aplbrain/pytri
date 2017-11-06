@@ -298,7 +298,10 @@ class pytri:
             str: Name, as inserted
 
         """
-        display(Javascript(url="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/loaders/OBJLoader.js"))
+        display(Javascript(
+            url="https://raw.githubusercontent.com/mrdoob/three.js" +
+                "/master/examples/js/loaders/OBJLoader.js"
+        ))
 
         _js = self._fetch_layer_file("MeshLayer.js")
         return self.add_layer(_js, {
