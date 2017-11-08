@@ -8,6 +8,8 @@ class GraphLayer extends Layer {
             edges: opts.graph.links,
         };
         this.colormap = opts.colormap || (_ => 0xffffff);
+        // this.nodeColor = opts.color
+        this.nodeSize = opts.node_size
 
         this.maxX = opts.minMaxVals[0];
         this.minX = opts.minMaxVals[1];
@@ -42,7 +44,7 @@ class GraphLayer extends Layer {
         window.graph = graph;
 
         let particleSystem = new window.THREE.GPUParticleSystem({
-            maxParticles: graph.nodes.length
+            maxParticles: graph.nodes.length,
         });
 
         this.pSys = particleSystem;
@@ -53,13 +55,13 @@ class GraphLayer extends Layer {
             let pos = this.scaledPos(val)
             particleSystem.spawnParticle({
                 position: pos,
-                size: 2
+                size: this.nodeSize,
+                color: 0xffffff
             });
         }
         self.children.push(particleSystem)
 
         let edgeGeometry = new THREE.Geometry();
-        console.log(graph)
         graph.edges.forEach(edge => {
             let start = graph.nodes[edge["source"]];
             let startPos = this.scaledPos(start)

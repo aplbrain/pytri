@@ -290,7 +290,7 @@ class pytri:
         }, name=name)
 
 
-    def large_graph(self, data, name=None) -> str:
+    def large_graph(self, data, r=2, c=0x000000, name=None) -> str:
         """
         Add a large graph to the visualizer using the GPU particle system.
 
@@ -310,6 +310,7 @@ class pytri:
         _js = self._fetch_layer_file("LargeGraphLayer.js")
         return self.add_layer(_js, {
             "graph": data,
+            "node_size": r,
             "minMaxVals": minmax
         }, name=name)
 

@@ -2,8 +2,10 @@
  * GPU Particle System
  * @author flimshaw - Charlie Hoey - http://charliehoey.com
  * @author j6m8 - Jordan Matelsky - http://jordan.matelsky.com
+ * @author hpcowley - Hannah Cowley
  *
  * Modification by j6m8: Stable color and position, for data-sensitive tasks.
+ * Modification by hpcowley: Using PointsMaterial, for use with Pytri offline. 
  *
  * A simple to use, general purpose GPU system. Particles are spawn-and-forget with
  * several options available, and do not require monitoring or cleanup after spawning.
@@ -32,7 +34,9 @@ THREE.GPUParticleSystem = function( options ) {
 	this.PARTICLE_CONTAINERS = options.containerCount || 1;
 
 	this.PARTICLE_NOISE_TEXTURE = options.particleNoiseTex || null;
-	this.PARTICLE_SPRITE_TEXTURE = options.particleSpriteTex || null;
+    this.PARTICLE_SPRITE_TEXTURE = options.particleSpriteTex || null;
+    
+    // this.PARTICLE_COLOR = options.particleColor || 0x000000;
 
 	this.PARTICLES_PER_CONTAINER = Math.ceil( this.PARTICLE_COUNT / this.PARTICLE_CONTAINERS );
 	this.PARTICLE_CURSOR = 0;
@@ -175,7 +179,7 @@ THREE.GPUParticleSystem = function( options ) {
 
 	};
 
-	var textureLoader = new THREE.TextureLoader();
+	// var textureLoader = new THREE.TextureLoader();
 
 	// this.particleNoiseTex = this.PARTICLE_NOISE_TEXTURE || textureLoader.load( 'perlin-512.png' );
 	// this.particleNoiseTex.wrapS = this.particleNoiseTex.wrapT = THREE.RepeatWrapping;
@@ -194,10 +198,10 @@ THREE.GPUParticleSystem = function( options ) {
 				value: 1.0
 			},
 			'tNoise': {
-				value: new THREE.PointsMaterial({ color: 0xeeeeee, size: 2 }) //this.particleNoiseTex
+				value: new THREE.PointsMaterial() //this.particleNoiseTex
 			},
 			'tSprite': {
-				value: new THREE.PointsMaterial({ color: 0xeeeeee, size: 2 }) //this.particleSpriteTex
+				value: new THREE.PointsMaterial() //this.particleSpriteTex
 			}
 		},
 		blending: THREE.MultiplyBlending,
@@ -312,7 +316,7 @@ THREE.GPUParticleContainer = function( maxParticles, particleSystem ) {
 		var startTimeAttribute = this.particleShaderGeo.getAttribute( 'startTime' );
 		var velocityAttribute = this.particleShaderGeo.getAttribute( 'velocity' );
 		var turbulenceAttribute = this.particleShaderGeo.getAttribute( 'turbulence' );
-		var colorAttribute = this.particleShaderGeo.getAttribute( 'color' );
+        var colorAttribute = this.particleShaderGeo.getAttribute( 'color' );
 		var sizeAttribute = this.particleShaderGeo.getAttribute( 'size' );
 		var lifeTimeAttribute = this.particleShaderGeo.getAttribute( 'lifeTime' );
 
@@ -322,14 +326,14 @@ THREE.GPUParticleContainer = function( maxParticles, particleSystem ) {
 
 		position = options.position !== undefined ? position.copy( options.position ) : position.set( 0, 0, 0 );
 		velocity = options.velocity !== undefined ? velocity.copy( options.velocity ) : velocity.set( 0, 0, 0 );
-		color = options.color !== undefined ? color.set( options.color ) : color.set( 0xffffff );
+		color = options.color !== undefined ? color.set( options.color ) : color.set( 0x000000 );
 
 		var positionRandomness = options.positionRandomness !== undefined ? options.positionRandomness : 0;
 		var velocityRandomness = options.velocityRandomness !== undefined ? options.velocityRandomness : 0;
 		var colorRandomness = options.colorRandomness !== undefined ? options.colorRandomness : 1;
 		var turbulence = options.turbulence !== undefined ? options.turbulence : 1;
 		var lifetime = options.lifetime !== undefined ? options.lifetime : 5;
-		var size = options.size !== undefined ? options.size : 10;
+        var size = options.size !== undefined ? options.size : 10;
 		var sizeRandomness = options.sizeRandomness !== undefined ? options.sizeRandomness : 0;
 		var smoothPosition = options.smoothPosition !== undefined ? options.smoothPosition : false;
 
