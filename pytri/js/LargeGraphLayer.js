@@ -8,7 +8,7 @@ class GraphLayer extends Layer {
             edges: opts.graph.links,
         };
         this.colormap = opts.colormap || (_ => 0xffffff);
-        // this.nodeColor = opts.color
+        this.nodeColor = opts.color
         this.nodeSize = opts.node_size
 
         this.maxX = opts.minMaxVals[0];
@@ -56,7 +56,7 @@ class GraphLayer extends Layer {
             particleSystem.spawnParticle({
                 position: pos,
                 size: this.nodeSize,
-                color: 0xffffff
+                color: this.nodeColor
             });
         }
         self.children.push(particleSystem)

@@ -36,8 +36,6 @@ THREE.GPUParticleSystem = function( options ) {
 	this.PARTICLE_NOISE_TEXTURE = options.particleNoiseTex || null;
     this.PARTICLE_SPRITE_TEXTURE = options.particleSpriteTex || null;
     
-    // this.PARTICLE_COLOR = options.particleColor || 0x000000;
-
 	this.PARTICLES_PER_CONTAINER = Math.ceil( this.PARTICLE_COUNT / this.PARTICLE_CONTAINERS );
 	this.PARTICLE_CURSOR = 0;
 	this.time = 0;

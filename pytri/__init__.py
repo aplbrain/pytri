@@ -311,6 +311,7 @@ class pytri:
         return self.add_layer(_js, {
             "graph": data,
             "node_size": r,
+            "color": c,
             "minMaxVals": minmax
         }, name=name)
 
