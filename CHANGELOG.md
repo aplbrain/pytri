@@ -1,4 +1,8 @@
-- **0.1.0**
+- **0.1.5**
+    - `pytri#mesh`: Add a obj-formatted mesh to the scene
+    - `pytri#clear`: Clears all objects from a visualizer
+    - Remote (HTTP) layer fetching (@hpcowley)
+- **0.1.0** (October 31, 2017)
     - `pytri#fibers`
 - **0.0.1** (October 26, 2017)
     - Initial push to PyPI
