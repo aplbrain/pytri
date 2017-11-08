@@ -271,7 +271,7 @@ class pytri:
             "colors": c
         }, name=name)
 
-    
+
     def large_graph(self, data, name=None) -> str:
         """
         Add a large graph to the visualizer using the GPU particle system.
