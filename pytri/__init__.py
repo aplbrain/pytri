@@ -160,6 +160,22 @@ class pytri:
             _js = fh.read().strip()
         return _js
 
+    def _fetch_layer_github(self, fname: str) -> str:
+        """
+        Fetch a layer file from the iscoe/substrate-layers repo.
+
+        Arguments:
+            fname (str)
+
+        Returns:
+            str JS
+        """
+        # Substrate-Layers repo, layers dir:
+        fetch_url = "https://raw.githubusercontent.com/iscoe/substrate-layers/layers/"
+        full_url = fetch_url + fname
+        _js = requests.get(full_url).text
+        return _js
+
     def add_layer(self, layer_js: str, params: dict = None, name: str = None) -> str:
         """
         Add a custom JS layer to the visualization.
@@ -174,7 +190,8 @@ class pytri:
 
         """
         if layer_js.startswith("http"):
-            raise NotImplementedError("Cannot accept layers over HTTP yet.")
+            fetch_url = layer_js
+            layer_js = requests.get(fetch_url).text
 
         _js = layer_js
 
@@ -197,7 +214,6 @@ class pytri:
         _js += "V['{}'].addLayer('{}', new {}({}))".format(
             self.uid, name, _js_layer_name, json.dumps(params)
         )
-
         display(Javascript(_js))
 
         self.layers.add(name)
@@ -211,7 +227,7 @@ class pytri:
             None
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         _js = """
@@ -235,13 +251,14 @@ class pytri:
             c (hex | list)
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
         _js = self._fetch_layer_file("ScatterLayer.js")
+        #_js = self._fetch_layer_github("ScatterLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -258,13 +275,14 @@ class pytri:
             c (float | list)
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
 
         _js = self._fetch_layer_file("GraphLayer.js")
+        #_js = self._fetch_layer_github("GraphLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -306,15 +324,37 @@ class pytri:
             alpha (0..1)
 
         Returns:
-            None
+            str: Name, as inserted
 
         """
         if isinstance(data, np.ndarray):
             data = data.tolist()
 
         _js = self._fetch_layer_file("FibersLayer.js")
+        #_js = self._fetch_layer_github("FibersLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "colors": c,
             "alpha": alpha
+        }, name=name)
+
+    def mesh(self, data, name=None) -> str:
+        """
+        Add a mesh to the scene. Currently only supports OBJ.
+
+        Arguments:
+            data (List[str]): OBJ file
+
+        Returns:
+            str: Name, as inserted
+
+        """
+        display(Javascript(
+            url="https://raw.githubusercontent.com/mrdoob/three.js" +
+            "/master/examples/js/loaders/OBJLoader.js"
+        ))
+
+        _js = self._fetch_layer_file("MeshLayer.js")
+        return self.add_layer(_js, {
+            "data": data
         }, name=name)
