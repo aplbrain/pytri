@@ -61,13 +61,20 @@ class pytri:
         with open(s_file, 'r') as fh:
             js += ";\n\n" + fh.read().strip()
 
+        gpu_file = join(s_path, "js", "GPUParticleSystem.js")
+        js2 = ""
+        with open(gpu_file, 'r') as fh:
+            js2 += ";\n\n" + fh.read().strip()
+
         self.js = js
+        self.gpu_js = js2
         self.uid = str(uuid.uuid4())
         self.layers = set()
 
         display(HTML(
             "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
+            "<script>{}</script>".format(self.gpu_js) +
             """
             <script>
             window.V = window.V || {}
@@ -263,6 +270,31 @@ class pytri:
             "radius": r,
             "colors": c
         }, name=name)
+
+    
+    def large_graph(self, data, name=None) -> str:
+        """
+        Add a large graph to the visualizer using the GPU particle system.
+
+        Arguments:
+            data (networkx.graph)
+
+        Returns:
+            name of layer (string)
+        """
+        if isinstance(data, nx.Graph):
+            data = json_graph.node_link_data(data)
+        x_vals = [n['x'] for n in data['nodes']]
+        y_vals = [n['y'] for n in data['nodes']]
+        z_vals = [n['z'] for n in data['nodes']]
+        minmax = [max(x_vals), min(x_vals), max(y_vals), min(y_vals), max(z_vals), min(z_vals)]
+
+        _js = self._fetch_layer_file("LargeGraphLayer.js")
+        return self.add_layer(_js, {
+            "graph": data,
+            "minMaxVals": minmax
+        }, name=name)
+
 
     def fibers(self, data, c=0xbabe00, alpha=0.5, name=None) -> str:
         """
