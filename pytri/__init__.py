@@ -360,3 +360,26 @@ class pytri:
         return self.add_layer(_js, {
             "data": data
         }, name=name)
+    
+    def animation_layer(self, graph_layer, on_nodes, color=0xff0000, name=None) -> str:
+        """
+        Add an animation on top of a layer. Currently only supports a graph.
+
+        Arguments:
+            graph_layer (str): layer to put an animation on top of
+
+        Returns:
+            str: Name of animation layer
+
+        """
+        # take in graph layer name and find this layer in visualizer
+        _js = self._fetch_layer_file("AnimationLayer.js")
+        
+        return self.add_layer(_js, {
+            "visualizer": self.uid,
+            "graphName": graph_layer,
+            "onNodes": on_nodes,
+            "color": color
+        }, name=name)
+        # pass the actual graph that the graph layer has into the animation layer
+        # 

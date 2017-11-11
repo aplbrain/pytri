@@ -35,6 +35,7 @@ class GraphLayer extends Layer {
             } else {
                 sph.position.set(...n);
             }
+            sph.name = "node" + String(this.data.nodes[i]['id'])
             this.children.push(sph);
             scene.add(sph);
         }
