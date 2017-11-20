@@ -26,7 +26,7 @@ import networkx as nx
 from networkx.readwrite import json_graph
 
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 class pytri:
