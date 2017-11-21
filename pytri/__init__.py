@@ -267,12 +267,12 @@ class pytri:
 
         # create a data URI using the io object
         data_io.seek(0, 0)
-        data_uri = "data:image/png;{}".format(b64encode(data_io.read()))
+        data_uri = "data:image/png;base64,{}".format(b64encode(data_io.read()).decode("utf-8"))
 
         # send data to ImageLayer
         _js = self._fetch_layer_file("ImageLayer.js")
         return self.add_layer(_js, {
-            "data": data_uri,
+            "dataURI": data_uri,
             "width": width,
             "height": height,
             "position": position,
