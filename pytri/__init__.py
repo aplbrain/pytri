@@ -15,6 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from base64 import b64encode
+from io import BytesIO
+from PIL import Image
 import uuid
 import json
 from os.path import join, split
@@ -240,6 +243,40 @@ class pytri:
             }
         """
         return self.add_layer(_js, name='axes')
+
+    def imshow(self, data, width, height, position, name=None) -> str:
+        """
+        Add an image plane to the scene.
+
+        Arguments:
+            data (np.ndarray)
+            width (int)
+            height (int)
+            position (dict)
+
+        Returns:
+            str: Name, as inserted
+
+        """
+
+        # use io object to hold data as png
+        data_io = BytesIO()
+        data_io.name = "temp.png"
+        data_image = Image.fromarray(data)
+        data_image.save(data_io)
+
+        # create a data URI using the io object
+        data_io.seek(0, 0)
+        data_uri = "data:image/png;{}".format(b64encode(data_io.read()))
+
+        # send data to ImageLayer
+        _js = self._fetch_layer_file("ImageLayer.js")
+        return self.add_layer(_js, {
+            "data": data_uri,
+            "width": width,
+            "height": height,
+            "position": position,
+        }, name=name)
 
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
         """
