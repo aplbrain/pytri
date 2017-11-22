@@ -259,10 +259,19 @@ class pytri:
 
         """
 
+        # handle different input types
+        mode_map = {
+            2: "L",
+            3: "RGB",
+            4: "RGBA"}
+        mode = mode_map[len(data.shape)]
+        if mode == "L":
+            data = np.uint8(data)
+
         # use io object to hold data as png
         data_io = BytesIO()
         data_io.name = "temp.png"
-        data_image = Image.fromarray(data)
+        data_image = Image.fromarray(data, mode)
         data_image.save(data_io)
 
         # create a data URI using the io object
@@ -270,11 +279,13 @@ class pytri:
         data_uri = "data:image/png;base64,{}".format(b64encode(data_io.read()).decode("utf-8"))
 
         # send data to ImageLayer
+        # 400 comes from the height in the show method
         _js = self._fetch_layer_file("ImageLayer.js")
+        height_scale = 400
         return self.add_layer(_js, {
             "dataURI": data_uri,
-            "width": width,
-            "height": height,
+            "width": height_scale*width/height,
+            "height": height_scale,
             "position": position,
         }, name=name)
 
