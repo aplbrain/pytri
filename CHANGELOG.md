@@ -1,4 +1,4 @@
-- **0.1.5**
+- **0.1.2** (November 20, 2017)
     - `pytri#mesh`: Add a obj-formatted mesh to the scene
     - `pytri#clear`: Clears all objects from a visualizer
     - Remote (HTTP) layer fetching (@hpcowley)
