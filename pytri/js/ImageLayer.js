@@ -31,7 +31,7 @@ class ImageLayer extends Layer {
                 self.position["x"],
                 self.position["y"],
                 self.position["z"]);
-        
+
         self.children.push(plane);
         scene.add(plane);
     }
