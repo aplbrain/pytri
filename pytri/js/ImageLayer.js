@@ -28,9 +28,10 @@ class ImageLayer extends Layer {
         );
         plane.rotation.setFromRotationMatrix(rotationMatrix);
         plane.position.set(
-                self.position["x"],
-                self.position["y"],
-                self.position["z"]);
+            self.position["x"],
+            self.position["y"],
+            self.position["z"]
+        );
 
         self.children.push(plane);
         scene.add(plane);
