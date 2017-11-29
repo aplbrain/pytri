@@ -243,7 +243,7 @@ class pytri:
         """
         return self.add_layer(_js, name='axes')
 
-    def imshow(self, data, width, height, position, name=None) -> str:
+    def imshow(self, data, position, name=None) -> str:
         """
         Add an image plane to the scene.
 
@@ -281,6 +281,8 @@ class pytri:
         # send data to ImageLayer
         # 400 comes from the height in the show method
         _js = self._fetch_layer_file("ImageLayer.js")
+        width = data.shape[1]
+        height = data.shape[0]
         height_scale = 400
         return self.add_layer(_js, {
             "dataURI": data_uri,
