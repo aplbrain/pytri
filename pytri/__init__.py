@@ -17,16 +17,15 @@ limitations under the License.
 
 from base64 import b64encode
 from io import BytesIO
-from PIL import Image
-import uuid
 import json
 from os.path import join, split
 import re
-import requests
-import numpy as np
+import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
+import numpy as np
+import requests
 
 
 __version__ = "0.1.2"
@@ -258,6 +257,7 @@ class pytri:
             str: Name, as inserted
 
         """
+        from PIL import Image
 
         # handle different input types
         mode_map = {
@@ -270,7 +270,7 @@ class pytri:
 
         # use io object to hold data as png
         data_io = BytesIO()
-        data_io.name = "temp.png"
+        data_io.name = "temp.png" # type: ignore
         data_image = Image.fromarray(data, mode)
         data_image.save(data_io)
 
