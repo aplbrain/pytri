@@ -270,9 +270,8 @@ class pytri:
 
         # use io object to hold data as png
         data_io = BytesIO()
-        data_io.name = "temp.png" # type: ignore
         data_image = Image.fromarray(data, mode)
-        data_image.save(data_io)
+        data_image.save(data_io, format="PNG")
 
         # create a data URI using the io object
         data_io.seek(0, 0)
