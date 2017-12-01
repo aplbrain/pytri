@@ -26,7 +26,7 @@ import networkx as nx
 from networkx.readwrite import json_graph
 
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 
 
 class pytri:
@@ -265,7 +265,7 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, r=0.15, c=0xbabe00, name=None) -> str:
+    def graph(self, data, r=0.15, nc=0xbabe00, lc=0x00babe, name=None) -> str:
         """
         Add a graph to the visualizer.
 
@@ -282,11 +282,11 @@ class pytri:
             data = json_graph.node_link_data(data)
 
         _js = self._fetch_layer_file("GraphLayer.js")
-        #_js = self._fetch_layer_github("GraphLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
-            "colors": c
+            "nodeColors": nc,
+            "linkColors": lc
         }, name=name)
 
 
