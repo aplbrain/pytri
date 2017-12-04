@@ -314,7 +314,7 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, r=0.15, nc=0xbabe00, lc=0x00babe, name=None) -> str:
+    def graph(self, data, r=0.15, node_color=0xbabe00, link_color=0x00babe, name=None) -> str:
         """
         Add a graph to the visualizer.
 
@@ -334,8 +334,8 @@ class pytri:
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
-            "nodeColors": nc,
-            "linkColors": lc
+            "nodeColor": node_color,
+            "linkColor": link_color,
         }, name=name)
 
 

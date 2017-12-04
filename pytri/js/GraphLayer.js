@@ -4,11 +4,11 @@ class GraphLayer extends Layer {
 
         this.setData = this.setData.bind(this);
         this.radius = opts.radius || 0.15;
-        this.nodeColors = opts.nodeColors || 0xbabe00;
-        this.linkColors = opts.linkColors || 0x00babe;
+        this.nodeColor = opts.nodeColor || 0xbabe00;
+        this.linkColor = opts.linkColor || 0x00babe;
 
-        this.nodeColorsIsArray = Array.isArray(this.nodeColors);
-        this.linkColorsIsArray = Array.isArray(this.linkColors);
+        this.nodeColorIsArray = Array.isArray(this.nodeColor);
+        this.linkColorIsArray = Array.isArray(this.linkColor);
 
         this.setData(opts.data);
     }
@@ -22,7 +22,7 @@ class GraphLayer extends Layer {
             let sph = new window.THREE.Mesh(
                 new window.THREE.SphereGeometry(this.radius, 6, 6),
                 new window.THREE.MeshBasicMaterial({
-                    color: this.nodeColorsIsArray ? this.nodeColors[i] : this.nodeColors
+                    color: this.nodeColorIsArray ? this.nodeColor[i] : this.nodeColor
                 })
             );
 
@@ -47,7 +47,7 @@ class GraphLayer extends Layer {
         for (let i = 0; i < this.data.links.length; i++) {
             let edgeGeometry = new window.THREE.Geometry();
             let edgeMaterial = new window.THREE.LineBasicMaterial({
-                color: this.linkColorsIsArray ? this.linkColors[i] : this.linkColors,
+                color: this.linkColorIsArray ? this.linkColor[i] : this.linkColor,
                 transparent: true,
                 opacity: this.data.links[i].weight || 1,
                 linewidth: this.data.links[i].weight || 1,
