@@ -15,15 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import uuid
+from base64 import b64encode
+from io import BytesIO
 import json
 from os.path import join, split
 import re
-import requests
-import numpy as np
+import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
+import numpy as np
+import requests
 
 
 __version__ = "0.2.0"
@@ -240,6 +242,53 @@ class pytri:
             }
         """
         return self.add_layer(_js, name='axes')
+
+    def imshow(self, data, position, name=None) -> str:
+        """
+        Add an image plane to the scene.
+
+        Arguments:
+            data (np.ndarray)
+            width (int)
+            height (int)
+            position (dict)
+
+        Returns:
+            str: Name, as inserted
+
+        """
+        from PIL import Image
+
+        # handle different input types
+        mode_map = {
+            2: "L",
+            3: "RGB",
+            4: "RGBA"}
+        mode = mode_map[len(data.shape)]
+        if mode == "L":
+            data = np.uint8(data)
+
+        # use io object to hold data as png
+        data_io = BytesIO()
+        data_image = Image.fromarray(data, mode)
+        data_image.save(data_io, format="PNG")
+
+        # create a data URI using the io object
+        data_io.seek(0, 0)
+        data_uri = "data:image/png;base64,{}".format(b64encode(data_io.read()).decode("utf-8"))
+
+        # send data to ImageLayer
+        # 400 comes from the height in the show method
+        _js = self._fetch_layer_file("ImageLayer.js")
+        width = data.shape[1]
+        height = data.shape[0]
+        height_scale = 400
+        return self.add_layer(_js, {
+            "dataURI": data_uri,
+            "width": height_scale*width/height,
+            "height": height_scale,
+            "position": position,
+        }, name=name)
 
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
         """
