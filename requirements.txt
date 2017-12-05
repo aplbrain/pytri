@@ -7,3 +7,4 @@ IPython
 requests
 networkx
 numpy
+pillow
