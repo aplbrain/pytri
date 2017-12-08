@@ -1,5 +1,3 @@
-
-
 class GraphLayer extends Layer {
     constructor(opts) {
         super(opts);
