@@ -11,7 +11,7 @@ title: pytri#graph
 <br />
 
 ```python
-pytri.graph(data, [r], [nc], [lc])
+pytri.graph(data, [radius], [node_color], [link_color], [name])
 ```
 
 ### Arguments
@@ -20,6 +20,7 @@ pytri.graph(data, [r], [nc], [lc])
         * `graph.add_node(id, pos=(x_pos, y_pos, z_pos))`
         * `graph.add_node(id, pos ={'x': x_pos, 'y': y_pos, 'z': z_pos})`
         * `graph.add_node(id, x=x_pos, y=y_pos, z=z_pos)`
-* `r` (Optional): Radius of nodes in the visualization.
-* `nc` (Optional): Colors of nodes in the visualization.
-* `lc` (Optional): Colors of the links in the visualization.
+* `radius` (Optional): Radius of nodes in the visualization. This can either be a float or a list of floats (one for each node).
+* `node_color` (Optional): Colors of nodes in the visualization. This can either be a float or a list of floats (one for each node).
+* `link_color` (Optional): Colors of the links in the visualization. This can either be a float or a list of floats (one for each link).
+* `name` (Optional): Name of the layer.
