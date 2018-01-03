@@ -20,6 +20,7 @@ from io import BytesIO
 import json
 from os.path import join, split
 import re
+from typing import Sequence, Union
 import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
@@ -28,7 +29,7 @@ import numpy as np
 import requests
 
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
 class pytri:
@@ -314,17 +315,21 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, r=0.15, node_color=0xbabe00, link_color=0x00babe, name=None) -> str:
+    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
+              node_color: Union[float, Sequence[float]] = 0xbabe00,
+              link_color: Union[float, Sequence[float]] = 0x00babe, name: str = None) -> str:
         """
         Add a graph to the visualizer.
 
         Arguments:
-            data (networkx.graph)
-            r (float | list)
-            c (float | list)
+            data (networkx.Graph)
+            radius (float | list)
+            node_color (float | list)
+            link_color (float | list)
+            name (str)
 
         Returns:
-            str: Name, as inserted
+            str: name of the layer
 
         """
         if isinstance(data, nx.Graph):
@@ -332,36 +337,39 @@ class pytri:
 
         _js = self._fetch_layer_file("GraphLayer.js")
         return self.add_layer(_js, {
-            "data": data,
-            "radius": r,
+            "graph": data,
+            "radius": radius,
             "nodeColor": node_color,
             "linkColor": link_color,
         }, name=name)
 
 
-    def large_graph(self, data, r=2, c=0x000000, name=None) -> str:
+    def large_graph(self, data, radius: Union[float, Sequence[float]] = 2,
+                    node_color: Union[float, Sequence[float]] = 0xbabe00,
+                    link_color: Union[float, Sequence[float]] = 0x00babe,
+                    name: str = None) -> str:
         """
         Add a large graph to the visualizer using the GPU particle system.
 
         Arguments:
             data (networkx.graph)
+            radius (float | list)
+            node_color (float | list)
+            link_color (float | list)
+            name (str)
 
         Returns:
-            name of layer (string)
+            str: name of the layer.
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-        x_vals = [n['x'] for n in data['nodes']]
-        y_vals = [n['y'] for n in data['nodes']]
-        z_vals = [n['z'] for n in data['nodes']]
-        minmax = [max(x_vals), min(x_vals), max(y_vals), min(y_vals), max(z_vals), min(z_vals)]
 
         _js = self._fetch_layer_file("LargeGraphLayer.js")
         return self.add_layer(_js, {
             "graph": data,
-            "node_size": r,
-            "color": c,
-            "minMaxVals": minmax
+            "nodeSize": radius,
+            "nodeColor": node_color,
+            "linkColor": link_color,
         }, name=name)
 
 
