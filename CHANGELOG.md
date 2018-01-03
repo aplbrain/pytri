@@ -1,5 +1,6 @@
 - **0.2.0**
     - Fix coloring of edges/nodes in `pytri#graph` and `pytri#large_graph` (@mlw214)
+    - `pytri#imshow` (@jtpdowns)
 - **0.1.2** (November 20, 2017)
     - `pytri#mesh`: Add a obj-formatted mesh to the scene
     - `pytri#clear`: Clears all objects from a visualizer
