@@ -248,6 +248,7 @@ class pytri:
             self,
             data,
             position={"x": 0, "y": 0, "z": 0},
+            rotation={"x": 0, "y": 0, "z": 0},
             scale=10.,
             name=None
     ) -> str:
@@ -295,6 +296,7 @@ class pytri:
             "width": scale*width/height,
             "height": scale,
             "position": position,
+            "rotation": rotation
         }, name=name)
 
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
