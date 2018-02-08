@@ -28,7 +28,6 @@ class ImageLayer extends Layer {
             0, 0, 0, 1
         );
         plane.rotation.setFromRotationMatrix(rotationMatrix);
-        console.log(self.rotation)
         plane.rotation.set(
             self.rotation["x"],
             self.rotation["y"],
