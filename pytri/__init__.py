@@ -291,11 +291,11 @@ class pytri:
         width = data.shape[1]
         height = data.shape[0]
 
-        if position == None:
+        if position is None:
             position = {"x": 0, "y": 0, "z": 0}
-        if rotation == None:
+        if rotation is None:
             rotation = {"x": 0, "y": 0, "z": 0}
-        
+
         return self.add_layer(_js, {
             "dataURI": data_uri,
             "width": scale*width/height,
