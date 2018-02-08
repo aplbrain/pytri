@@ -17,9 +17,11 @@ class ImageLayer extends Layer {
         image.src = self.dataURI;
         let texture = new window.THREE.Texture(image);
         texture.needsUpdate = true;
-        let material = new window.THREE.MeshBasicMaterial({map: texture});
+        let material = new window.THREE.MeshBasicMaterial({
+            map: texture,
+            side: window.THREE.DoubleSide
+        });
         let plane = new window.THREE.Mesh(geometry, material);
-        plane.material.side = window.THREE.FrontSide;
         let rotationMatrix = new Matrix4();
         rotationMatrix.set(
             0, 1, 0, 0,
