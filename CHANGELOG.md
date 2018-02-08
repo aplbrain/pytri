@@ -1,3 +1,5 @@
+- **0.2.1**
+    - Change image planes to render double-sided (@hpcowley)
 - **0.2.0** (January 22, 2018)
     - Fix coloring of edges/nodes in `pytri#graph` and `pytri#large_graph` (@mlw214)
     - `pytri#imshow` (@jtpdowns)
