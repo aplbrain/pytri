@@ -292,12 +292,12 @@ class pytri:
         width = data.shape[1]
         height = data.shape[0]
 
-        if square == True:
+        if square is True:
             ar = float(width / height)
             if ar < 1:
                 width = width * ar
             elif ar > 1:
-                height = height * ar   
+                height = height * ar
         if width < scale:
             width = width * scale
         elif width > scale:
@@ -306,7 +306,7 @@ class pytri:
             height = height * scale
         elif height > scale:
             height = height / scale
-            
+
         if position is None:
             position = {"x": 0, "y": 0, "z": 0}
         if rotation is None:
