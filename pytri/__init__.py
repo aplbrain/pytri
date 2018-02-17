@@ -250,7 +250,7 @@ class pytri:
             position=None,
             rotation=None,
             scale=10.,
-            aspect_ratio=None,
+            square=False,
             name=None
     ) -> str:
         """
@@ -292,21 +292,19 @@ class pytri:
         width = data.shape[1]
         height = data.shape[0]
 
-        if aspect_ratio is None:
+        if square == True:
             ar = float(width / height)
-        else:
-            ar = float(aspect_ratio[0]/aspect_ratio[1])
-
-        if ar < 1:
-            width = width * ar
-        elif ar > 1:
-            height = height * ar
-
+            if ar < 1:
+                width = width * ar
+            elif ar > 1:
+                height = height * ar   
         if width < scale:
             width = width * scale
-            height = height * scale
         elif width > scale:
             width = width / scale
+        if height < scale:
+            height = height * scale
+        elif height > scale:
             height = height / scale
             
         if position is None:
