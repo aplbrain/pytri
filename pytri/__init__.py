@@ -249,6 +249,7 @@ class pytri:
             data,
             position={"x": 0, "y": 0, "z": 0},
             scale=10.,
+            aspect_ratio=None,
             name=None
     ) -> str:
         """
@@ -290,10 +291,32 @@ class pytri:
         width = data.shape[1]
         height = data.shape[0]
 
+        if aspect_ratio is None:
+            ar = float(width / height)
+        else:
+            ar = float(aspect_ratio[0]/aspect_ratio[1])
+
+        if ar < 1:
+            width = width * ar
+        elif ar > 1:
+            height = height * ar
+
+        if width < scale:
+            width = width * scale
+            height = height * scale
+        elif width > scale:
+            width = width / scale
+            height = height / scale
+            
+        if position is None:
+            position = {"x": 0, "y": 0, "z": 0}
+        if rotation is None:
+            rotation = {"x": 0, "y": 0, "z": 0}
+
         return self.add_layer(_js, {
             "dataURI": data_uri,
-            "width": scale*width/height,
-            "height": scale,
+            "width": width,
+            "height": height,
             "position": position,
         }, name=name)
 
