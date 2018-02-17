@@ -247,7 +247,8 @@ class pytri:
     def imshow(
             self,
             data,
-            position={"x": 0, "y": 0, "z": 0},
+            position=None,
+            rotation=None,
             scale=10.,
             aspect_ratio=None,
             name=None
@@ -318,6 +319,7 @@ class pytri:
             "width": width,
             "height": height,
             "position": position,
+            "rotation": rotation
         }, name=name)
 
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
