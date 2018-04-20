@@ -94,8 +94,9 @@ class pytri:
             </script>
             """
         ))
+        
 
-    def show(self):
+    def show(self, full_screen=False):
         """
         Render the frame to the Jupyter notebook.
 
@@ -103,15 +104,74 @@ class pytri:
             None
 
         """
-        display(HTML(
-            """<div id='pytri-target-"""+self.uid+"""'></div>"""  +
+        show_script = ("""<div id='pytri-target-"""+self.uid+"""'></div>"""+
             """
             <script>
             V['"""+self.uid+"""'].props.targetElement = "pytri-target-"""+self.uid+"""";
             V['"""+self.uid+"""'].triggerRender();
             V['"""+self.uid+"""'].resize(undefined, 400)
+
+            document.addEventListener ("keydown", function (full) {
+                if (full.shiftKey && full.code == "KeyF") {
+                    document.body.classList.remove('substrate-fullscreen')
+                    window.V['"""+self.uid+"""'].resize()   
+                }
+            })
             </script>
-            """
+        """)
+
+        styling_fs = ("""
+            <style>
+            .substrate-fullscreen .CodeMirror-line {
+                z-index: -1 !important;
+            }
+
+            .substrate-fullscreen [id^='pytri-target'] {
+                zIndex:  1000000;
+                position:  fixed;
+                width:  100%;
+                height: 100%;
+                top:  0;
+                bottom: 0;
+                left:  0;
+                right:  0;
+            }
+            document.body.classList.add('substrate-fullscreen')
+            window.V['"""+self.uid+"""'].resize()   
+            </script>
+        """)
+        if full_screen:
+            display(HTML(
+                show_script +
+                styling_fs
+        ))
+        else:
+            display(HTML(
+                show_script
+            ))
+    
+    def full_screen(self):
+        display(HTML("""
+            <style>
+            .substrate-fullscreen .CodeMirror-line {
+                z-index: -1 !important;
+            }
+
+            .substrate-fullscreen [id^='pytri-target'] {
+                zIndex:  1000000;
+                position:  fixed;
+                width:  100%;
+                height: 100%;
+                top:  0;
+                bottom: 0;
+                left:  0;
+                right:  0;
+            }
+            </style>
+
+            <script>
+            document.body.classList.add('substrate-fullscreen')
+            window.V['"""+self.uid+"""'].resize()"""
         ))
 
     def remove_layer(self, name):
