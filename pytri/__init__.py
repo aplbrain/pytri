@@ -119,7 +119,7 @@ class pytri:
                 document.addEventListener ("keydown", function (full) {
                     if (full.shiftKey && full.code == "KeyF") {
                         document.body.classList.remove('substrate-fullscreen')
-                        window.V['"""+self.uid+"""'].resize()   
+                        window.V['"""+self.uid+"""'].resize(undefined, 400)  
                     }
                 })
             }
