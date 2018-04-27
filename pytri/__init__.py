@@ -92,7 +92,7 @@ class pytri:
             let dd = document.getElementById("pytri-target-decoy");
             dd.remove();
 
-            var fullScreenListener = false;
+            window.fullScreenListener = window.fullScreenListener || false
             </script>
             """
         ))
@@ -115,13 +115,15 @@ class pytri:
             </script>
 
             <script>
-            if (!fullScreenListener) {
+            if (window.fullScreenListener === false) {
+                console.log("no listener!")
                 document.addEventListener ("keydown", function (full) {
                     if (full.shiftKey && full.code == "KeyF") {
                         document.body.classList.remove('substrate-fullscreen')
                         window.V['"""+self.uid+"""'].resize(undefined, 400)  
                     }
                 })
+                window.fullScreenListener = true
             }
             
             </script>
@@ -181,6 +183,15 @@ class pytri:
             <script>
             document.body.classList.add('substrate-fullscreen')
             window.V['"""+self.uid+"""'].resize()
+            if (window.fullScreenListener === false) {
+                document.addEventListener ("keydown", function (full) {
+                    if (full.shiftKey && full.code == "KeyF") {
+                        document.body.classList.remove('substrate-fullscreen')
+                        window.V['"""+self.uid+"""'].resize(undefined, 400)  
+                    }
+                })
+                window.fullScreenListener = true
+            }
             </script>"""
         ))
 
