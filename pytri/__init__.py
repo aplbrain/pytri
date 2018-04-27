@@ -91,6 +91,8 @@ class pytri:
             V['"""+self.uid+"""'].init();
             let dd = document.getElementById("pytri-target-decoy");
             dd.remove();
+
+            var fullScreenListener = false;
             </script>
             """
         ))
@@ -110,17 +112,22 @@ class pytri:
             V['"""+self.uid+"""'].props.targetElement = "pytri-target-"""+self.uid+"""";
             V['"""+self.uid+"""'].triggerRender();
             V['"""+self.uid+"""'].resize(undefined, 400)
+            </script>
 
-            document.addEventListener ("keydown", function (full) {
-                if (full.shiftKey && full.code == "KeyF") {
-                    document.body.classList.remove('substrate-fullscreen')
-                    window.V['"""+self.uid+"""'].resize()   
-                }
-            })
+            <script>
+            if (!fullScreenListener) {
+                document.addEventListener ("keydown", function (full) {
+                    if (full.shiftKey && full.code == "KeyF") {
+                        document.body.classList.remove('substrate-fullscreen')
+                        window.V['"""+self.uid+"""'].resize()   
+                    }
+                })
+            }
+            
             </script>
         """)
 
-        styling_fs = ("""
+        styling_fs = """
             <style>
             .substrate-fullscreen .CodeMirror-line {
                 z-index: -1 !important;
@@ -136,10 +143,12 @@ class pytri:
                 left:  0;
                 right:  0;
             }
+            </style>
+            <script>
             document.body.classList.add('substrate-fullscreen')
             window.V['"""+self.uid+"""'].resize()   
             </script>
-        """)
+        """
         if full_screen:
             display(HTML(
                 show_script +
@@ -171,7 +180,8 @@ class pytri:
 
             <script>
             document.body.classList.add('substrate-fullscreen')
-            window.V['"""+self.uid+"""'].resize()"""
+            window.V['"""+self.uid+"""'].resize()
+            </script>"""
         ))
 
     def remove_layer(self, name):
