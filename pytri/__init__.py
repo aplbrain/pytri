@@ -115,16 +115,14 @@ class pytri:
             </script>
 
             <script>
-            if (window.fullScreenListener === false) {
-                console.log("no listener!")
+
                 document.addEventListener ("keydown", function (full) {
                     if (full.shiftKey && full.code == "KeyF") {
                         document.body.classList.remove('substrate-fullscreen')
                         window.V['"""+self.uid+"""'].resize(undefined, 400)  
                     }
                 })
-                window.fullScreenListener = true
-            }
+
             
             </script>
         """)
@@ -135,7 +133,7 @@ class pytri:
                 z-index: -1 !important;
             }
 
-            .substrate-fullscreen [id^='pytri-target'] {
+            .substrate-fullscreen [id$='"""+self.uid+"""'] {
                 zIndex:  1000000;
                 position:  fixed;
                 width:  100%;
