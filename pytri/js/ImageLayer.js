@@ -5,6 +5,7 @@ class ImageLayer extends Layer {
         this.width = opts.width;
         this.height = opts.height;
         this.position = opts.position;
+        this.rotation = opts.rotation;
     }
 
     requestInit(scene) {
@@ -29,6 +30,11 @@ class ImageLayer extends Layer {
             0, 0, 0, 1
         );
         plane.rotation.setFromRotationMatrix(rotationMatrix);
+        plane.rotation.set(
+            self.rotation["x"],
+            self.rotation["y"],
+            self.rotation["z"]
+        )
         plane.position.set(
             self.position["x"],
             self.position["y"],

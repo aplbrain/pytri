@@ -247,7 +247,8 @@ class pytri:
     def imshow(
             self,
             data,
-            position={"x": 0, "y": 0, "z": 0},
+            position=None,
+            rotation=None,
             scale=10.,
             name=None
     ) -> str:
@@ -290,11 +291,17 @@ class pytri:
         width = data.shape[1]
         height = data.shape[0]
 
+        if position is None:
+            position = {"x": 0, "y": 0, "z": 0}
+        if rotation is None:
+            rotation = {"x": 0, "y": 0, "z": 0}
+
         return self.add_layer(_js, {
             "dataURI": data_uri,
             "width": scale*width/height,
             "height": scale,
             "position": position,
+            "rotation": rotation
         }, name=name)
 
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
