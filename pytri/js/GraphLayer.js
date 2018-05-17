@@ -2,69 +2,81 @@ class GraphLayer extends Layer {
     constructor(opts) {
         super(opts);
 
-        this.setData = this.setData.bind(this);
-        this.radius = opts.radius || 0.15;
-        this.colors = opts.colors || 0x00babe;
-        if (typeof(this.colors) == "number") {
-            this.c_array = false;
-        } else {
-            this.c_array = true;
-        }
-        this.setData(opts.data);
+        this.graph = opts.graph;
+        this.nodeSize = opts.radius || 0.15;
+        this.nodeColor = opts.nodeColor || 0xbabe00;
+        this.linkColor = opts.linkColor || 0x00babe;
+
+        this.nodeSizeIsArray = Array.isArray(this.nodeSize);
+        this.nodeColorIsArray = Array.isArray(this.nodeColor);
+        this.linkColorIsArray = Array.isArray(this.linkColor);
     }
 
-    setData(data) {
-        this.data = data;
-        this.requestInit;
+    _getNodePosition(node) {
+        let pos = {};
+        if ('pos' in node) {
+            if (Array.isArray(node.pos)) {
+                pos = {
+                    x: node.pos[0],
+                    y: node.pos[1],
+                    z: node.pos[2]
+                };
+            } else {
+                pos = node.pos;
+            }
+        } else if ('x' in node && 'y' in node && 'z' in node) {
+            pos = {
+                x: node.x,
+                y: node.y,
+                z: node.z
+            };
+        }
+        if (typeof pos.x != 'number' || typeof pos.y != 'number' || typeof pos.z != 'number') {
+            throw Error('missing coordinates in node');
+        }
+
+        return pos;
     }
 
     requestInit(scene) {
-        let n = this.data.nodes[0].pos;
-        let usexyz = ('x' in n);
-        for (let i = 0; i < this.data.nodes.length; i++) {
+        this.graph.nodes.forEach((node, i) => {
             let sph = new window.THREE.Mesh(
-                new window.THREE.SphereGeometry(this.radius, 6, 6),
+                new window.THREE.SphereGeometry(
+                    this.nodeSizeIsArray ? this.nodeSize[i] : this.nodeSize, 6, 6
+                ),
                 new window.THREE.MeshBasicMaterial({
-                    color: this.c_array ? this.colors[i] : this.colors
+                    color: this.nodeColorIsArray ? this.nodeColor[i] : this.nodeColor
                 })
             );
-
-            let n = this.data.nodes[i].pos;
-            if (usexyz) {
-                sph.position.set(n.x, n.y, n.z);
-            } else {
-                sph.position.set(...n);
-            }
+            let pos = this._getNodePosition(node);
+            sph.position.set(pos.x, pos.y, pos.z);
             this.children.push(sph);
             scene.add(sph);
-        }
+        });
 
-        for (let i = 0; i < this.data.links.length; i++) {
+        this.graph.links.forEach((link, i) => {
             let edgeGeometry = new window.THREE.Geometry();
             let edgeMaterial = new window.THREE.LineBasicMaterial({
-                color: 0xbabe00 * (this.data.links[i].weight || 1),
+                color: this.linkColorIsArray ? this.linkColor[i] : this.linkColor,
                 transparent: true,
-                opacity: this.data.links[i].weight || 1,
-                linewidth: this.data.links[i].weight || 1,
+                opacity: link.weight || 1,
+                linewidth: link.weight || 1,
             });
-            let sn = this.data.nodes[this.data.links[i].source].pos;
-            let tn = this.data.nodes[this.data.links[i].target].pos;
 
-            if (usexyz) {
-                edgeGeometry.vertices.push(
-                    new window.THREE.Vector3(sn.x, sn.y, sn.z),
-                    new window.THREE.Vector3(tn.x, tn.y, tn.z)
-                );
-            } else {
-                edgeGeometry.vertices.push(
-                    new window.THREE.Vector3(...sn),
-                    new window.THREE.Vector3(...tn)
-                );
-            }
+            let sn = this.graph.nodes[link.source];
+            let tn = this.graph.nodes[link.target];
+
+            let snPos = this._getNodePosition(sn);
+            let tnPos = this._getNodePosition(tn);
+
+            let v1 = new window.THREE.Vector3(snPos.x, snPos.y, snPos.z);
+            let v2 = new window.THREE.Vector3(tnPos.x, tnPos.y, tnPos.z);
+
+            edgeGeometry.vertices.push(v1, v2);
 
             let line = new window.THREE.Line(edgeGeometry, edgeMaterial);
             this.children.push(line);
             scene.add(line);
-        }
+        });
     }
 }

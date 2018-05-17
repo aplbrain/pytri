@@ -15,18 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import uuid
+from base64 import b64encode
+from io import BytesIO
 import json
 from os.path import join, split
 import re
-import requests
-import numpy as np
+from typing import Sequence, Union
+import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
 from networkx.readwrite import json_graph
+import numpy as np
+import requests
 
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 
 
 class pytri:
@@ -241,6 +244,66 @@ class pytri:
         """
         return self.add_layer(_js, name='axes')
 
+    def imshow(
+            self,
+            data,
+            position=None,
+            rotation=None,
+            scale=10.,
+            name=None
+    ) -> str:
+        """
+        Add an image plane to the scene.
+
+        Arguments:
+            data (np.ndarray)
+            position (dict: x,y,z)
+            scale (float: 10)
+
+        Returns:
+            str: Name, as inserted
+
+        """
+        from PIL import Image
+
+        # handle different input types
+        mode_map = {
+            2: "L",
+            3: "RGB",
+            4: "RGBA"}
+        mode = mode_map[len(data.shape)]
+        if mode == "L":
+            data = np.uint8(data)
+
+        # use io object to hold data as png
+        data_io = BytesIO()
+        data_image = Image.fromarray(data, mode)
+        data_image.save(data_io, format="PNG")
+
+        # create a data URI using the io object
+        data_io.seek(0, 0)
+        data_uri = "data:image/png;base64,{}".format(b64encode(data_io.read()).decode("utf-8"))
+
+        # send data to ImageLayer
+        # 400 comes from the height in the show method
+        _js = self._fetch_layer_file("ImageLayer.js")
+
+        width = data.shape[1]
+        height = data.shape[0]
+
+        if position is None:
+            position = {"x": 0, "y": 0, "z": 0}
+        if rotation is None:
+            rotation = {"x": 0, "y": 0, "z": 0}
+
+        return self.add_layer(_js, {
+            "dataURI": data_uri,
+            "width": scale*width/height,
+            "height": scale,
+            "position": position,
+            "rotation": rotation
+        }, name=name)
+
     def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
         """
         Add a 3D scatter to the scene.
@@ -265,54 +328,61 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, r=0.15, c=0xbabe00, name=None) -> str:
+    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
+              node_color: Union[float, Sequence[float]] = 0xbabe00,
+              link_color: Union[float, Sequence[float]] = 0x00babe, name: str = None) -> str:
         """
         Add a graph to the visualizer.
 
         Arguments:
-            data (networkx.graph)
-            r (float | list)
-            c (float | list)
+            data (networkx.Graph)
+            radius (float | list)
+            node_color (float | list)
+            link_color (float | list)
+            name (str)
 
         Returns:
-            str: Name, as inserted
+            str: name of the layer
 
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
 
         _js = self._fetch_layer_file("GraphLayer.js")
-        #_js = self._fetch_layer_github("GraphLayer.js")
         return self.add_layer(_js, {
-            "data": data,
-            "radius": r,
-            "colors": c
+            "graph": data,
+            "radius": radius,
+            "nodeColor": node_color,
+            "linkColor": link_color,
         }, name=name)
 
 
-    def large_graph(self, data, r=2, c=0x000000, name=None) -> str:
+    def large_graph(self, data, radius: Union[float, Sequence[float]] = 2,
+                    node_color: Union[float, Sequence[float]] = 0xbabe00,
+                    link_color: Union[float, Sequence[float]] = 0x00babe,
+                    name: str = None) -> str:
         """
         Add a large graph to the visualizer using the GPU particle system.
 
         Arguments:
             data (networkx.graph)
+            radius (float | list)
+            node_color (float | list)
+            link_color (float | list)
+            name (str)
 
         Returns:
-            name of layer (string)
+            str: name of the layer.
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-        x_vals = [n['x'] for n in data['nodes']]
-        y_vals = [n['y'] for n in data['nodes']]
-        z_vals = [n['z'] for n in data['nodes']]
-        minmax = [max(x_vals), min(x_vals), max(y_vals), min(y_vals), max(z_vals), min(z_vals)]
 
         _js = self._fetch_layer_file("LargeGraphLayer.js")
         return self.add_layer(_js, {
             "graph": data,
-            "node_size": r,
-            "color": c,
-            "minMaxVals": minmax
+            "nodeSize": radius,
+            "nodeColor": node_color,
+            "linkColor": link_color,
         }, name=name)
 
 
