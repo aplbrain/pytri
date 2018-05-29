@@ -268,7 +268,7 @@ class pytri:
 
         # use io object to hold data as png
         data_io = BytesIO()
-        data_image = Image.fromarray(data)
+        data_image = Image.fromarray(data).convert('RGB')
         data_image.save(data_io, format="PNG")
 
         # create a data URI using the io object
