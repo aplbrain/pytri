@@ -266,18 +266,9 @@ class pytri:
         """
         from PIL import Image
 
-        # handle different input types
-        mode_map = {
-            2: "L",
-            3: "RGB",
-            4: "RGBA"}
-        mode = mode_map[len(data.shape)]
-        if mode == "L":
-            data = np.uint8(data)
-
         # use io object to hold data as png
         data_io = BytesIO()
-        data_image = Image.fromarray(data, mode)
+        data_image = Image.fromarray(data)
         data_image.save(data_io, format="PNG")
 
         # create a data URI using the io object
