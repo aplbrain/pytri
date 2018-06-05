@@ -249,7 +249,7 @@ class pytri:
             data,
             position=None,
             rotation=None,
-            scale=10.,
+            scale=(10.,),
             name=None
     ) -> str:
         """
@@ -279,8 +279,16 @@ class pytri:
         # 400 comes from the height in the show method
         _js = self._fetch_layer_file("ImageLayer.js")
 
-        width = data.shape[1]
-        height = data.shape[0]
+        if len(scale) == 1:
+            width = data.shape[1]
+            height = data.shape[0]
+            width = scale*width/height
+            height = scale
+        elif len(scale) == 2:
+            width = scale[1]
+            height = scale[0]
+        else:
+            raise ValueError("The scale tuple must have length one or two.")
 
         if position is None:
             position = {"x": 0, "y": 0, "z": 0}
@@ -289,8 +297,8 @@ class pytri:
 
         return self.add_layer(_js, {
             "dataURI": data_uri,
-            "width": scale*width/height,
-            "height": scale,
+            "width": width,
+            "height": height,
             "position": position,
             "rotation": rotation
         }, name=name)
