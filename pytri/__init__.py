@@ -320,7 +320,6 @@ class pytri:
             data = data.tolist()
 
         _js = self._fetch_layer_file("ScatterLayer.js")
-        #_js = self._fetch_layer_github("ScatterLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "radius": r,
@@ -402,7 +401,6 @@ class pytri:
             data = data.tolist()
 
         _js = self._fetch_layer_file("FibersLayer.js")
-        #_js = self._fetch_layer_github("FibersLayer.js")
         return self.add_layer(_js, {
             "data": data,
             "colors": c,
