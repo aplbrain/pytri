@@ -51,7 +51,7 @@ class pytri:
             "https://threejs.org/examples/js/controls/TrackballControls.js",
         ]
 
-        threesrc = requests.get("https://threejs.org/build/three.js").text.split('\n')
+        threesrc = requests.get("https://threejs.org/build/three.js").text.split("\n")
         threesrc = threesrc[6:-2]
 
         js = "exports = window.THREE || {}; " + "\n".join(threesrc) + "window.THREE = exports;"
@@ -61,12 +61,12 @@ class pytri:
 
         s_path, _ = split(__file__)
         s_file = join(s_path, "js", "substrate.min.js")
-        with open(s_file, 'r') as fh:
+        with open(s_file, "r") as fh:
             js += ";\n\n" + fh.read().strip()
 
         gpu_file = join(s_path, "js", "GPUParticleSystem.js")
         js2 = ""
-        with open(gpu_file, 'r') as fh:
+        with open(gpu_file, "r") as fh:
             js2 += ";\n\n" + fh.read().strip()
 
         self.js = js
@@ -159,7 +159,7 @@ class pytri:
         _js = ""
         path, _ = split(__file__)
         file = join(path, "js", fname)
-        with open(file, 'r') as fh:
+        with open(file, "r") as fh:
             _js = fh.read().strip()
         return _js
 
@@ -242,7 +242,7 @@ class pytri:
                 }
             }
         """
-        return self.add_layer(_js, name='axes')
+        return self.add_layer(_js, name="axes")
 
     def imshow(
             self,
@@ -268,7 +268,7 @@ class pytri:
 
         # use io object to hold data as png
         data_io = BytesIO()
-        data_image = Image.fromarray(data).convert('RGB')
+        data_image = Image.fromarray(data).convert("RGB")
         data_image.save(data_io, format="PNG")
 
         # create a data URI using the io object
