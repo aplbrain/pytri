@@ -407,7 +407,11 @@ class pytri:
             "alpha": alpha
         }, name=name)
 
-    def mesh(self, data, name=None) -> str:
+    def mesh(
+            self,
+            data,
+            opacity=None,
+            name=None) -> str:
         """
         Add a mesh to the scene. Currently only supports OBJ.
 
@@ -424,6 +428,13 @@ class pytri:
         ))
 
         _js = self._fetch_layer_file("MeshLayer.js")
-        return self.add_layer(_js, {
-            "data": data
-        }, name=name)
+        props = dict()
+        props["data"] = data
+        if opacity is not None:
+            props["opacity"] = opacity
+
+        return self.add_layer(
+                _js,
+                props,
+                name=name)
+
