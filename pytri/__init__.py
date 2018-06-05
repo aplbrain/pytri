@@ -434,7 +434,6 @@ class pytri:
             props["opacity"] = opacity
 
         return self.add_layer(
-                _js,
-                props,
-                name=name)
-
+            _js,
+            props,
+            name=name)
