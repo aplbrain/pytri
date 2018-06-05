@@ -22,14 +22,6 @@ class ImageLayer extends Layer {
             side: window.THREE.DoubleSide
         });
         let plane = new window.THREE.Mesh(geometry, material);
-        let rotationMatrix = new Matrix4();
-        rotationMatrix.set(
-            0, 1, 0, 0,
-            1, 0, 0, 0,
-            0, 0, -1, 0,
-            0, 0, 0, 1
-        );
-        plane.rotation.setFromRotationMatrix(rotationMatrix);
         plane.rotation.set(
             self.rotation["x"],
             self.rotation["y"],
