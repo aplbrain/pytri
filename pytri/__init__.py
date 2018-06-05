@@ -258,7 +258,7 @@ class pytri:
         Arguments:
             data (np.ndarray)
             position (dict: x,y,z)
-            scale (float: 10)
+            scale (tuple of floats: (10,))
 
         Returns:
             str: Name, as inserted
@@ -282,8 +282,8 @@ class pytri:
         if len(scale) == 1:
             width = data.shape[1]
             height = data.shape[0]
-            width = scale*width/height
-            height = scale
+            width = scale[0]*width/height
+            height = scale[0]
         elif len(scale) == 2:
             width = scale[1]
             height = scale[0]
