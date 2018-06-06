@@ -5,6 +5,6 @@ coverage
 nose-progressive
 IPython
 requests
-networkx==1.9
+networkx
 numpy
 pillow
