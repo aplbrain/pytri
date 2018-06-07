@@ -210,7 +210,7 @@ class pytri:
                 layer_js)[1]
             # Only declare Layer if not already declared
             if layer_type not in self.layer_types:
-                inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
+                inject_fmt = "window.{layer_type} = {layer_js};"
                 display(Javascript(inject_fmt.format(
                     layer_type=layer_type,
                     layer_js=layer_js)))
