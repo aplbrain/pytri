@@ -208,13 +208,12 @@ class pytri:
             layer_type = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
                 layer_js)[1]
-            # Only declare Layer if not already declared
-            if layer_type not in self.layer_types:
-                inject_fmt = "window.{layer_type} = {layer_js};"
-                display(Javascript(inject_fmt.format(
-                    layer_type=layer_type,
-                    layer_js=layer_js)))
-                self.layer_types.add(layer_type)
+            # Overwrite window.layer_type
+            inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
+            display(Javascript(inject_fmt.format(
+                layer_type=layer_type,
+                layer_js=layer_js)))
+            self.layer_types.add(layer_type)
         except TypeError as _:
             raise ValueError(
                 "layer_js must include a class that extends Layer."
