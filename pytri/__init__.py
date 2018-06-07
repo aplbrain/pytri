@@ -29,7 +29,7 @@ import numpy as np
 import requests
 
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 
 class pytri:
@@ -65,13 +65,14 @@ class pytri:
             js += ";\n\n" + fh.read().strip()
 
         gpu_file = join(s_path, "js", "GPUParticleSystem.js")
-        js2 = ""
+        gpu_js = ""
         with open(gpu_file, "r") as fh:
-            js2 += ";\n\n" + fh.read().strip()
+            gpu_js += ";\n\n" + fh.read().strip()
 
         self.js = js
-        self.gpu_js = js2
+        self.gpu_js = gpu_js
         self.uid = str(uuid.uuid4())
+        self.layer_types = set()
         self.layers = set()
 
         display(HTML(
@@ -196,8 +197,6 @@ class pytri:
             fetch_url = layer_js
             layer_js = requests.get(fetch_url).text
 
-        _js = layer_js
-
         if name is None:
             name = str(uuid.uuid4())
 
@@ -206,16 +205,22 @@ class pytri:
 
         try:
             # Test that the file containers a `class Foo extends Layer`:
-            _js_layer_name = re.match(
-                r"[\s\S]*class (\w+) extends .*Layer[\s\S]*", _js
-            )[1]
+            layer_type = re.match(
+                r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
+                layer_js)[1]
+            # Overwrite window.layer_type
+            inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
+            display(Javascript(inject_fmt.format(
+                layer_type=layer_type,
+                layer_js=layer_js)))
+            self.layer_types.add(layer_type)
         except TypeError as _:
             raise ValueError(
                 "layer_js must include a class that extends Layer."
             )
         # Interpolate: V[id].addLayer(name, new Layer(params));
-        _js += "V['{}'].addLayer('{}', new {}({}))".format(
-            self.uid, name, _js_layer_name, json.dumps(params)
+        _js = "V['{}'].addLayer('{}', new window.{}({}))".format(
+            self.uid, name, layer_type, json.dumps(params)
         )
         display(Javascript(_js))
 
