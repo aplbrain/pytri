@@ -131,6 +131,25 @@ class pytri:
         """.format(name)))
         self.layers.remove(name)
 
+    def toggle_layer(self, name):
+        """
+        Toggle layer visibility by name.
+
+        Arguments:
+            name (str)
+
+        Returns:
+            None
+
+        """
+        display(Javascript("""
+            V['"""+self.uid+"""'].renderLayers['"""+name+"""'].children.forEach(
+                c => {
+                    let shouldBeVisible = !c.visible;
+                    c.visible = shouldBeVisible;
+                })
+        """))
+
     def clear(self):
         """
         Remove all layers from scene.
