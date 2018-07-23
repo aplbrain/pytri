@@ -75,10 +75,13 @@ class pytri:
         self.layer_types = set()
         self.layers = set()
 
+        glow_tex = "./glow.png"
+        perlin_tex = "./perlin-512.png"
+
         display(HTML(
             "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
-            "<script>{}</script>".format(self.gpu_js) +
+            "<script>{}</script>".format(self.gpu_js)+
             """
             <script>
             window.V = window.V || {}
@@ -350,8 +353,9 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
-              node_color: Union[float, Sequence[float]] = 0xbabe00,
+    def graph(self, data, radius: Union[float, Sequence[float]] = 20,
+              ind_node_color: dict = None,
+              all_node_color: Union[float, Sequence[float]] = 0xbabe00,
               link_color: Union[float, Sequence[float]] = 0x00babe, name: str = None) -> str:
         """
         Add a graph to the visualizer.
@@ -359,7 +363,8 @@ class pytri:
         Arguments:
             data (networkx.Graph)
             radius (float | list)
-            node_color (float | list)
+            ind_node_color (dict | {note_category: {value: color}})
+            all_node_color (float | list)
             link_color (float | list)
             name (str)
 
@@ -367,14 +372,16 @@ class pytri:
             str: name of the layer
 
         """
+        from PIL import Image
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
+        _js = self._fetch_layer_file("ColorGraphLayer.js")
 
-        _js = self._fetch_layer_file("GraphLayer.js")
         return self.add_layer(_js, {
             "graph": data,
             "radius": radius,
-            "nodeColor": node_color,
+            "allNodeColor": all_node_color,
+            "nodeColors": ind_node_color,
             "linkColor": link_color,
         }, name=name)
 
