@@ -75,9 +75,6 @@ class pytri:
         self.layer_types = set()
         self.layers = set()
 
-        glow_tex = "./glow.png"
-        perlin_tex = "./perlin-512.png"
-
         display(HTML(
             "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
@@ -372,7 +369,6 @@ class pytri:
             str: name of the layer
 
         """
-        from PIL import Image
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("ColorGraphLayer.js")
