@@ -354,8 +354,8 @@ class pytri:
         }, name=name)
 
     def graph(self, data, radius: Union[float, Sequence[float]] = 20,
-              ind_node_color: dict = None,
-              all_node_color: Union[float, Sequence[float]] = 0xbabe00,
+              nc: dict = None,
+              all_nc: Union[float, Sequence[float]] = 0xbabe00,
               link_color: Union[float, Sequence[float]] = 0x00babe, name: str = None) -> str:
         """
         Add a graph to the visualizer.
@@ -363,8 +363,8 @@ class pytri:
         Arguments:
             data (networkx.Graph)
             radius (float | list)
-            ind_node_color (dict | {note_category: {value: color}})
-            all_node_color (float | list)
+            nc (dict | {note_category: {value: color}})
+            all_nc (float | list)
             link_color (float | list)
             name (str)
 
@@ -380,8 +380,8 @@ class pytri:
         return self.add_layer(_js, {
             "graph": data,
             "radius": radius,
-            "allNodeColor": all_node_color,
-            "nodeColors": ind_node_color,
+            "allNodeColor": all_nc,
+            "nodeColors": nc,
             "linkColor": link_color,
         }, name=name)
 

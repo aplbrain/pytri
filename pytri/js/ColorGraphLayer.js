@@ -61,7 +61,6 @@ class ColorGraphLayer extends Layer {
         let xPos = nodeData.x - this.xSubtract
         let yPos = nodeData.y - this.ySubtract
         let zPos = nodeData.z - this.zSubtract
-        console.log(nodeData)
 
         xPos = -20 * (xPos - this.minX) / (this.maxX - this.minX) + -10
         yPos = -20 * (yPos - this.minY) / (this.maxY - this.minY) + -10
@@ -117,7 +116,6 @@ class ColorGraphLayer extends Layer {
             let color = this.allNodeColor
             this.graph.nodes.forEach((node, i) => {
                 let pos = this._scaledPos(this._getNodePosition(node))
-                console.log(pos)
                 particleSystem.spawnParticle({
                     position: pos,
                     size: this.radius,
