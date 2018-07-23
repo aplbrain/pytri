@@ -386,35 +386,6 @@ class pytri:
         }, name=name)
 
 
-    def large_graph(self, data, radius: Union[float, Sequence[float]] = 2,
-                    node_color: Union[float, Sequence[float]] = 0xbabe00,
-                    link_color: Union[float, Sequence[float]] = 0x00babe,
-                    name: str = None) -> str:
-        """
-        Add a large graph to the visualizer using the GPU particle system.
-
-        Arguments:
-            data (networkx.graph)
-            radius (float | list)
-            node_color (float | list)
-            link_color (float | list)
-            name (str)
-
-        Returns:
-            str: name of the layer.
-        """
-        if isinstance(data, nx.Graph):
-            data = json_graph.node_link_data(data)
-
-        _js = self._fetch_layer_file("LargeGraphLayer.js")
-        return self.add_layer(_js, {
-            "graph": data,
-            "nodeSize": radius,
-            "nodeColor": node_color,
-            "linkColor": link_color,
-        }, name=name)
-
-
     def fibers(self, data, c=0xbabe00, alpha=0.5, name=None) -> str:
         """
         Add a fiber group to the visualizer.
