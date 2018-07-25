@@ -20,7 +20,7 @@ pytri.graph(data, [radius], [node_color], [link_color], [name])
         * `graph.add_node(id, pos=(x_pos, y_pos, z_pos))`
         * `graph.add_node(id, pos ={'x': x_pos, 'y': y_pos, 'z': z_pos})`
         * `graph.add_node(id, x=x_pos, y=y_pos, z=z_pos)`
-* `radius` (Optional): Radius of nodes in the visualization. This can either be a float or a list of floats (one for each node).
-* `node_color` (Optional): Colors of nodes in the visualization. This can either be a float or a list of floats (one for each node).
-* `link_color` (Optional): Colors of the links in the visualization. This can either be a float or a list of floats (one for each link).
+* `radius` (Optional): Radius of nodes in the visualization. This can either be a float or a list of floats (one for each node). By default, a radius of 0.15 is used.
+* `node_color` (Optional): Colors of nodes in the visualization as a single float or list of floats (one for each node). The colors in this list will be mapped directly onto the list of nodes in the graph (ie: the color at index 0 of the color list will be the color of the node at index 0 of the nodes list).
+* `link_color` (Optional): Color of all the links in the visualization as a single float.
 * `name` (Optional): Name of the layer.
