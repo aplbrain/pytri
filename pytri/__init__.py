@@ -350,9 +350,8 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, radius: Union[float, Sequence[float]] = 20,
-              nc: dict = None,
-              all_nc: Union[float, Sequence[float]] = 0xbabe00,
+    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
+              node_color: Union[float, Sequence[float]] = 0xbabe00,
               link_color: Union[float, Sequence[float]] = 0x00babe, name: str = None) -> str:
         """
         Add a graph to the visualizer.
@@ -360,8 +359,7 @@ class pytri:
         Arguments:
             data (networkx.Graph)
             radius (float | list)
-            nc (dict | {note_category: {value: color}})
-            all_nc (float | list)
+            node_color (float | list)
             link_color (float | list)
             name (str)
 
@@ -373,11 +371,12 @@ class pytri:
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("ColorGraphLayer.js")
 
+        mult_radius = radius * 100
+
         return self.add_layer(_js, {
             "graph": data,
-            "radius": radius,
-            "allNodeColor": all_nc,
-            "nodeColors": nc,
+            "radius": mult_radius,
+            "nodeColor": node_color,
             "linkColor": link_color,
         }, name=name)
 

@@ -6,10 +6,9 @@ class ColorGraphLayer extends Layer {
             edges: opts.graph.links,
         };
 
-        this.nodeColors = opts.nodeColors;
+        this.nodeColor = opts.nodeColor || 0xbabe00;
         this.radius = opts.radius;
-
-        this.allNodeColor = opts.allNodeColor || 0xbabe00;
+;
         this.linkColor = opts.linkColor || 0x00babe;
         
         if (Array.isArray(opts.minMaxVals)) {
@@ -98,22 +97,18 @@ class ColorGraphLayer extends Layer {
             this._calculateShift([ maxX, minX, maxY, minY, maxZ, minZ ]);
         }
 
-        let color = this.allNodeColor
-        if (this.nodeColors) {
+        if(this.nodeColor.constructor === Array) {
             this.graph.nodes.forEach((node, i) => {
                 let pos = this._scaledPos(this._getNodePosition(node))
-                let currNote = node['notes']
-                let firstKey = Object.keys(this.nodeColors)[0]
-                color = this.nodeColors[firstKey][currNote[firstKey]]
+                let color = this.nodeColor[i]
                 particleSystem.spawnParticle({
                     position: pos,
                     size: this.radius,
                     color: color
                 });
             })
-                
         } else {
-            let color = this.allNodeColor
+            let color = this.nodeColor
             this.graph.nodes.forEach((node, i) => {
                 let pos = this._scaledPos(this._getNodePosition(node))
                 particleSystem.spawnParticle({
@@ -121,12 +116,15 @@ class ColorGraphLayer extends Layer {
                     size: this.radius,
                     color: color
                 });
-            })
+            });
         }
         self.children.push(particleSystem)
 
         let edgeGeometry = new THREE.Geometry();
-        this.graph.edges.forEach(edge => {
+
+
+
+        this.graph.edges.forEach((edge, i) => {
             let start = graph.nodes[edge["source"]];
             let startPos = this._scaledPos(this._getNodePosition(start))
             let stop = graph.nodes[edge["target"]];
@@ -136,9 +134,15 @@ class ColorGraphLayer extends Layer {
             );
             edgeGeometry.vertices.push(
                 new THREE.Vector3(stopPos.x, stopPos.y, stopPos.z)
-            );   
+            );
+            edgeGeometry.colors.push(
+                [new THREE.Color(this.linkColor), new THREE.Color(this.linkColor)]
+            )
+
                 
         });
+
+
         let edges = new THREE.LineSegments(
             edgeGeometry,
             new THREE.LineBasicMaterial({
