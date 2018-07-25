@@ -6,10 +6,10 @@ class ColorGraphLayer extends Layer {
             edges: opts.graph.links,
         };
 
-        this.nodeColor = opts.nodeColor || 0xbabe00;
+        this.nodeColor = opts.nodeColor;
         this.radius = opts.radius;
-;
-        this.linkColor = opts.linkColor || 0x00babe;
+
+        this.linkColor = opts.linkColor;
         
         if (Array.isArray(opts.minMaxVals)) {
             this.minMaxVals = opts.minMaxVals;
@@ -134,19 +134,14 @@ class ColorGraphLayer extends Layer {
             );
             edgeGeometry.vertices.push(
                 new THREE.Vector3(stopPos.x, stopPos.y, stopPos.z)
-            );
-            edgeGeometry.colors.push(
-                [new THREE.Color(this.linkColor), new THREE.Color(this.linkColor)]
-            )
-
-                
+            );  
         });
 
 
         let edges = new THREE.LineSegments(
             edgeGeometry,
             new THREE.LineBasicMaterial({
-                color: 0x00babe,
+                color: this.linkColor,
             })
         );
         self.children.push(edges);
