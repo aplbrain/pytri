@@ -78,7 +78,7 @@ class pytri:
         display(HTML(
             "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
-            "<script>{}</script>".format(self.gpu_js) +
+            "<script>{}</script>".format(self.gpu_js)+
             """
             <script>
             window.V = window.V || {}
@@ -369,40 +369,13 @@ class pytri:
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
+        _js = self._fetch_layer_file("ColorGraphLayer.js")
 
-        _js = self._fetch_layer_file("GraphLayer.js")
+        mult_radius = radius * 100
+
         return self.add_layer(_js, {
             "graph": data,
-            "radius": radius,
-            "nodeColor": node_color,
-            "linkColor": link_color,
-        }, name=name)
-
-
-    def large_graph(self, data, radius: Union[float, Sequence[float]] = 2,
-                    node_color: Union[float, Sequence[float]] = 0xbabe00,
-                    link_color: Union[float, Sequence[float]] = 0x00babe,
-                    name: str = None) -> str:
-        """
-        Add a large graph to the visualizer using the GPU particle system.
-
-        Arguments:
-            data (networkx.graph)
-            radius (float | list)
-            node_color (float | list)
-            link_color (float | list)
-            name (str)
-
-        Returns:
-            str: name of the layer.
-        """
-        if isinstance(data, nx.Graph):
-            data = json_graph.node_link_data(data)
-
-        _js = self._fetch_layer_file("LargeGraphLayer.js")
-        return self.add_layer(_js, {
-            "graph": data,
-            "nodeSize": radius,
+            "radius": mult_radius,
             "nodeColor": node_color,
             "linkColor": link_color,
         }, name=name)
