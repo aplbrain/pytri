@@ -371,7 +371,7 @@ class pytri:
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("ColorGraphLayer.js")
 
-        PARTICLE_RADIUS_SCALE = 100
+        PARTICLE_RADIUS_SCALE = 50
         mult_radius = radius * PARTICLE_RADIUS_SCALE
 
         return self.add_layer(_js, {
