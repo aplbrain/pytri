@@ -378,7 +378,7 @@ class pytri:
         if mesh_nodes:
             radius = radius
         else:
-            radius = radius * PARTICLE_RADIUS_SCALE 
+            radius = radius * PARTICLE_RADIUS_SCALE
 
         return self.add_layer(_js, {
             "graph": data,
