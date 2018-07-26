@@ -60,10 +60,6 @@ class ColorGraphLayer extends Layer {
         let xPos = nodeData.x - this.xSubtract
         let yPos = nodeData.y - this.ySubtract
         let zPos = nodeData.z - this.zSubtract
-
-        xPos = -20 * (xPos - this.minX) / (this.maxX - this.minX) + -10
-        yPos = -20 * (yPos - this.minY) / (this.maxY - this.minY) + -10
-        zPos = -20 * (zPos - this.minZ) / (this.maxZ - this.minZ) + -10
         return { x: xPos, y: yPos, z: zPos };
     }
     
