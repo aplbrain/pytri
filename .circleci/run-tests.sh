@@ -2,5 +2,4 @@
 
 mypy --ignore-missing-imports .
 pylint -r n pytri
-# nosetests --with-coverage --cover-package=pytri
-eslint pytri/js
+sudo eslint pytri/js
