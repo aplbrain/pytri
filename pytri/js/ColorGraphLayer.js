@@ -10,11 +10,6 @@ class ColorGraphLayer extends Layer {
         this.radius = opts.radius;
 
         this.linkColor = opts.linkColor;
-        
-        if (Array.isArray(opts.minMaxVals)) {
-            this.minMaxVals = opts.minMaxVals;
-            this._calculateShift(this.minMaxVals);
-        }
     }
 
     _getNodePosition(node) {
