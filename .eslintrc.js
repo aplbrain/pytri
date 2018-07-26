@@ -1,7 +1,4 @@
 module.exports = {
-    "parser": "babel-eslint",
-    "plugins": [
-    ],
     "env": {
         "browser": true,
         "es6": true
