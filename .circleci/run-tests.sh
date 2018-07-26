@@ -2,4 +2,4 @@
 
 mypy --ignore-missing-imports .
 pylint -r n pytri
-sudo eslint pytri/js
+eslint pytri/js
