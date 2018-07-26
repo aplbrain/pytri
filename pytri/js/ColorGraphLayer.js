@@ -57,13 +57,13 @@ class ColorGraphLayer extends Layer {
     }
 
     _scaledPos(nodeData) {
-        let xPos = nodeData.x - this.xSubtract
-        let yPos = nodeData.y - this.ySubtract
-        let zPos = nodeData.z - this.zSubtract
+        let xPos = nodeData.x - this.xSubtract;
+        let yPos = nodeData.y - this.ySubtract;
+        let zPos = nodeData.z - this.zSubtract;
 
-        xPos = -20 * (xPos - this.minX) / (this.maxX - this.minX) + -10
-        yPos = -20 * (yPos - this.minY) / (this.maxY - this.minY) + -10
-        zPos = -20 * (zPos - this.minZ) / (this.maxZ - this.minZ) + -10
+        xPos = -20 * (xPos - this.minX) / (this.maxX - this.minX) + -10;
+        yPos = -20 * (yPos - this.minY) / (this.maxY - this.minY) + -10;
+        zPos = -20 * (zPos - this.minZ) / (this.maxZ - this.minZ) + -10;
         return { x: xPos, y: yPos, z: zPos };
     }
     
@@ -99,18 +99,18 @@ class ColorGraphLayer extends Layer {
 
         if(this.nodeColor.constructor === Array) {
             this.graph.nodes.forEach((node, i) => {
-                let pos = this._scaledPos(this._getNodePosition(node))
-                let color = this.nodeColor[i]
+                let pos = this._scaledPos(this._getNodePosition(node));
+                let color = this.nodeColor[i];
                 particleSystem.spawnParticle({
                     position: pos,
                     size: this.radius,
                     color: color
                 });
-            })
+            });
         } else {
-            let color = this.nodeColor
+            let color = this.nodeColor;
             this.graph.nodes.forEach((node, i) => {
-                let pos = this._scaledPos(this._getNodePosition(node))
+                let pos = this._scaledPos(this._getNodePosition(node));
                 particleSystem.spawnParticle({
                     position: pos,
                     size: this.radius,
@@ -118,7 +118,7 @@ class ColorGraphLayer extends Layer {
                 });
             });
         }
-        self.children.push(particleSystem)
+        self.children.push(particleSystem);
 
         let edgeGeometry = new THREE.Geometry();
 
@@ -126,9 +126,9 @@ class ColorGraphLayer extends Layer {
 
         this.graph.edges.forEach((edge, i) => {
             let start = graph.nodes[edge["source"]];
-            let startPos = this._scaledPos(this._getNodePosition(start))
+            let startPos = this._scaledPos(this._getNodePosition(start));
             let stop = graph.nodes[edge["target"]];
-            let stopPos = this._scaledPos(this._getNodePosition(stop))
+            let stopPos = this._scaledPos(this._getNodePosition(stop));
             edgeGeometry.vertices.push(
                 new THREE.Vector3(startPos.x, startPos.y, startPos.z)
             );

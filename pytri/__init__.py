@@ -20,7 +20,7 @@ from io import BytesIO
 import json
 from os.path import join, split
 import re
-from typing import Sequence, Union
+from typing import List, Union
 import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
@@ -224,9 +224,12 @@ class pytri:
 
         try:
             # Test that the file containers a `class Foo extends Layer`:
-            layer_type = re.match(
+            layer_types = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
-                layer_js)[1]
+                layer_js
+            )
+            if layer_types:
+                layer_type = layer_types[1]
             # Overwrite window.layer_type
             inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
             display(Javascript(inject_fmt.format(
@@ -350,9 +353,9 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
-              node_color: Union[float, Sequence[float]] = 0xbabe00,
-              link_color: Union[float, Sequence[float]] = 0x00babe, name: str = None) -> str:
+    def graph(self, data, radius: Union[float, List[float]] = 0.15,
+              node_color: Union[float, List[float]] = 0xbabe00,
+              link_color: Union[float, List[float]] = 0x00babe, name: str = None) -> str:
         """
         Add a graph to the visualizer.
 
@@ -371,7 +374,11 @@ class pytri:
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("ColorGraphLayer.js")
 
-        mult_radius = radius * 100
+        mult_radius: Union[float, List[float]]
+        if isinstance(radius, float):
+            mult_radius = radius * 100
+        else:
+            mult_radius = [r * 100 for r in radius]
 
         return self.add_layer(_js, {
             "graph": data,
