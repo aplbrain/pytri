@@ -40,13 +40,6 @@ class ColorGraphLayer extends Layer {
         return pos;
     }
 
-    _scaledPos(nodeData) {
-        let xPos = nodeData.x - this.xSubtract
-        let yPos = nodeData.y - this.ySubtract
-        let zPos = nodeData.z - this.zSubtract
-        return { x: xPos, y: yPos, z: zPos };
-    }
-    
     requestInit(scene) {
         let self = this;
         let graph = {
@@ -81,7 +74,7 @@ class ColorGraphLayer extends Layer {
         } else {
             if(this.nodeColor.constructor === Array) {
                 this.graph.nodes.forEach((node, i) => {
-                    let pos = this._scaledPos(this._getNodePosition(node))
+                    let pos = this._getNodePosition(node)
                     let color = this.nodeColor[i]
                     particleSystem.spawnParticle({
                         position: pos,
@@ -92,7 +85,7 @@ class ColorGraphLayer extends Layer {
             } else {
                 let color = this.nodeColor
                 this.graph.nodes.forEach((node, i) => {
-                    let pos = this._scaledPos(this._getNodePosition(node))
+                    let pos = this._getNodePosition(node)
                     particleSystem.spawnParticle({
                         position: pos,
                         size: this.nodeSize,
