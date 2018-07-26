@@ -56,9 +56,9 @@ class GraphLayer extends Layer {
     }
 
     _scaledPos(nodeData) {
-        let xPos = nodeData.x - this.xSubtract
-        let yPos = nodeData.y - this.ySubtract
-        let zPos = nodeData.z - this.zSubtract
+        let xPos = nodeData.x - this.xSubtract;
+        let yPos = nodeData.y - this.ySubtract;
+        let zPos = nodeData.z - this.zSubtract;
         return { x: xPos, y: yPos, z: zPos };
     }
     
