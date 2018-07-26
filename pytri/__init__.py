@@ -224,9 +224,12 @@ class pytri:
 
         try:
             # Test that the file containers a `class Foo extends Layer`:
-            layer_type = re.match(
+            layer_types = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
-                layer_js)[1]
+                layer_js
+            )
+            if layer_types:
+                layer_type = layer_types[1]
             # Overwrite window.layer_type
             inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
             display(Javascript(inject_fmt.format(
