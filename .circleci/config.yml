@@ -32,7 +32,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            sudo apt-get install -y nodejs npm
+            sudo apt-get install -y nodejs-legacy npm
             sudo npm install --global eslint
             pip install -r requirements.txt
 
