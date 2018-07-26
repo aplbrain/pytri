@@ -42,25 +42,6 @@ class GraphLayer extends Layer {
         return pos;
     }
 
-    _calculateShift(vals) {
-        let maxX = vals[0];
-        let minX = vals[1];
-        let maxY = vals[2];
-        let minY = vals[3];
-        let maxZ = vals[4];
-        let minZ = vals[5];
-
-        this.xSubtract = minX + ((maxX - minX) / 2);
-        this.ySubtract = minY + ((maxY - minY) / 2);
-        this.zSubtract = minZ + ((maxZ - minZ) / 2);
-    }
-
-    _scaledPos(nodeData) {
-        let xPos = nodeData.x - this.xSubtract
-        let yPos = nodeData.y - this.ySubtract
-        let zPos = nodeData.z - this.zSubtract
-        return { x: xPos, y: yPos, z: zPos };
-    }
     
     requestInit(scene) {
         let particleSystem = new window.THREE.GPUParticleSystem({
@@ -71,23 +52,8 @@ class GraphLayer extends Layer {
         scene.add(particleSystem);
         this.children.push(particleSystem);
 
-        if (!this.minMaxVals) { // Lazyily calculate minMaxVals if not passed as an argument.
-            let [ minX, minY, minZ ] = [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE ];
-            let [ maxX, maxY, maxZ ] = [ Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE ];
-            for (let node of this.graph.nodes) {
-                let pos = this._getNodePosition(node);
-                if (pos.x < minX) minX = pos.x;
-                if (pos.x > maxX) maxX = pos.x;
-                if (pos.y < minY) minY = pos.y;
-                if (pos.y > maxY) maxY = pos.y;
-                if (pos.z < minZ) minZ = pos.z;
-                if (pos.z > maxZ) maxZ = pos.z;
-            }
-            this._calculateShift([ maxX, minX, maxY, minY, maxZ, minZ ]);
-        }
-
         this.graph.nodes.forEach((node, i) => {
-            let pos = this._scaledPos(node);
+            let pos = this._getNodePosition(node);
             particleSystem.spawnParticle({
                 position: pos,
                 size: this.nodeSizeIsArray ? this.nodeSize[i] : this.nodeSize,
@@ -107,12 +73,8 @@ class GraphLayer extends Layer {
             let sn = this.graph.nodes[link.source];
             let tn = this.graph.nodes[link.target];
 
-            let snPos = this._scaledPos(
-                this._getNodePosition(sn)
-            );
-            let tnPos = this._scaledPos(
-                this._getNodePosition(tn)
-            );
+            let snPos =this._getNodePosition(sn)
+            let tnPos = this._getNodePosition(tn)
 
             let v1 = new window.THREE.Vector3(snPos.x, snPos.y, snPos.z);
             let v2 = new window.THREE.Vector3(tnPos.x, tnPos.y, tnPos.z);
