@@ -33,7 +33,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             sudo apt-get install -y npm
-            npm install --global eslint
+            sudo npm install --global eslint
             pip install -r requirements.txt
 
       - save_cache:
