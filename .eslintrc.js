@@ -14,6 +14,7 @@ module.exports = {
     ],
     "rules": {
         "no-undef": 0,
+		"no-unused-vars": 0,
         "indent": [ "error", 4 ],
         "linebreak-style": [ "error", "unix" ],
         "semi": [ "error", "always" ],
