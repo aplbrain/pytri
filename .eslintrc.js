@@ -1,8 +1,6 @@
 module.exports = {
     "parser": "babel-eslint",
     "plugins": [
-        "flowtype",
-        "react"
     ],
     "env": {
         "browser": true,
@@ -10,7 +8,6 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
     ],
     "rules": {
         "no-undef": 0,
