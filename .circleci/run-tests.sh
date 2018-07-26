@@ -2,4 +2,5 @@
 
 mypy --ignore-missing-imports .
 pylint -r n pytri
-sudo eslint pytri/js
+echo `which node`
+eslint pytri/js
