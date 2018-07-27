@@ -26,7 +26,7 @@ class ImageLayer extends Layer {
             self.rotation["x"],
             self.rotation["y"],
             self.rotation["z"]
-        )
+        );
         plane.position.set(
             self.position["x"],
             self.position["y"],
