@@ -369,7 +369,7 @@ class pytri:
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-        _js = self._fetch_layer_file("ColorGraphLayer.js")
+        _js = self._fetch_layer_file("GraphLayer.js")
 
         PARTICLE_RADIUS_SCALE = 50
         mult_radius = radius * PARTICLE_RADIUS_SCALE
