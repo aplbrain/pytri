@@ -10,7 +10,7 @@ class FibersLayer extends Layer {
     toggleVisible() {
         this.children.forEach(c => {
             c.visible = !c.visible;
-        })
+        });
     }
 
     reload(fibers) {

@@ -20,7 +20,7 @@ from io import BytesIO
 import json
 from os.path import join, split
 import re
-from typing import Sequence, Union
+from typing import List, Union
 import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
@@ -224,9 +224,12 @@ class pytri:
 
         try:
             # Test that the file containers a `class Foo extends Layer`:
-            layer_type = re.match(
+            layer_types = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
-                layer_js)[1]
+                layer_js
+            )
+            if layer_types:
+                layer_type = layer_types[1]
             # Overwrite window.layer_type
             inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
             display(Javascript(inject_fmt.format(
@@ -350,7 +353,7 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
+    def graph(self, data, radius: Union[float, List[float]] = 0.15,
               node_color: Union[float, Sequence[float]] = 0xbabe00,
               link_color: Union[float, Sequence[float]] = 0x00babe,
               name: str = None,
@@ -375,10 +378,8 @@ class pytri:
 
         PARTICLE_RADIUS_SCALE = 50
 
-        if mesh_nodes:
-            radius = radius
-        else:
-            radius = radius * PARTICLE_RADIUS_SCALE
+        if not mesh_nodes:
+            radius *= PARTICLE_RADIUS_SCALE
 
         return self.add_layer(_js, {
             "graph": data,
