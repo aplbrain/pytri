@@ -55,7 +55,6 @@ class ColorGraphLayer extends Layer {
         this.pSys = particleSystem;
         scene.add(particleSystem);
 
-
         if(this.meshNodes) {
             this.graph.nodes.forEach((node, i) => {
                 let sph = new window.THREE.Mesh(

@@ -355,7 +355,8 @@ class pytri:
 
     def graph(self, data, radius: Union[float, List[float]] = 0.15,
               node_color: Union[float, List[float]] = 0xbabe00,
-              link_color: Union[float, List[float]] = 0x00babe, name: str = None,
+              link_color: Union[float, List[float]] = 0x00babe,
+              name: str = None,
               mesh_nodes: bool = False) -> str:
         """
         Add a graph to the visualizer.
@@ -387,6 +388,7 @@ class pytri:
                 mult_radius = radius
             else:
                 mult_radius = [r * PARTICLE_RADIUS_SCALE for r in radius]
+
         return self.add_layer(_js, {
             "graph": data,
             "radius": mult_radius,
