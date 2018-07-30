@@ -20,7 +20,7 @@ from io import BytesIO
 import json
 from os.path import join, split
 import re
-from typing import Sequence, Union
+from typing import List, Union
 import uuid
 from IPython.display import Javascript, HTML, display
 import networkx as nx
@@ -224,9 +224,12 @@ class pytri:
 
         try:
             # Test that the file containers a `class Foo extends Layer`:
-            layer_type = re.match(
+            layer_types = re.match(
                 r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
-                layer_js)[1]
+                layer_js
+            )
+            if layer_types:
+                layer_type = layer_types[1]
             # Overwrite window.layer_type
             inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
             display(Javascript(inject_fmt.format(
@@ -350,10 +353,9 @@ class pytri:
             "colors": c
         }, name=name)
 
-    def graph(self, data, radius: Union[float, Sequence[float]] = 0.15,
-              node_color: Union[float, Sequence[float]] = 0xbabe00,
-              link_color: Union[float, Sequence[float]] = 0x00babe,
-              name: str = None,
+    def graph(self, data, radius: Union[float, List[float]] = 0.15,
+              node_color: Union[float, List[float]] = 0xbabe00,
+              link_color: Union[float, List[float]] = 0x00babe, name: str = None,
               mesh_nodes: bool = False) -> str:
         """
         Add a graph to the visualizer.
@@ -371,18 +373,23 @@ class pytri:
         """
         if isinstance(data, nx.Graph):
             data = json_graph.node_link_data(data)
-        _js = self._fetch_layer_file("ColorGraphLayer.js")
+        _js = self._fetch_layer_file("GraphLayer.js")
 
         PARTICLE_RADIUS_SCALE = 50
-
-        if mesh_nodes:
-            radius = radius
+        mult_radius: Union[float, List[float]]
+        if isinstance(radius, float) or isinstance(radius, int):
+            if mesh_nodes:
+                mult_radius = radius
+            else:
+                mult_radius = radius * PARTICLE_RADIUS_SCALE
         else:
-            radius = radius * PARTICLE_RADIUS_SCALE
-
+            if mesh_nodes:
+                mult_radius = radius
+            else:
+                mult_radius = [r * PARTICLE_RADIUS_SCALE for r in radius]
         return self.add_layer(_js, {
             "graph": data,
-            "radius": radius,
+            "radius": mult_radius,
             "nodeColor": node_color,
             "linkColor": link_color,
             "meshNodes": mesh_nodes

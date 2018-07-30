@@ -1,15 +1,16 @@
-class GraphLayer extends Layer {
+class ColorGraphLayer extends Layer {
     constructor(opts) {
         super(opts);
+        this.graph = {
+            nodes: opts.graph.nodes,
+            edges: opts.graph.links,
+        };
 
-        this.graph = opts.graph;
-        this.nodeSize = opts.radius || 0.15;
-        this.nodeColor = opts.nodeColor || 0xbabe00;
-        this.linkColor = opts.linkColor || 0x00babe;
+        this.nodeColor = opts.nodeColor;
+        this.radius = opts.radius;
 
-        this.nodeSizeIsArray = Array.isArray(this.nodeSize);
-        this.nodeColorIsArray = Array.isArray(this.nodeColor);
-        this.linkColorIsArray = Array.isArray(this.linkColor);
+        this.linkColor = opts.linkColor;
+        this.meshNodes = opts.meshNodes;
     }
 
     _getNodePosition(node) {
@@ -38,45 +39,85 @@ class GraphLayer extends Layer {
         return pos;
     }
 
+    
     requestInit(scene) {
-        this.graph.nodes.forEach((node, i) => {
-            let sph = new window.THREE.Mesh(
-                new window.THREE.SphereGeometry(
-                    this.nodeSizeIsArray ? this.nodeSize[i] : this.nodeSize, 6, 6
-                ),
-                new window.THREE.MeshBasicMaterial({
-                    color: this.nodeColorIsArray ? this.nodeColor[i] : this.nodeColor
-                })
-            );
-            let pos = this._getNodePosition(node);
-            sph.position.set(pos.x, pos.y, pos.z);
-            this.children.push(sph);
-            scene.add(sph);
+        let self = this;
+        let graph = {
+            nodes: this.graph.nodes,
+            edges: this.graph.edges,
+        };
+        window.graph = this.graph;
+
+        let particleSystem = new window.THREE.GPUParticleSystem({
+            maxParticles: graph.nodes.length
         });
 
-        this.graph.links.forEach((link, i) => {
-            let edgeGeometry = new window.THREE.Geometry();
-            let edgeMaterial = new window.THREE.LineBasicMaterial({
-                color: this.linkColorIsArray ? this.linkColor[i] : this.linkColor,
-                transparent: true,
-                opacity: link.weight || 1,
-                linewidth: link.weight || 1,
+        this.pSys = particleSystem;
+        scene.add(particleSystem);
+
+
+        if(this.meshNodes) {
+            this.graph.nodes.forEach((node, i) => {
+                let sph = new window.THREE.Mesh(
+                    new window.THREE.SphereGeometry(
+                        this.nodeSizeIsArray ? this.nodeSize[i] : this.nodeSize, 6, 6
+                    ),
+                    new window.THREE.MeshBasicMaterial({
+                        color: this.nodeColorIsArray ? this.nodeColor[i] : this.nodeColor
+                    })
+                );
+                let pos = this._getNodePosition(node);
+                sph.position.set(pos.x, pos.y, pos.z);
+                this.children.push(sph);
+                scene.add(sph);
             });
+        } else {
+            if(this.nodeColor.constructor === Array) {
+                this.graph.nodes.forEach((node, i) => {
+                    let pos = this._getNodePosition(node)
+                    let color = this.nodeColor[i]
+                    particleSystem.spawnParticle({
+                        position: pos,
+                        size: this.nodeSize,
+                        color: color
+                    });
+                })
+            } else {
+                let color = this.nodeColor
+                this.graph.nodes.forEach((node, i) => {
+                    let pos = this._getNodePosition(node)
+                    particleSystem.spawnParticle({
+                        position: pos,
+                        size: this.nodeSize,
+                        color: color
+                    });
+                });
+            }
+            self.children.push(particleSystem)
+        }
 
-            let sn = this.graph.nodes[link.source];
-            let tn = this.graph.nodes[link.target];
+        let edgeGeometry = new THREE.Geometry();
 
-            let snPos = this._getNodePosition(sn);
-            let tnPos = this._getNodePosition(tn);
-
-            let v1 = new window.THREE.Vector3(snPos.x, snPos.y, snPos.z);
-            let v2 = new window.THREE.Vector3(tnPos.x, tnPos.y, tnPos.z);
-
-            edgeGeometry.vertices.push(v1, v2);
-
-            let line = new window.THREE.Line(edgeGeometry, edgeMaterial);
-            this.children.push(line);
-            scene.add(line);
+        this.graph.edges.forEach((edge, i) => {
+            let start = graph.nodes[edge["source"]];
+            let startPos = this._getNodePosition(start)
+            let stop = graph.nodes[edge["target"]];
+            let stopPos = this._getNodePosition(stop)
+            edgeGeometry.vertices.push(
+                new THREE.Vector3(startPos.x, startPos.y, startPos.z)
+            );
+            edgeGeometry.vertices.push(
+                new THREE.Vector3(stopPos.x, stopPos.y, stopPos.z)
+            );  
         });
+
+        let edges = new THREE.LineSegments(
+            edgeGeometry,
+            new THREE.LineBasicMaterial({
+                color: this.linkColor,
+            })
+        );
+        self.children.push(edges);
+        scene.add(edges);          
     }
 }
