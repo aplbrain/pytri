@@ -355,7 +355,9 @@ class pytri:
 
     def graph(self, data, radius: Union[float, List[float]] = 0.15,
               node_color: Union[float, List[float]] = 0xbabe00,
-              link_color: Union[float, List[float]] = 0x00babe, name: str = None) -> str:
+              link_color: Union[float, List[float]] = 0x00babe,
+              name: str = None,
+              mesh_nodes: bool = False) -> str:
         """
         Add a graph to the visualizer.
 
@@ -374,17 +376,25 @@ class pytri:
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("GraphLayer.js")
 
+        PARTICLE_RADIUS_SCALE = 50
         mult_radius: Union[float, List[float]]
-        if isinstance(radius, float):
-            mult_radius = radius * 100
+        if isinstance(radius, float) or isinstance(radius, int):
+            if mesh_nodes:
+                mult_radius = radius
+            else:
+                mult_radius = radius * PARTICLE_RADIUS_SCALE
         else:
-            mult_radius = [r * 100 for r in radius]
+            if mesh_nodes:
+                mult_radius = radius
+            else:
+                mult_radius = [r * PARTICLE_RADIUS_SCALE for r in radius]
 
         return self.add_layer(_js, {
             "graph": data,
             "radius": mult_radius,
             "nodeColor": node_color,
             "linkColor": link_color,
+            "meshNodes": mesh_nodes
         }, name=name)
 
 

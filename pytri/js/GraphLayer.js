@@ -10,6 +10,7 @@ class ColorGraphLayer extends Layer {
         this.radius = opts.radius;
 
         this.linkColor = opts.linkColor;
+        this.meshNodes = opts.meshNodes;
     }
 
     _getNodePosition(node) {
@@ -54,32 +55,48 @@ class ColorGraphLayer extends Layer {
         this.pSys = particleSystem;
         scene.add(particleSystem);
 
-
-        if(this.nodeColor.constructor === Array) {
+        if(this.meshNodes) {
             this.graph.nodes.forEach((node, i) => {
+                let sph = new window.THREE.Mesh(
+                    new window.THREE.SphereGeometry(
+                        this.nodeSizeIsArray ? this.nodeSize[i] : this.nodeSize, 6, 6
+                    ),
+                    new window.THREE.MeshBasicMaterial({
+                        color: this.nodeColorIsArray ? this.nodeColor[i] : this.nodeColor
+                    })
+                );
                 let pos = this._getNodePosition(node);
-                let color = this.nodeColor[i];
-                particleSystem.spawnParticle({
-                    position: pos,
-                    size: this.radius,
-                    color: color
-                });
+                sph.position.set(pos.x, pos.y, pos.z);
+                this.children.push(sph);
+                scene.add(sph);
             });
         } else {
-            let color = this.nodeColor;
-            this.graph.nodes.forEach(node => {
-                let pos = this._getNodePosition(node);
-                particleSystem.spawnParticle({
-                    position: pos,
-                    size: this.radius,
-                    color: color
+            if(this.nodeColor.constructor === Array) {
+                this.graph.nodes.forEach((node, i) => {
+                    let pos = this._getNodePosition(node);
+                    let color = this.nodeColor[i];
+                    particleSystem.spawnParticle({
+                        position: pos,
+                        size: this.nodeSize,
+                        color: color
+                    });
                 });
-            });
+            } else {
+                let color = this.nodeColor;
+                this.graph.nodes.forEach((node, i) => {
+                    let pos = this._getNodePosition(node);
+                    particleSystem.spawnParticle({
+                        position: pos,
+                        size: this.nodeSize,
+                        color: color
+                    });
+                });
+            }
+            self.children.push(particleSystem);
         }
-        self.children.push(particleSystem);
 
         let edgeGeometry = new THREE.Geometry();
-        
+
         this.graph.edges.forEach((edge, i) => {
             let start = graph.nodes[edge["source"]];
             let startPos = this._getNodePosition(start);
@@ -100,6 +117,6 @@ class ColorGraphLayer extends Layer {
             })
         );
         self.children.push(edges);
-        scene.add(edges);     
+        scene.add(edges);          
     }
 }
