@@ -32,6 +32,7 @@ setup(
     version=__version__,
     description='Visualize using substrate. For Jupyter notebooks.',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     download_url='https://github.com/iscoe/pytri/tarball/' + __version__,
     license='Apache 2.0',
     classifiers=[
