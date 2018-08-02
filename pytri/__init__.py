@@ -441,3 +441,12 @@ class pytri:
             _js,
             props,
             name=name)
+
+    def volume(
+            self,
+            data,
+            name=None) -> str:
+        """
+        Add volumetric data to the scene. [In progress]
+        """
+        pass
