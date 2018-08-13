@@ -373,6 +373,7 @@ class pytri:
 
         """
         if isinstance(data, nx.Graph):
+            data = nx.relabel_nodes(data, lambda x: str(x))
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("GraphLayer.js")
 
