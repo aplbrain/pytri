@@ -1,4 +1,6 @@
-- **0.4.0**
+- **0.4.1**
+    - Resolve integer-label graph conflict (#80)
+- **0.4.0** (July 31, 2018)
     - Reimplement graphs for scalability (@hpcowley)
 - **0.3.0**
     - Change image planes to render double-sided (@hpcowley)
