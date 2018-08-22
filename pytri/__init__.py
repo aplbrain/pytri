@@ -178,9 +178,9 @@ class pytri:
             None
 
         """
-        display(Javascript("""
+        self._execute_js("""
             V['"""+self.uid+"""'].removeLayer('{}')
-        """.format(name)))
+        """.format(name))
         self.layers.remove(name)
 
     def toggle_layer(self, name):
@@ -194,13 +194,13 @@ class pytri:
             None
 
         """
-        display(Javascript("""
+        self._execute_js("""
             V['"""+self.uid+"""'].renderLayers['"""+name+"""'].children.forEach(
                 c => {
                     let shouldBeVisible = !c.visible;
                     c.visible = shouldBeVisible;
                 })
-        """))
+        """)
 
     def clear(self):
         """
