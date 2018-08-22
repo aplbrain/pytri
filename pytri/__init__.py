@@ -284,9 +284,9 @@ class pytri:
                 layer_type = layer_types[1]
             # Overwrite window.layer_type
             inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
-            display(Javascript(inject_fmt.format(
+            self._execute_js(inject_fmt.format(
                 layer_type=layer_type,
-                layer_js=layer_js)))
+                layer_js=layer_js))
             self.layer_types.add(layer_type)
         except TypeError as _:
             raise ValueError(
@@ -296,7 +296,7 @@ class pytri:
         _js = "V['{}'].addLayer('{}', new window.{}({}))".format(
             self.uid, name, layer_type, json.dumps(params)
         )
-        display(Javascript(_js))
+        self._execute_js(_js)
 
         self.layers.add(name)
         return name
@@ -316,7 +316,7 @@ class pytri:
         _js = "V['{}'].addLayer('{}', new window.substrate.layers.AxisLayer())".format(
             self.uid, name
         )
-        display(Javascript(_js))
+        self._execute_js(_js)
         self.layers.add(name)
         return name
 
@@ -496,6 +496,6 @@ class pytri:
         _js = "V['{}'].addLayer('{}', new window.substrate.layers.MeshLayer({}))".format(
             self.uid, name, json.dumps(props)
         )
-        display(Javascript(_js))
+        self._execute_js(_js)
         self.layers.add(name)
         return name
