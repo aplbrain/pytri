@@ -368,7 +368,7 @@ class pytri:
 
         PARTICLE_RADIUS_SCALE = 50
         mult_radius: Union[float, List[float]]
-        if isinstance(radius, float) or isinstance(radius, int):
+        if isinstance(radius, (float, int)):
             if mesh_nodes:
                 mult_radius = radius
             else:
