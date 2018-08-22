@@ -146,8 +146,19 @@ class pytri:
 
         """
         display(HTML("<div></div>"))
+        if self.debug:
+            _catch_code = "/* Visualizer DNE. */"
+        else:
+            _catch_code = ""
         self._execute_js(
-            "document.querySelectorAll('.running')[0].querySelectorAll('.output .output_html')[0].appendChild(document.getElementById('pytri-target-"+self.uid+"'))"
+            """
+            try {
+                document.querySelectorAll('.running')[0]
+                    .querySelectorAll('.output .output_html')[0]
+                        .appendChild(
+                            document.getElementById('pytri-target-"""+self.uid+"""')
+                        );
+            } catch {""" + _catch_code + """}"""
         )
         self._execute_js(
             "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')"
@@ -390,6 +401,9 @@ class pytri:
 
         Returns:
             str: Name, as inserted
+
+        # TODO: Use particle system
+        # TODO: Arrays of radii
 
         """
         if isinstance(data, np.ndarray):

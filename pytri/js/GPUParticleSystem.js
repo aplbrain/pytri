@@ -5,9 +5,9 @@
  * @author hpcowley - Hannah Cowley
  *
  * Modification by j6m8: Stable color and position, for data-sensitive tasks.
- * Modification by hpcowley: Using PointsMaterial, for use with Pytri offline. 
+ * Modification by hpcowley: Using PointsMaterial, for use with Pytri offline.
  * Modification by hpcowley: Use shaders from https://github.com/skeeto/webgl-particles
- * 
+ *
  *
  * A simple to use, general purpose GPU system. Particles are spawn-and-forget with
  * several options available, and do not require monitoring or cleanup after spawning.
@@ -22,7 +22,7 @@
  *
  */
 
-let THREE = window.THREE;
+THREE = window.THREE;
 
 THREE.GPUParticleSystem = function( options ) {
 
@@ -37,7 +37,7 @@ THREE.GPUParticleSystem = function( options ) {
 
     this.PARTICLE_NOISE_TEXTURE = options.particleNoiseTex || null;
     this.PARTICLE_SPRITE_TEXTURE = options.particleSpriteTex || null;
-    
+
     this.PARTICLES_PER_CONTAINER = Math.ceil( this.PARTICLE_COUNT / this.PARTICLE_CONTAINERS );
     this.PARTICLE_CURSOR = 0;
     this.time = 0;
