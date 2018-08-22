@@ -1,4 +1,14 @@
-- **0.4.1**
+- **0.5.0**
+    - Upgrade to substrate v1.1.0
+    - Remove remote TrackballControls requirement
+    - Remove inline `substrate#AxisLayer` declaration
+    - Remove reliance upon downloaded CDN three.js
+    - Enable `figsize` specification during construction
+    - Add debug mode with `debug=True` constructor arg
+    - Improve `pytri#show` logic
+    - Implement `pytri#resize`
+    - Run pytri offline!
+- **0.4.1** Unreleased
     - Resolve integer-label graph conflict (#80)
 - **0.4.0** (July 31, 2018)
     - Reimplement graphs for scalability (@hpcowley)

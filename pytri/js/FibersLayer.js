@@ -1,4 +1,4 @@
-class FibersLayer extends Layer {
+class FibersLayer extends window.substrate.Layer {
 
     constructor(props) {
         super(props);

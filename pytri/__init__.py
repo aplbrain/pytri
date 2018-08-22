@@ -29,7 +29,7 @@ import numpy as np
 import requests
 
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 
 class pytri:
@@ -39,62 +39,103 @@ class pytri:
     .
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Create a new visualizer frame.
 
         Arguments:
-            None
+            figsize (int, int): A 2-tuple of pixel sizes. Either may be None
+                to auto-rescale in that axis.
+            width (int): The width to set the figure
+            height (int): The height to set the figure
 
         """
+        self.debug = kwargs.get('debug', False)
         scripts = [
-            "https://threejs.org/examples/js/controls/TrackballControls.js",
+            # None listed.
+            # Include all remote JS downloads here.
         ]
-
-        threesrc = requests.get("https://threejs.org/build/three.js").text.split("\n")
-        threesrc = threesrc[6:-2]
-
-        js = "exports = window.THREE || {}; " + "\n".join(threesrc) + "window.THREE = exports;"
-
+        # Construct a large JS file of all remote scripts:
+        js = ""
         for script in scripts:
             js += requests.get(script).text.strip()
 
+        # Execute substrate in the global namespace.
         s_path, _ = split(__file__)
         s_file = join(s_path, "js", "substrate.min.js")
         with open(s_file, "r") as fh:
             js += ";\n\n" + fh.read().strip()
 
+        # Add GPU script to the global namespace.
+        # TODO: Do not add this unless the system is needed.
         gpu_file = join(s_path, "js", "GPUParticleSystem.js")
         gpu_js = ""
         with open(gpu_file, "r") as fh:
             gpu_js += ";\n\n" + fh.read().strip()
 
+        # Save JS files to self.
         self.js = js
         self.gpu_js = gpu_js
+
+        # Generate a random ID for this pytri instance.
         self.uid = str(uuid.uuid4())
+
+        # A set of all layer types that have been added (so that we don't
+        # repeatedly download the same file)
         self.layer_types = set()
+
+        # The list of layers added to this instance. Corresponds 1-to-1 with
+        # the JS dictionary of renderLayers in the underlying substrate.
         self.layers = set()
 
+        # Inject the JS into the scene.
+        # Then add a pytri target, which is the substrate renderTarget attr.
+        # Finally, create the Visualizer as a unique UUID keyvalue in the
+        # global "V" object, and render it.
+        width = kwargs.get("width", None)
+        height = kwargs.get("height", 400)
+        width, height = kwargs.get("figsize", (None, 400))
+        self.width = width
+        self.height = height
+        if not width:
+            width = "undefined"
+        width = str(width)
+        if not height:
+            height = "undefined"
+        height = str(height)
         display(HTML(
-            "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
-            "<script>{}</script>".format(self.gpu_js)+
+            "<script>{}</script>".format(self.gpu_js) +
             """
             <script>
             window.V = window.V || {}
-            V['"""+self.uid+"""'] = new Visualizer({
-                targetElement: "pytri-target-decoy",
+            </script>
+            <style>
+            .pytri-not-shown-yet {
+                position: fixed;
+                right: 150vw;
+            }
+            </style>
+            <div id='pytri-target-"""+self.uid+"""' class="pytri-not-shown-yet"></div>"""  +
+            """
+            <script>
+            V['"""+self.uid+"""'] = new window.substrate.Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
                 backgroundColor: new window.THREE.Color(0xffffff),
                 renderLayers: {
                     // None yet!
                 }
             });
-            V['"""+self.uid+"""'].init();
-            let dd = document.getElementById("pytri-target-decoy");
-            dd.remove();
+            V['"""+self.uid+"""'].triggerRender();
+            V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
             </script>
             """
         ))
+
+    def _execute_js(self, js):
+        if self.debug:
+            print(js)
+        display(Javascript(js))
 
     def show(self):
         """
@@ -104,18 +145,40 @@ class pytri:
             None
 
         """
-        display(HTML(
-            """<div id='pytri-target-"""+self.uid+"""'></div>"""  +
+        display(HTML("<div></div>"))
+        if self.debug:
+            _catch_code = "/* Visualizer DNE. */"
+        else:
+            _catch_code = ""
+        self._execute_js(
             """
-            <script>
-            V['"""+self.uid+"""'].props.targetElement = "pytri-target-"""+self.uid+"""";
-            V['"""+self.uid+"""'].triggerRender();
-            V['"""+self.uid+"""'].resize(undefined, 400)
-            </script>
-            """
-        ))
+            try {
+                document.querySelectorAll('.running')[0]
+                    .querySelectorAll('.output .output_html')[0]
+                        .appendChild(
+                            document.getElementById('pytri-target-"""+self.uid+"""')
+                        );
+            } catch {""" + _catch_code + """}"""
+        )
+        self._execute_js(
+            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')"
+        )
+        self.resize(self.width, self.height)
 
-    def remove_layer(self, name):
+    def resize(self, width="undefined", height="undefined") -> None:
+        if not width:
+            width = "undefined"
+        width = str(width)
+        if not height:
+            height = "undefined"
+        height = str(height)
+        self._execute_js(
+            """
+            V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
+            """
+        )
+
+    def remove_layer(self, name: str):
         """
         Remove a layer by name.
 
@@ -126,9 +189,9 @@ class pytri:
             None
 
         """
-        display(Javascript("""
+        self._execute_js("""
             V['"""+self.uid+"""'].removeLayer('{}')
-        """.format(name)))
+        """.format(name))
         self.layers.remove(name)
 
     def toggle_layer(self, name):
@@ -142,13 +205,13 @@ class pytri:
             None
 
         """
-        display(Javascript("""
+        self._execute_js("""
             V['"""+self.uid+"""'].renderLayers['"""+name+"""'].children.forEach(
                 c => {
                     let shouldBeVisible = !c.visible;
                     c.visible = shouldBeVisible;
                 })
-        """))
+        """)
 
     def clear(self):
         """
@@ -232,9 +295,9 @@ class pytri:
                 layer_type = layer_types[1]
             # Overwrite window.layer_type
             inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
-            display(Javascript(inject_fmt.format(
+            self._execute_js(inject_fmt.format(
                 layer_type=layer_type,
-                layer_js=layer_js)))
+                layer_js=layer_js))
             self.layer_types.add(layer_type)
         except TypeError as _:
             raise ValueError(
@@ -244,7 +307,7 @@ class pytri:
         _js = "V['{}'].addLayer('{}', new window.{}({}))".format(
             self.uid, name, layer_type, json.dumps(params)
         )
-        display(Javascript(_js))
+        self._execute_js(_js)
 
         self.layers.add(name)
         return name
@@ -260,16 +323,13 @@ class pytri:
             str: Name, as inserted
 
         """
-        _js = """
-            class AxisLayer extends Layer {
-                requestInit(scene) {
-                    let axes = new window.THREE.AxisHelper(5);
-                    this.children.push(axes)
-                    scene.add(axes)
-                }
-            }
-        """
-        return self.add_layer(_js, name="axes")
+        name = str(uuid.uuid4())
+        _js = "V['{}'].addLayer('{}', new window.substrate.layers.AxisLayer())".format(
+            self.uid, name
+        )
+        self._execute_js(_js)
+        self.layers.add(name)
+        return name
 
     def imshow(
             self,
@@ -342,6 +402,9 @@ class pytri:
         Returns:
             str: Name, as inserted
 
+        # TODO: Use particle system
+        # TODO: Arrays of radii
+
         """
         if isinstance(data, np.ndarray):
             data = data.tolist()
@@ -379,7 +442,7 @@ class pytri:
 
         PARTICLE_RADIUS_SCALE = 50
         mult_radius: Union[float, List[float]]
-        if isinstance(radius, float) or isinstance(radius, int):
+        if isinstance(radius, (float, int)):
             if mesh_nodes:
                 mult_radius = radius
             else:
@@ -437,18 +500,16 @@ class pytri:
             str: Name, as inserted
 
         """
-        display(Javascript(
-            url="https://raw.githubusercontent.com/mrdoob/three.js" +
-            "/master/examples/js/loaders/OBJLoader.js"
-        ))
-
-        _js = self._fetch_layer_file("MeshLayer.js")
         props = dict()
         props["data"] = data
         if opacity is not None:
             props["opacity"] = opacity
 
-        return self.add_layer(
-            _js,
-            props,
-            name=name)
+        if name is None:
+            name = str(uuid.uuid4())
+        _js = "V['{}'].addLayer('{}', new window.substrate.layers.MeshLayer({}))".format(
+            self.uid, name, json.dumps(props)
+        )
+        self._execute_js(_js)
+        self.layers.add(name)
+        return name

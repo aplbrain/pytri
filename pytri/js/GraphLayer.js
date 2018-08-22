@@ -1,4 +1,4 @@
-class ColorGraphLayer extends Layer {
+class ColorGraphLayer extends window.substrate.Layer {
     constructor(opts) {
         super(opts);
         this.graph = {
@@ -39,7 +39,7 @@ class ColorGraphLayer extends Layer {
         return pos;
     }
 
-    
+
     requestInit(scene) {
         let self = this;
         let graph = {
@@ -107,7 +107,7 @@ class ColorGraphLayer extends Layer {
             );
             edgeGeometry.vertices.push(
                 new THREE.Vector3(stopPos.x, stopPos.y, stopPos.z)
-            );  
+            );
         });
 
         let edges = new THREE.LineSegments(
@@ -117,6 +117,6 @@ class ColorGraphLayer extends Layer {
             })
         );
         self.children.push(edges);
-        scene.add(edges);          
+        scene.add(edges);
     }
 }

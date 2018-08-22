@@ -1,6 +1,4 @@
-
-
-class VolumeLayer extends Layer {
+class VolumeLayer extends window.substrate.Layer {
     constructor(opts) {
         super(opts);
         this.data = opts.data;
