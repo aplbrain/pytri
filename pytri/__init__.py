@@ -133,7 +133,7 @@ class pytri:
         """
         pass
 
-    def remove_layer(self, name):
+    def remove_layer(self, name: str):
         """
         Remove a layer by name.
 
