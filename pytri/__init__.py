@@ -39,42 +39,67 @@ class pytri:
     .
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Create a new visualizer frame.
 
         Arguments:
-            None
+            figsize (int, int): A 2-tuple of pixel sizes. Either may be None
+                to auto-rescale in that axis.
+            width (int): The width to set the figure
+            height (int): The height to set the figure
 
         """
         scripts = [
-            # None
+            # None listed.
+            # Include all remote JS downloads here.
         ]
-
-        threesrc = requests.get("https://threejs.org/build/three.js").text.split("\n")
-        threesrc = threesrc[6:-2]
-
-        js = "exports = window.THREE || {}; " + "\n".join(threesrc) + "window.THREE = exports;"
-
+        # Construct a large JS file of all remote scripts:
+        js = ""
         for script in scripts:
             js += requests.get(script).text.strip()
 
+        # Execute substrate in the global namespace.
         s_path, _ = split(__file__)
         s_file = join(s_path, "js", "substrate.min.js")
         with open(s_file, "r") as fh:
             js += ";\n\n" + fh.read().strip()
 
+        # Add GPU script to the global namespace.
+        # TODO: Do not add this unless the system is needed.
         gpu_file = join(s_path, "js", "GPUParticleSystem.js")
         gpu_js = ""
         with open(gpu_file, "r") as fh:
             gpu_js += ";\n\n" + fh.read().strip()
 
+        # Save JS files to self.
         self.js = js
         self.gpu_js = gpu_js
+
+        # Generate a random ID for this pytri instance.
         self.uid = str(uuid.uuid4())
+
+        # A set of all layer types that have been added (so that we don't
+        # repeatedly download the same file)
         self.layer_types = set()
+
+        # The list of layers added to this instance. Corresponds 1-to-1 with
+        # the JS dictionary of renderLayers in the underlying substrate.
         self.layers = set()
 
+        # Inject the JS into the scene.
+        # Then add a pytri target, which is the substrate renderTarget attr.
+        # Finally, create the Visualizer as a unique UUID keyvalue in the
+        # global "V" object, and render it.
+        width = kwargs.get("width", None)
+        height = kwargs.get("height", 400)
+        width, height = kwargs.get("figsize", (None, 400))
+        if not width:
+            width = "undefined"
+        width = str(width)
+        if not height:
+            height = "undefined"
+        height = str(height)
         display(HTML(
             "<script>{}</script>".format(self.js) +
             "<script>{}</script>".format(self.gpu_js) +
@@ -93,7 +118,7 @@ class pytri:
                 }
             });
             V['"""+self.uid+"""'].triggerRender();
-            V['"""+self.uid+"""'].resize(undefined, 400)
+            V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
             </script>
             """
         ))
@@ -258,6 +283,7 @@ class pytri:
             self.uid, name
         )
         display(Javascript(_js))
+        self.layers.add(name)
         return name
 
     def imshow(
@@ -437,4 +463,5 @@ class pytri:
             self.uid, name, json.dumps(props)
         )
         display(Javascript(_js))
+        self.layers.add(name)
         return name
