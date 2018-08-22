@@ -48,7 +48,7 @@ class pytri:
 
         """
         scripts = [
-            "https://threejs.org/examples/js/controls/TrackballControls.js",
+            # None
         ]
 
         threesrc = requests.get("https://threejs.org/build/three.js").text.split("\n")
@@ -76,22 +76,24 @@ class pytri:
         self.layers = set()
 
         display(HTML(
-            "<div id='pytri-target-decoy'></div>" +
             "<script>{}</script>".format(self.js) +
-            "<script>{}</script>".format(self.gpu_js)+
+            "<script>{}</script>".format(self.gpu_js) +
             """
             <script>
             window.V = window.V || {}
-            V['"""+self.uid+"""'] = new Visualizer({
-                targetElement: "pytri-target-decoy",
+            </script>..
+            <div id='pytri-target-"""+self.uid+"""'></div>"""  +
+            """
+            <script>
+            V['"""+self.uid+"""'] = new window.substrate.Visualizer({
+                targetElement: "pytri-target-"""+self.uid+"""",
                 backgroundColor: new window.THREE.Color(0xffffff),
                 renderLayers: {
                     // None yet!
                 }
             });
-            V['"""+self.uid+"""'].init();
-            let dd = document.getElementById("pytri-target-decoy");
-            dd.remove();
+            V['"""+self.uid+"""'].triggerRender();
+            V['"""+self.uid+"""'].resize(undefined, 400)
             </script>
             """
         ))
@@ -104,16 +106,7 @@ class pytri:
             None
 
         """
-        display(HTML(
-            """<div id='pytri-target-"""+self.uid+"""'></div>"""  +
-            """
-            <script>
-            V['"""+self.uid+"""'].props.targetElement = "pytri-target-"""+self.uid+"""";
-            V['"""+self.uid+"""'].triggerRender();
-            V['"""+self.uid+"""'].resize(undefined, 400)
-            </script>
-            """
-        ))
+        pass
 
     def remove_layer(self, name):
         """
@@ -260,16 +253,12 @@ class pytri:
             str: Name, as inserted
 
         """
-        _js = """
-            class AxisLayer extends Layer {
-                requestInit(scene) {
-                    let axes = new window.THREE.AxisHelper(5);
-                    this.children.push(axes)
-                    scene.add(axes)
-                }
-            }
-        """
-        return self.add_layer(_js, name="axes")
+        name = str(uuid.uuid4())
+        _js = "V['{}'].addLayer('{}', new window.substrate.layers.AxisLayer())".format(
+            self.uid, name
+        )
+        display(Javascript(_js))
+        return name
 
     def imshow(
             self,
