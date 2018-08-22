@@ -3,8 +3,10 @@
     - Remove remote TrackballControls requirement
     - Remove inline `substrate#AxisLayer` declaration
     - Remove reliance upon downloaded CDN three.js
-    - Enable figsize specification during construction
+    - Enable `figsize` specification during construction
     - Add debug mode with `debug=True` constructor arg
+    - Improve `pytri#show` logic
+    - Implement `pytri#resize`
 - **0.4.1** Unreleased
     - Resolve integer-label graph conflict (#80)
 - **0.4.0** (July 31, 2018)
