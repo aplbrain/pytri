@@ -95,6 +95,8 @@ class pytri:
         width = kwargs.get("width", None)
         height = kwargs.get("height", 400)
         width, height = kwargs.get("figsize", (None, 400))
+        self.width = width
+        self.height = height
         if not width:
             width = "undefined"
         width = str(width)
@@ -137,7 +139,27 @@ class pytri:
             None
 
         """
-        pass
+        display(HTML("<div></div>"))
+        self._execute_js(
+            "document.querySelectorAll('.running')[0].querySelectorAll('.output .output_html')[0].appendChild(document.getElementById('pytri-target-"+self.uid+"'))"
+        )
+        self._execute_js(
+            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')"
+        )
+        self.resize(self.width, self.height)
+
+    def resize(self, width="undefined", height="undefined") -> None:
+        if not width:
+            width = "undefined"
+        width = str(width)
+        if not height:
+            height = "undefined"
+        height = str(height)
+        self._execute_js(
+            """
+            V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
+            """
+        )
 
     def remove_layer(self, name: str):
         """
