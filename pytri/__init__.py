@@ -426,18 +426,15 @@ class pytri:
             str: Name, as inserted
 
         """
-        display(Javascript(
-            url="https://raw.githubusercontent.com/mrdoob/three.js" +
-            "/master/examples/js/loaders/OBJLoader.js"
-        ))
-
-        _js = self._fetch_layer_file("MeshLayer.js")
         props = dict()
         props["data"] = data
         if opacity is not None:
             props["opacity"] = opacity
 
-        return self.add_layer(
-            _js,
-            props,
-            name=name)
+        if name is None:
+            name = str(uuid.uuid4())
+        _js = "V['{}'].addLayer('{}', new window.substrate.layers.MeshLayer({}))".format(
+            self.uid, name, json.dumps(props)
+        )
+        display(Javascript(_js))
+        return name
