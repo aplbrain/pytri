@@ -109,8 +109,14 @@ class pytri:
             """
             <script>
             window.V = window.V || {}
-            </script>..
-            <div id='pytri-target-"""+self.uid+"""'></div>"""  +
+            </script>
+            <style>
+            .pytri-not-shown-yet {
+                position: fixed;
+                right: 150vw;
+            }
+            </style>
+            <div id='pytri-target-"""+self.uid+"""' class="pytri-not-shown-yet"></div>"""  +
             """
             <script>
             V['"""+self.uid+"""'] = new window.substrate.Visualizer({
