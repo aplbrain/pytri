@@ -1,4 +1,4 @@
-class ScatterLayer extends Layer {
+class ScatterLayer extends window.substrate.Layer {
     constructor(opts) {
         super(opts);
         this.radius = opts.radius || 0.15;

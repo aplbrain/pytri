@@ -1,4 +1,4 @@
-class ImageLayer extends Layer {
+class ImageLayer extends window.substrate.Layer {
     constructor(opts) {
         super(opts);
         this.dataURI = opts.dataURI;
