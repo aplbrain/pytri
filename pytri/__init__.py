@@ -50,6 +50,7 @@ class pytri:
             height (int): The height to set the figure
 
         """
+        self.debug = kwargs.get('debug', False)
         scripts = [
             # None listed.
             # Include all remote JS downloads here.
@@ -122,6 +123,11 @@ class pytri:
             </script>
             """
         ))
+
+    def _execute_js(self, js):
+        if self.debug:
+            print(js)
+        display(Javascript(js))
 
     def show(self):
         """
