@@ -11,9 +11,22 @@
     <a href="https://codeclimate.com/github/iscoe/pytri/maintainability"><img src="https://api.codeclimate.com/v1/badges/898780feddf32135447b/maintainability" /></a>
 </p>
 
+## What is Pytri?
+
+Pytri is a data visualization library for 3D rendering in a Jupyter notebook.
+
+### Why not use...?
+
+- **Matplotlib**: 3D support is a second-class citizen; matplotlib's strengths are in 2D.
+- **Plotly**: Plotly is a great, powerful library, but it has a complex, non-ideomatic API.
+- **threejs Python libraries**: These are great, but support basic geometry operations better than high-level data visualization.
+
+Under the hood, pytri uses [substrate](https://github.com/jhuapl-boss/substrate), a fast, layer-based visualization framework built upon threejs. And importantly, **pytri visualizations persist when you export a jupyter notebook to HTML!**
+
 ## Installation and Configuration
 
 ### New Hotness:
+
 ```shell
 pip install -U pytri
 ```
