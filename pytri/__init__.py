@@ -22,7 +22,7 @@ from os.path import join, split
 import re
 from typing import List, Union
 import uuid
-from IPython.display import Javascript, HTML, display
+from IPython.display import Javascript, HTML, display, clear_output
 import networkx as nx
 from networkx.readwrite import json_graph
 import numpy as np
@@ -132,10 +132,13 @@ class pytri:
             """
         ))
 
-    def _execute_js(self, js):
+    def _execute_js(self, js, update=True):
         if self.debug:
             print(js)
-        display(Javascript(js))
+        if update:
+            display(Javascript(js), update=True, display_id="pytri-target-" + self.uid)
+        else:
+            display(Javascript(js), display_id="pytri-target-" + self.uid)
 
     def show(self):
         """
@@ -158,10 +161,12 @@ class pytri:
                         .appendChild(
                             document.getElementById('pytri-target-"""+self.uid+"""')
                         );
-            } catch {""" + _catch_code + """}"""
+            } catch {""" + _catch_code + """}""",
+            update=False
         )
         self._execute_js(
-            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')"
+            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')",
+            update=False
         )
         self.resize(self.width, self.height)
 
@@ -175,6 +180,20 @@ class pytri:
         self._execute_js(
             """
             V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
+            """
+        )
+
+    def background(self, color: str) -> None:
+        """
+        Set the background color.
+
+        Arguments:
+            color (str): A hex-like string, like "0xff0000"
+
+        """
+        self._execute_js(
+            """
+            V['"""+self.uid+"""'].backgroundColor.set(""" + color + """)
             """
         )
 
