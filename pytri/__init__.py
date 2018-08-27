@@ -508,6 +508,8 @@ class pytri:
             self,
             data,
             opacity=None,
+            origin=None,
+            scale=None,
             name=None) -> str:
         """
         Add a mesh to the scene. Currently only supports OBJ.
@@ -520,9 +522,17 @@ class pytri:
 
         """
         props = dict()
-        props["data"] = data
-        if opacity is not None:
+        if "\n" in data:
+            props["data"] = data
+        else:
+            props["path"] = data
+
+        if opacity:
             props["opacity"] = opacity
+        if origin:
+            props["origin"] = json.dumps(origin)
+        if scale:
+            props["scale"] = json.dumps(scale)
 
         if name is None:
             name = str(uuid.uuid4())
