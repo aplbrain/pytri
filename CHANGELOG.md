@@ -7,7 +7,8 @@
     - Add debug mode with `debug=True` constructor arg
     - Improve `pytri#show` logic
     - Implement `pytri#resize`
-    - Run pytri offline!
+    - **Run pytri offline!**
+    - Enable `pytri#mesh` from path in addition to OBJ data
 - **0.4.1** Unreleased
     - Resolve integer-label graph conflict (#80)
 - **0.4.0** (July 31, 2018)
