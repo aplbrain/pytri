@@ -5,7 +5,7 @@ class ColorGraphLayer extends window.substrate.Layer {
             nodes: opts.graph.nodes,
             edges: opts.graph.links,
         };
-
+        this.nodeDict = opts.nodeDict;
         this.nodeColor = opts.nodeColor;
         this.radius = opts.radius;
 
@@ -15,7 +15,7 @@ class ColorGraphLayer extends window.substrate.Layer {
 
     _getNodePosition(node) {
         let pos = {};
-        if ('pos' in node) {
+        if (node.hasOwnProperty('pos')) {
             if (Array.isArray(node.pos)) {
                 pos = {
                     x: node.pos[0],
@@ -54,7 +54,7 @@ class ColorGraphLayer extends window.substrate.Layer {
 
         this.pSys = particleSystem;
         scene.add(particleSystem);
-
+        window.graph = this.graph;
         if(this.meshNodes) {
             this.graph.nodes.forEach((node, i) => {
                 let sph = new window.THREE.Mesh(
@@ -71,6 +71,7 @@ class ColorGraphLayer extends window.substrate.Layer {
                 scene.add(sph);
             });
         } else {
+            
             if(this.nodeColor.constructor === Array) {
                 this.graph.nodes.forEach((node, i) => {
                     let pos = this._getNodePosition(node);
@@ -97,10 +98,10 @@ class ColorGraphLayer extends window.substrate.Layer {
 
         let edgeGeometry = new THREE.Geometry();
 
-        this.graph.edges.forEach((edge, i) => {
-            let start = graph.nodes[edge["source"]];
+        this.graph.edges.forEach(edge => {
+            let start = this.nodeDict[edge["source"]];
             let startPos = this._getNodePosition(start);
-            let stop = graph.nodes[edge["target"]];
+            let stop = this.nodeDict[edge["target"]];
             let stopPos = this._getNodePosition(stop);
             edgeGeometry.vertices.push(
                 new THREE.Vector3(startPos.x, startPos.y, startPos.z)
