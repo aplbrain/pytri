@@ -53,7 +53,6 @@ class ColorGraphLayer extends window.substrate.Layer {
 
         this.pSys = particleSystem;
         scene.add(particleSystem);
-        window.graph = this.graph;
         if(this.meshNodes) {
             this.graph.nodes.forEach((node, i) => {
                 let sph = new window.THREE.Mesh(
