@@ -459,7 +459,7 @@ class pytri:
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("GraphLayer.js")
 
-        node_dict = {n['id']: {'pos': n} for n in data['nodes']}
+        node_dict = {n['id']: n for n in data['nodes']}
 
         PARTICLE_RADIUS_SCALE = 50
         mult_radius: Union[float, List[float]]

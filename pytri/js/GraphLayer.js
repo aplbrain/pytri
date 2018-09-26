@@ -32,10 +32,7 @@ class ColorGraphLayer extends window.substrate.Layer {
                 z: node.z
             };
         }
-        if (typeof pos.x != 'number' || typeof pos.y != 'number' || typeof pos.z != 'number') {
-            throw Error('missing coordinates in node');
-        }
-
+        // TODO: add error handling for no position in node
         return pos;
     }
 
