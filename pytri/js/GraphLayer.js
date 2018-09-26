@@ -46,7 +46,6 @@ class ColorGraphLayer extends window.substrate.Layer {
             nodes: this.graph.nodes,
             edges: this.graph.edges,
         };
-        window.graph = this.graph;
 
         let particleSystem = new window.THREE.GPUParticleSystem({
             maxParticles: graph.nodes.length
