@@ -39,19 +39,9 @@ class ColorGraphLayer extends window.substrate.Layer {
 
     requestInit(scene) {
         let self = this;
-        let graph = {
-            nodes: this.graph.nodes,
-            edges: this.graph.edges,
-        };
 
-        let particleSystem = new window.THREE.GPUParticleSystem({
-            maxParticles: graph.nodes.length
-        });
-
-        this.pSys = particleSystem;
-        scene.add(particleSystem);
         if(this.meshNodes) {
-            this.graph.nodes.forEach((node, i) => {
+            self.graph.nodes.forEach((node, i) => {
                 let sph = new window.THREE.Mesh(
                     new window.THREE.SphereGeometry(
                         Array.isArray(this.nodeSize) ? this.nodeSize[i] : this.nodeSize, 6, 6
@@ -60,13 +50,21 @@ class ColorGraphLayer extends window.substrate.Layer {
                         color: Array.isArray(this.nodeColor) ? this.nodeColor[i] : this.nodeColor
                     })
                 );
+
                 let pos = this._getNodePosition(node);
                 sph.position.set(pos.x, pos.y, pos.z);
+
                 this.children.push(sph);
                 scene.add(sph);
             });
         } else {
-            this.graph.nodes.forEach((node, i) => {
+            let particleSystem = new window.THREE.GPUParticleSystem({
+                maxParticles: self.graph.nodes.length
+            });
+
+            scene.add(particleSystem);
+
+            self.graph.nodes.forEach((node, i) => {
                 let pos = this._getNodePosition(node);
                 particleSystem.spawnParticle({
                     position: pos,
@@ -78,7 +76,7 @@ class ColorGraphLayer extends window.substrate.Layer {
         }
 
         let edgeGeometry = new THREE.Geometry();
-        this.graph.edges.forEach(edge => {
+        self.graph.edges.forEach(edge => {
             let start = this.nodeDict[edge["source"]];
             let startPos = this._getNodePosition(start);
             let stop = this.nodeDict[edge["target"]];
