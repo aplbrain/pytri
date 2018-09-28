@@ -1,4 +1,4 @@
-class ColorGraphLayer extends window.substrate.Layer {
+class GraphLayer extends window.substrate.Layer {
     constructor(opts) {
         super(opts);
         this.graph = {
