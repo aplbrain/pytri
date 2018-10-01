@@ -103,6 +103,7 @@ class pytri:
         if not height:
             height = "undefined"
         height = str(height)
+        self._display_exists = False
         display(HTML(
             "<script>{}</script>".format(self.js) +
             "<script>{}</script>".format(self.gpu_js) +
@@ -132,13 +133,15 @@ class pytri:
             """
         ))
 
-    def _execute_js(self, js, update=True):
+    def _execute_js(self, js, update=None):
+
         if self.debug:
             print(js)
-        if update:
+        if self._display_exists and update is not False:
             display(Javascript(js), update=True, display_id="pytri-target-" + self.uid)
         else:
             display(Javascript(js), display_id="pytri-target-" + self.uid)
+            self._display_exists = True
 
     def show(self):
         """
