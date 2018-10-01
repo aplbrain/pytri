@@ -28,8 +28,9 @@ from networkx.readwrite import json_graph
 import numpy as np
 import requests
 
+from . import version
 
-__version__ = "0.5.0"
+__version__ = version.__version__
 
 
 class pytri:

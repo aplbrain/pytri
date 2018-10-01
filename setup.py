@@ -6,34 +6,41 @@ pytri.
 look at stuff.
 """
 
-from os import path
-from codecs import open as copen
+import codecs
+import os
+import re
 from setuptools import setup, find_packages
-from pytri import __version__
 
+def read(*parts):
+    with codecs.open(os.path.join(HERE, *parts), 'r', encoding='utf-8') as fp:
+        return fp.read()
 
-here = path.abspath(path.dirname(__file__))
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    else:
+        return "UNKNOWN"
 
-# Get the long description from the README file
-with copen(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+HERE = os.path.abspath(os.path.dirname(__file__))
+VERSION = find_version("pytri", "version.py")
+LONG_DESCRIPTION = read("README.md")
+ALL_REQS = read("requirements.txt").split('\n')
 
-# get the dependencies and installs
-with copen(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
-    all_reqs = f.read().split('\n')
-
-install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
-dependency_links = [
-    x.strip().replace('git+', '') for x in all_reqs if x.startswith('git+')
+INSTALL_REQUIRES = [x.strip() for x in ALL_REQS if 'git+' not in x]
+DEPENDENCY_LINKS = [
+    x.strip().replace('git+', '') for x in ALL_REQS if x.startswith('git+')
 ]
 
 setup(
     name='pytri',
-    version=__version__,
+    version=VERSION,
     description='Visualize using substrate. For Jupyter notebooks.',
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
-    download_url='https://github.com/iscoe/pytri/tarball/' + __version__,
+    download_url='https://github.com/iscoe/pytri/tarball/' + VERSION,
     license='Apache 2.0',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -47,7 +54,7 @@ setup(
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
     author='Jordan Matelsky',
-    install_requires=install_requires,
-    dependency_links=dependency_links,
+    install_requires=INSTALL_REQUIRES,
+    dependency_links=DEPENDENCY_LINKS,
     author_email='jordan@matelsky.com'
 )
