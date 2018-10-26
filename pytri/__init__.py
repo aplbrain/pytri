@@ -442,8 +442,8 @@ class pytri:
     def graph(self, data, radius: Union[float, List[float]] = 0.15,
               node_color: Union[float, List[float]] = 0xbabe00,
               link_color: Union[float, List[float]] = 0x00babe,
-              name: str = None,
-              mesh_nodes: bool = False) -> str:
+              mesh_nodes: bool = False,
+              name: str = None,) -> str:
         """
         Add a graph to the visualizer.
 
