@@ -28,8 +28,9 @@ from networkx.readwrite import json_graph
 import numpy as np
 import requests
 
+from . import version
 
-__version__ = "0.5.0"
+__version__ = version.__version__
 
 
 class pytri:
@@ -103,6 +104,7 @@ class pytri:
         if not height:
             height = "undefined"
         height = str(height)
+        self._display_exists = False
         display(HTML(
             "<script>{}</script>".format(self.js) +
             "<script>{}</script>".format(self.gpu_js) +
@@ -132,13 +134,15 @@ class pytri:
             """
         ))
 
-    def _execute_js(self, js, update=True):
+    def _execute_js(self, js, update=None):
+
         if self.debug:
             print(js)
-        if update:
+        if self._display_exists and update is not False:
             display(Javascript(js), update=True, display_id="pytri-target-" + self.uid)
         else:
             display(Javascript(js), display_id="pytri-target-" + self.uid)
+            self._display_exists = True
 
     def show(self):
         """
@@ -438,8 +442,8 @@ class pytri:
     def graph(self, data, radius: Union[float, List[float]] = 0.15,
               node_color: Union[float, List[float]] = 0xbabe00,
               link_color: Union[float, List[float]] = 0x00babe,
-              name: str = None,
-              mesh_nodes: bool = False) -> str:
+              mesh_nodes: bool = False,
+              name: str = None,) -> str:
         """
         Add a graph to the visualizer.
 
