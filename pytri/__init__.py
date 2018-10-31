@@ -22,14 +22,15 @@ from os.path import join, split
 import re
 from typing import List, Union
 import uuid
-from IPython.display import Javascript, HTML, display
+from IPython.display import Javascript, HTML, display, clear_output
 import networkx as nx
 from networkx.readwrite import json_graph
 import numpy as np
 import requests
 
+from . import version
 
-__version__ = "0.5.0"
+__version__ = version.__version__
 
 
 class pytri:
@@ -103,6 +104,7 @@ class pytri:
         if not height:
             height = "undefined"
         height = str(height)
+        self._display_exists = False
         display(HTML(
             "<script>{}</script>".format(self.js) +
             "<script>{}</script>".format(self.gpu_js) +
@@ -132,10 +134,15 @@ class pytri:
             """
         ))
 
-    def _execute_js(self, js):
+    def _execute_js(self, js, update=None):
+
         if self.debug:
             print(js)
-        display(Javascript(js))
+        if self._display_exists and update is not False:
+            display(Javascript(js), update=True, display_id="pytri-target-" + self.uid)
+        else:
+            display(Javascript(js), display_id="pytri-target-" + self.uid)
+            self._display_exists = True
 
     def show(self):
         """
@@ -158,10 +165,12 @@ class pytri:
                         .appendChild(
                             document.getElementById('pytri-target-"""+self.uid+"""')
                         );
-            } catch {""" + _catch_code + """}"""
+            } catch {""" + _catch_code + """}""",
+            update=False
         )
         self._execute_js(
-            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')"
+            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')",
+            update=False
         )
         self.resize(self.width, self.height)
 
@@ -175,6 +184,20 @@ class pytri:
         self._execute_js(
             """
             V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
+            """
+        )
+
+    def background(self, color: str) -> None:
+        """
+        Set the background color.
+
+        Arguments:
+            color (str): A hex-like string, like "0xff0000"
+
+        """
+        self._execute_js(
+            """
+            V['"""+self.uid+"""'].backgroundColor.set(""" + color + """)
             """
         )
 
@@ -419,8 +442,8 @@ class pytri:
     def graph(self, data, radius: Union[float, List[float]] = 0.15,
               node_color: Union[float, List[float]] = 0xbabe00,
               link_color: Union[float, List[float]] = 0x00babe,
-              name: str = None,
-              mesh_nodes: bool = False) -> str:
+              mesh_nodes: bool = False,
+              name: str = None,) -> str:
         """
         Add a graph to the visualizer.
 
@@ -440,6 +463,8 @@ class pytri:
             data = json_graph.node_link_data(data)
         _js = self._fetch_layer_file("GraphLayer.js")
 
+        node_dict = {n['id']: n for n in data['nodes']}
+
         PARTICLE_RADIUS_SCALE = 50
         mult_radius: Union[float, List[float]]
         if isinstance(radius, (float, int)):
@@ -454,6 +479,7 @@ class pytri:
                 mult_radius = [r * PARTICLE_RADIUS_SCALE for r in radius]
 
         return self.add_layer(_js, {
+            "nodeDict": node_dict,
             "graph": data,
             "radius": mult_radius,
             "nodeColor": node_color,
@@ -489,6 +515,8 @@ class pytri:
             self,
             data,
             opacity=None,
+            origin=None,
+            scale=None,
             name=None) -> str:
         """
         Add a mesh to the scene. Currently only supports OBJ.
@@ -501,9 +529,17 @@ class pytri:
 
         """
         props = dict()
-        props["data"] = data
-        if opacity is not None:
+        if "\n" in data:
+            props["data"] = data
+        else:
+            props["path"] = data
+
+        if opacity:
             props["opacity"] = opacity
+        if origin:
+            props["origin"] = json.dumps(origin)
+        if scale:
+            props["scale"] = json.dumps(scale)
 
         if name is None:
             name = str(uuid.uuid4())
