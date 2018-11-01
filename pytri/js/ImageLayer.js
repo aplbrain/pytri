@@ -12,7 +12,7 @@ class ImageLayer extends window.substrate.Layer {
         let self = this;
         self.needsUpdate = true;
 
-        let geometry = new window.THREE.PlaneBufferGeometry(self.width, self.height);
+        let geometry = new window.THREE.PlaneGeometry(self.width, self.height);
         let image = new Image();
         image.src = self.dataURI;
         let texture = new window.THREE.Texture(image);
