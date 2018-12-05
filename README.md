@@ -4,10 +4,10 @@
 </p>
 
 <p align="center">
-    <span>A python wrapper for <a href="https://github.com/jhuapl-boss/substrate">substrate</a>.</span><br />
+    <span>A python wrapper for <a href="https://github.com/aplbrain/substrate">substrate</a>.</span><br />
     <a href="https://circleci.com/gh/aplbrain/pytri"><img alt="CircleCI" src="https://circleci.com/gh/aplbrain/pytri.svg?style=svg" /></a>
     <a href="https://badge.fury.io/py/pytri"><img src="https://badge.fury.io/py/pytri.svg" alt="PyPI version" height="18"></a>
-    <a href="https://github.com/jhuapl-boss/substrate"><img src="https://img.shields.io/badge/substrate-v.1.1.0-cd1642.svg" height="18"></a>
+    <a href="https://github.com/aplbrain/substrate"><img src="https://img.shields.io/badge/substrate-v.1.1.0-cd1642.svg" height="18"></a>
     <a href="https://codeclimate.com/github/aplbrain/pytri/maintainability"><img src="https://api.codeclimate.com/v1/badges/898780feddf32135447b/maintainability" /></a>
 </p>
 
@@ -21,7 +21,7 @@ Pytri is a data visualization library for 3D rendering in a Jupyter notebook.
 - **Plotly**: Plotly is a great, powerful library, but it has a complex, non-ideomatic API.
 - **threejs Python libraries**: These are great, but support basic geometry operations better than high-level data visualization.
 
-Under the hood, pytri uses [substrate](https://github.com/jhuapl-boss/substrate), a fast, layer-based visualization framework built upon threejs. And importantly, **pytri visualizations persist when you export a jupyter notebook to HTML!**
+Under the hood, pytri uses [substrate](https://github.com/aplbrain/substrate), a fast, layer-based visualization framework built upon threejs. And importantly, **pytri visualizations persist when you export a jupyter notebook to HTML!**
 
 ## Installation and Configuration
 
