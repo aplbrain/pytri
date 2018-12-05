@@ -5,10 +5,10 @@
 
 <p align="center">
     <span>A python wrapper for <a href="https://github.com/jhuapl-boss/substrate">substrate</a>.</span><br />
-    <a href="https://circleci.com/gh/iscoe/pytri"><img alt="CircleCI" src="https://circleci.com/gh/iscoe/pytri.svg?style=svg" /></a>
+    <a href="https://circleci.com/gh/aplbrain/pytri"><img alt="CircleCI" src="https://circleci.com/gh/aplbrain/pytri.svg?style=svg" /></a>
     <a href="https://badge.fury.io/py/pytri"><img src="https://badge.fury.io/py/pytri.svg" alt="PyPI version" height="18"></a>
     <a href="https://github.com/jhuapl-boss/substrate"><img src="https://img.shields.io/badge/substrate-v.1.1.0-cd1642.svg" height="18"></a>
-    <a href="https://codeclimate.com/github/iscoe/pytri/maintainability"><img src="https://api.codeclimate.com/v1/badges/898780feddf32135447b/maintainability" /></a>
+    <a href="https://codeclimate.com/github/aplbrain/pytri/maintainability"><img src="https://api.codeclimate.com/v1/badges/898780feddf32135447b/maintainability" /></a>
 </p>
 
 ## What is Pytri?
@@ -35,7 +35,7 @@ pip install -U pytri
 
 - Clone the repository.
 ```shell
-git clone https://github.com/iscoe/pytri.git
+git clone https://github.com/aplbrain/pytri.git
 ```
 - Install all dependencies.
 ```shell

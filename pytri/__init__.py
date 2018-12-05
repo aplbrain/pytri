@@ -267,7 +267,7 @@ class pytri:
 
     def _fetch_layer_github(self, fname: str) -> str:
         """
-        Fetch a layer file from the iscoe/substrate-layers repo.
+        Fetch a layer file from the aplbrain/substrate-layers repo.
 
         Arguments:
             fname (str)
@@ -276,7 +276,7 @@ class pytri:
             str JS
         """
         # Substrate-Layers repo, layers dir:
-        fetch_url = "https://raw.githubusercontent.com/iscoe/substrate-layers/layers/"
+        fetch_url = "https://raw.githubusercontent.com/aplbrain/substrate-layers/layers/"
         full_url = fetch_url + fname
         _js = requests.get(full_url).text
         return _js

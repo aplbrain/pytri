@@ -3,7 +3,7 @@ email: jordan.matelsky@jhuapl.edu
 description: >
   Pytri is a Python widget to enable substrate visualizations in a Jupyter notebook.
 baseurl: "/pytri" # the subpath of your site, e.g. /blog
-url: "https://iscoe.github.io/"
+url: "https://aplbrain.github.io/"
 
 # Build settings
 markdown: kramdown
