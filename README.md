@@ -23,7 +23,27 @@ Pytri is a data visualization library for 3D rendering in a Jupyter notebook.
 
 Under the hood, pytri uses [substrate](https://github.com/aplbrain/substrate), a fast, layer-based visualization framework built upon threejs. And importantly, **pytri visualizations persist when you export a jupyter notebook to HTML!**
 
+
+## Usage
+
+```python
+from pytri import pytri
+
+p = pytri()
+
+p.axes()
+p.scatter([[1, 2, 3], [4, 5, 6]])
+```
+
+Then, calling the following will render the result. You can call `pytri#show()` in a new jupyter cell, or in an existing one:
+
+```python
+p.show()
+```
+
 ## Installation and Configuration
+
+You do not need to install any JavaScript/node packages. You _will_ need a relatively recent browser!
 
 ### New Hotness:
 
@@ -41,16 +61,4 @@ git clone https://github.com/aplbrain/pytri.git
 ```shell
 pip3 install -r requirements.txt
 pip3 install -U .
-```
-
-## Usage
-
-```python
-from pytri import pytri
-
-p = pytri()
-
-p.axes()
-p.scatter([[1, 2, 3], [4, 5, 6]])
-p.show()
 ```
