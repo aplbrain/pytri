@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
 """
-Copyright 2017 The Johns Hopkins University Applied Physics Laboratory.
+Copyright 2021 The Johns Hopkins University Applied Physics Laboratory.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,230 +14,128 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from base64 import b64encode
-from io import BytesIO
-import json
-from os.path import join, split
-import re
-from typing import List, Union
+from typing import Any, Union, List, Iterable, Tuple
+from IPython.display import display
 import uuid
-from IPython.display import Javascript, HTML, display, clear_output
-import networkx as nx
-from networkx.readwrite import json_graph
 import numpy as np
-import requests
+import networkx as nx
 
-from . import version
+import trimesh
 
-__version__ = version.__version__
+from pythreejs import (
+    # Cinematography:
+    AmbientLight,
+    DirectionalLight,
+    Scene,
+    PerspectiveCamera,
+    Renderer,
+    BufferAttribute,
+    OrbitControls,
+    DataTexture,
+    ImageTexture,
+    AxesHelper,
+    Points,
+    BufferGeometry,
+    PointsMaterial,
+    PlaneGeometry,
+    # for meshes:
+    Mesh,
+    MeshBasicMaterial,
+    MeshNormalMaterial,
+    # for lines:
+    LineSegmentsGeometry,
+    LineMaterial,
+    LineSegments2,
+)
+
+from .utils import CIRCLE_MAP
+
+_DEFAULT_FIGURE_WIDTH = 600
+_DEFAULT_FIGURE_HEIGHT = 400
 
 
-class pytri:
+class Figure:
     """
-    The global class for Pytri visualization.
+    Generic class for a new Pytri figure.
 
-    .
     """
 
     def __init__(self, **kwargs):
         """
-        Create a new visualizer frame.
+        Create a new figure.
+
+        All arguments are optional.
 
         Arguments:
-            figsize (int, int): A 2-tuple of pixel sizes. Either may be None
-                to auto-rescale in that axis.
-            width (int): The width to set the figure
-            height (int): The height to set the figure
+            figsize (Tuple[float, float]): The size to make the visualization
 
         """
-        self.debug = kwargs.get('debug', False)
-        scripts = [
-            # None listed.
-            # Include all remote JS downloads here.
-        ]
-        # Construct a large JS file of all remote scripts:
-        js = ""
-        for script in scripts:
-            js += requests.get(script).text.strip()
+        self._figsize = kwargs.get(
+            "figsize", (_DEFAULT_FIGURE_WIDTH, _DEFAULT_FIGURE_HEIGHT)
+        )
 
-        # Execute substrate in the global namespace.
-        s_path, _ = split(__file__)
-        s_file = join(s_path, "js", "substrate.min.js")
-        with open(s_file, "r") as fh:
-            js += ";\n\n" + fh.read().strip()
+        self._layer_lookup = dict()
 
-        # Add GPU script to the global namespace.
-        # TODO: Do not add this unless the system is needed.
-        gpu_file = join(s_path, "js", "GPUParticleSystem.js")
-        gpu_js = ""
-        with open(gpu_file, "r") as fh:
-            gpu_js += ";\n\n" + fh.read().strip()
+        self._camera = PerspectiveCamera(
+            position=[0, 0, 100],
+            up=[0, 1, 0],
+            far=1_000_000,
+            aspect=self._figsize[0] / self._figsize[1],
+        )
+        self._scene = Scene(
+            background=None,
+            children=[
+                self._camera,
+                DirectionalLight(color="#ffffff", position=[0, 100, 100]),
+                AmbientLight(color="#cccccc"),
+            ],
+        )
+        self._renderer = Renderer(
+            width=self._figsize[0],
+            height=self._figsize[1],
+            camera=self._camera,
+            scene=self._scene,
+            alpha=True,
+            clearOpacity=0,
+            controls=[OrbitControls(controlling=self._camera)],
+        )
 
-        # Save JS files to self.
-        self.js = js
-        self.gpu_js = gpu_js
+    @staticmethod
+    def _new_id():
+        return str(uuid.uuid4())
 
-        # Generate a random ID for this pytri instance.
-        self.uid = str(uuid.uuid4())
+    def _add_layer(self, object_set: Union[List, Any]) -> str:
+        if not isinstance(object_set, list):
+            object_set = [object_set]
+        _id = self._new_id()
+        self._layer_lookup[_id] = object_set
+        for obj in object_set:
+            self._scene.add(obj)
+        return _id
 
-        # A set of all layer types that have been added (so that we don't
-        # repeatedly download the same file)
-        self.layer_types = set()
-
-        # The list of layers added to this instance. Corresponds 1-to-1 with
-        # the JS dictionary of renderLayers in the underlying substrate.
-        self.layers = set()
-
-        # Inject the JS into the scene.
-        # Then add a pytri target, which is the substrate renderTarget attr.
-        # Finally, create the Visualizer as a unique UUID keyvalue in the
-        # global "V" object, and render it.
-        width = kwargs.get("width", None)
-        height = kwargs.get("height", 400)
-        width, height = kwargs.get("figsize", (None, 400))
-        self.width = width
-        self.height = height
-        if not width:
-            width = "undefined"
-        width = str(width)
-        if not height:
-            height = "undefined"
-        height = str(height)
-        self._display_exists = False
-        display(HTML(
-            "<script>{}</script>".format(self.js) +
-            "<script>{}</script>".format(self.gpu_js) +
-            """
-            <script>
-            window.V = window.V || {}
-            </script>
-            <style>
-            .pytri-not-shown-yet {
-                position: fixed;
-                right: 150vw;
-            }
-            </style>
-            <div id='pytri-target-"""+self.uid+"""' class="pytri-not-shown-yet"></div>"""  +
-            """
-            <script>
-            V['"""+self.uid+"""'] = new window.substrate.Visualizer({
-                targetElement: "pytri-target-"""+self.uid+"""",
-                backgroundColor: new window.THREE.Color(0xffffff),
-                renderLayers: {
-                    // None yet!
-                }
-            });
-            V['"""+self.uid+"""'].triggerRender();
-            V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
-            </script>
-            """
-        ))
-
-    def _execute_js(self, js, update=None):
-
-        if self.debug:
-            print(js)
-        if self._display_exists and update is not False:
-            display(Javascript(js), update=True, display_id="pytri-target-" + self.uid)
-        else:
-            display(Javascript(js), display_id="pytri-target-" + self.uid)
-            self._display_exists = True
-
-    def show(self):
+    def remove(self, object_set: Union[List[str], str]) -> bool:
         """
-        Render the frame to the Jupyter notebook.
+        Remove a single layer from the scene.
+
+        Use the UUID you get back from the layer-addition methods
+        to identify which items to remove.
 
         Arguments:
-            None
-
-        """
-        display(HTML("<div></div>"))
-        if self.debug:
-            _catch_code = "/* Visualizer DNE. */"
-        else:
-            _catch_code = ""
-        self._execute_js(
-            """
-            try {
-                document.querySelectorAll('.running')[0]
-                    .querySelectorAll('.output .output_html')[0]
-                        .appendChild(
-                            document.getElementById('pytri-target-"""+self.uid+"""')
-                        );
-            } catch {""" + _catch_code + """}""",
-            update=False
-        )
-        self._execute_js(
-            "document.getElementById('pytri-target-"+self.uid+"').classList.remove('pytri-not-shown-yet')",
-            update=False
-        )
-        self.resize(self.width, self.height)
-
-    def resize(self, width="undefined", height="undefined") -> None:
-        if not width:
-            width = "undefined"
-        width = str(width)
-        if not height:
-            height = "undefined"
-        height = str(height)
-        self._execute_js(
-            """
-            V['"""+self.uid+"""'].resize(""" + width + """, """ + height + """)
-            """
-        )
-
-    def background(self, color: str) -> None:
-        """
-        Set the background color.
-
-        Arguments:
-            color (str): A hex-like string, like "0xff0000"
-
-        """
-        self._execute_js(
-            """
-            V['"""+self.uid+"""'].backgroundColor.set(""" + color + """)
-            """
-        )
-
-    def remove_layer(self, name: str):
-        """
-        Remove a layer by name.
-
-        Arguments:
-            name (str)
+            object_set (Union[List[str], str]): The object(s) to remove
 
         Returns:
-            None
+            True, if successful
 
         """
-        self._execute_js("""
-            V['"""+self.uid+"""'].removeLayer('{}')
-        """.format(name))
-        self.layers.remove(name)
-
-    def toggle_layer(self, name):
-        """
-        Toggle layer visibility by name.
-
-        Arguments:
-            name (str)
-
-        Returns:
-            None
-
-        """
-        self._execute_js("""
-            V['"""+self.uid+"""'].renderLayers['"""+name+"""'].children.forEach(
-                c => {
-                    let shouldBeVisible = !c.visible;
-                    c.visible = shouldBeVisible;
-                })
-        """)
+        if not isinstance(object_set, list):
+            object_set = [object_set]
+        for obj in object_set:
+            self._scene.remove(self._layer_lookup[obj])
+        return True
 
     def clear(self):
         """
-        Remove all layers from scene.
+        Clear all layers from the scene.
 
         Arguments:
             None
@@ -247,305 +144,338 @@ class pytri:
             None
 
         """
-        store_layers = {name for name in self.layers}
-        for name in store_layers:
-            self.remove_layer(name)
+        for key in self._layer_lookup.keys():
+            self.remove(key)
 
-    def _fetch_layer_file(self, fname: str) -> str:
+    def show(self):
         """
-        Fetch a layer file from local package resources.
+        Render the scene for the viewer.
+
+        This method can be called serveral times in order to generate several
+        visualizations which are "yoked" together.
+
+        """
+        display(self._renderer)
+
+    def axes(self, size: float = 20):
+        """
+        Add a set of axes to the origin.
 
         Arguments:
-            fname (str)
+            size (float: 20): The length of each axis into the positive values.
 
         Returns:
-            str JS
+            UUID
 
         """
-        _js = ""
-        path, _ = split(__file__)
-        file = join(path, "js", fname)
-        with open(file, "r") as fh:
-            _js = fh.read().strip()
-        return _js
+        axes = AxesHelper(size=size)
+        return self._add_layer(axes)
 
-    def _fetch_layer_github(self, fname: str) -> str:
+    def graph(self, graph: nx.Graph, **kwargs):
         """
-        Fetch a layer file from the aplbrain/substrate-layers repo.
+        Plot a networkx graph.
 
         Arguments:
-            fname (str)
+            pos (List[3coords], Dict[Hashable, 3coords]): positions to
+                assign to each node.
+            pos_attribute (str): The node attribute to use as a 3coord.
+            edge_width (int: 5): The line width to pass to Figure#lines
 
         Returns:
-            str JS
-        """
-        # Substrate-Layers repo, layers dir:
-        fetch_url = "https://raw.githubusercontent.com/aplbrain/substrate-layers/layers/"
-        full_url = fetch_url + fname
-        _js = requests.get(full_url).text
-        return _js
+            UUID
 
-    def add_layer(self, layer_js: str, params: dict = None, name: str = None) -> str:
         """
-        Add a custom JS layer to the visualization.
+        # This is the same as adding a scatter and a lines layer.
+        if "pos_attribute" in kwargs:
+            attr = kwargs.get("pos_attribute")
+            pos = {n: a[attr] for n, a in graph.nodes(data=True)}
+        elif "pos" in kwargs:
+            pos = kwargs.get("pos")
+            if isinstance(pos, list):
+                pos = {n: p for n, p in zip(graph.nodes(), pos)}
+        else:
+            try:
+                pos = {n: p["pos"] for n, p in graph.nodes(data=True)}
+            except Exception as e:
+                raise ValueError("You must pass a valid position argument.") from e
+
+        scatter_points = [i for i in pos.values()]
+
+        lines = [[pos[u], pos[v]] for u, v in graph.edges()]
+
+        self.lines(lines, width=kwargs.get("edge_width", 5))
+        self.scatter(scatter_points, size=kwargs.get("node_size", 5))
+
+    def lines(self, lines, colors=None, width=10):
+        """
+        Plots a series of line segments.
 
         Arguments:
-            layer_js (str): The contents of a JS file
-            params (dict): The data to pass into the layer constructor
-            name (str): Optional name for the layer
+            lines: list of lists of 2-tuples of 3coords
+            colors: Either list of list of 2-tuples of 3coords,
+                or a list of lists of 3coords
 
         Returns:
-            str: Name, as inserted
+            UUID
 
         """
-        if layer_js.startswith("http"):
-            fetch_url = layer_js
-            layer_js = requests.get(fetch_url).text
+        colors = colors if (not colors is None) else [[0, 0, 0] for _ in lines]
 
-        if name is None:
-            name = str(uuid.uuid4())
+        colors = np.array([c if len(c) == 2 else [c, c] for c in colors])
 
-        if params is None:
-            params = {}
-
-        try:
-            # Test that the file containers a `class Foo extends Layer`:
-            layer_types = re.match(
-                r"[\s\S]*class (\w+) extends .*Layer[\s\S]*",
-                layer_js
-            )
-            if layer_types:
-                layer_type = layer_types[1]
-            # Overwrite window.layer_type
-            inject_fmt = "window.{layer_type} = window.{layer_type} || {layer_js};"
-            self._execute_js(inject_fmt.format(
-                layer_type=layer_type,
-                layer_js=layer_js))
-            self.layer_types.add(layer_type)
-        except TypeError as _:
-            raise ValueError(
-                "layer_js must include a class that extends Layer."
-            )
-        # Interpolate: V[id].addLayer(name, new Layer(params));
-        _js = "V['{}'].addLayer('{}', new window.{}({}))".format(
-            self.uid, name, layer_type, json.dumps(params)
+        geo = LineSegmentsGeometry(
+            positions=lines,
+            colors=colors,
         )
-        self._execute_js(_js)
+        mat = LineMaterial(linewidth=width, vertexColors="VertexColors")
+        return self._add_layer(LineSegments2(geo, mat))
 
-        self.layers.add(name)
-        return name
-
-    def axes(self) -> str:
-        """
-        Add axes to the visualization.
-
-        Arguments:
-            None
-
-        Returns:
-            str: Name, as inserted
-
-        """
-        name = str(uuid.uuid4())
-        _js = "V['{}'].addLayer('{}', new window.substrate.layers.AxisLayer())".format(
-            self.uid, name
-        )
-        self._execute_js(_js)
-        self.layers.add(name)
-        return name
+    def matshow(self):
+        raise NotImplementedError()
 
     def imshow(
-            self,
-            data,
-            position=None,
-            rotation=None,
-            scale=(10.,),
-            name=None
-    ) -> str:
+        self,
+        image: Union[str, np.ndarray],
+        center_pos: Tuple[float, float, float] = (0, 0, 0),
+        rotation: Tuple[float, float, float] = (0, 0, 0),
+        width: float = 10,
+        height: float = 10,
+    ):
         """
-        Add an image plane to the scene.
+        Plot an image as a plane.
 
         Arguments:
-            data (np.ndarray)
-            position (dict: x,y,z)
-            scale (tuple of floats: (10,))
+            image (Union[str, np.ndarray]): The image to plot. This can be a
+                URL, a blob, or a numpy array. If it is a numpy array, it must
+                be either 2D (greyscale), 3D (RGB), or 4D (RGBA).
+            center_pos (Tuple[float, float, float]: (0,0,0)): Center pos
+            rotation (Tuple[float, float, float]: (0,0,0)): Rotation of the img
+                plane, in radians
+            width (float: 10): The width of the final rendered plane
+            height (float: 10): The height of the final rendered plane
 
         Returns:
-            str: Name, as inserted
+            UUID
 
         """
-        from PIL import Image
+        if isinstance(image, str):
+            tex = ImageTexture(imageUri=image)
+        elif isinstance(image, (list, np.ndarray)):
+            if len(image.shape) == 2:
+                # handle 2D (grayscale).
+                # broadcast to rgba channels:
+                image = np.array([image, image, image, np.ones(image.shape)]).T
+            elif image.shape[-1] == 3:
+                # handle RGB:
+                image = np.dstack([image, np.ones(image.shape)])
 
-        # use io object to hold data as png
-        data_io = BytesIO()
-        data_image = Image.fromarray(data).convert("RGB")
-        data_image.save(data_io, format="PNG")
-
-        # create a data URI using the io object
-        data_io.seek(0, 0)
-        data_uri = "data:image/png;base64,{}".format(b64encode(data_io.read()).decode("utf-8"))
-
-        # send data to ImageLayer
-        # 400 comes from the height in the show method
-        _js = self._fetch_layer_file("ImageLayer.js")
-
-        if len(scale) == 1:
-            width = data.shape[1]
-            height = data.shape[0]
-            width = scale[0]*width/height
-            height = scale[0]
-        elif len(scale) == 2:
-            width = scale[1]
-            height = scale[0]
+            tex = DataTexture(data=image, type="FloatType")
         else:
-            raise ValueError("The scale tuple must have length one or two.")
+            raise ValueError(f"Expected string or array, but got {type(image)}")
+        plane = PlaneGeometry(width=width, height=height)
+        mat = MeshBasicMaterial(map=tex)
+        mesh = Mesh(geometry=plane, material=mat)
+        mesh.rotation = rotation if len(rotation) == 4 else [*rotation, "XYZ"]
+        self._add_layer(mesh)
 
-        if position is None:
-            position = {"x": 0, "y": 0, "z": 0}
-        if rotation is None:
-            rotation = {"x": 0, "y": 0, "z": 0}
-
-        return self.add_layer(_js, {
-            "dataURI": data_uri,
-            "width": width,
-            "height": height,
-            "position": position,
-            "rotation": rotation
-        }, name=name)
-
-    def scatter(self, data, r=0.15, c=0x00babe, name=None) -> str:
+    def grid(
+        self,
+        plane: str = "xz",
+        radius: int = 10000,
+        grid_size: int = 500,
+        color: Tuple[float, float, float] = (0.74, 0.74, 0.74),
+    ):
         """
-        Add a 3D scatter to the scene.
+        Add a grid to the scene to help with orienting the viewer.
 
         Arguments:
-            data (np.ndarray)
-            r (float | list)
-            c (hex | list)
+            plane (str: "xz"): Which axes to add grid lines along
+            radius (float: 10000): The distance in + and - to stretch
+            grid_size (float: 500): The distance between grid marks
+            color (Tuple[float, float, float]): The color of the grid
 
         Returns:
-            str: Name, as inserted
-
-        # TODO: Use particle system
-        # TODO: Arrays of radii
+            UUID
 
         """
-        if isinstance(data, np.ndarray):
-            data = data.tolist()
+        all_children = []
+        if "z" in plane:
+            all_children.append(
+                self.lines(
+                    [
+                        [[-radius, 0, z], [radius, 0, z]]
+                        for z in range(-radius, radius, grid_size)
+                    ],
+                    colors=[color for _ in range(-radius, radius, grid_size)],
+                    width=0.5,
+                )
+            )
 
-        _js = self._fetch_layer_file("ScatterLayer.js")
-        return self.add_layer(_js, {
-            "data": data,
-            "radius": r,
-            "colors": c
-        }, name=name)
+        # if "y" in plane:
+        #     all_children.append(
+        #         self.lines(
+        #             [
+        #                 [[0, y, -radius], [0, y, radius]]
+        #                 for y in range(-radius, radius, grid_size)
+        #             ],
+        #             colors=[color for _ in range(-radius, radius, grid_size)],
+        #             width=0.5,
+        #         )
+        #     )
+        if "x" in plane:
+            all_children.append(
+                self.lines(
+                    [
+                        [[x, 0, -radius], [x, 0, radius]]
+                        for x in range(-radius, radius, grid_size)
+                    ],
+                    colors=[color for _ in range(-radius, radius, grid_size)],
+                    width=0.5,
+                )
+            )
+        return all_children
 
-    def graph(self, data, radius: Union[float, List[float]] = 0.15,
-              node_color: Union[float, List[float]] = 0xbabe00,
-              link_color: Union[float, List[float]] = 0x00babe,
-              mesh_nodes: bool = False,
-              name: str = None,) -> str:
+    def scatter(self, *args, **kwargs):
         """
-        Add a graph to the visualizer.
+        There are several options for arguments this this function.
+
+        One positional array-like
+            Figure#scatter(np.random.randint(0, 10, (10, 3)))
+
+        Three positional list-likes
+            Figure#scatter(xs, ys, zs)
+
+        Three named list-likes
+            Figure#scatter(xs=[1, 2], ys=[2, 3], zs=[10, 20])
+
+        Three positional column names and a dataframe
+            Figure#scatter("x", "y", "depth", my_dataframe)
 
         Arguments:
-            data (networkx.Graph)
-            radius (float | list)
-            node_color (float | list)
-            link_color (float | list)
-            name (str)
-
-        Returns:
-            str: name of the layer
+            attenuate_size (False): Whether items further from
+                the camera should appear smaller
 
         """
-        if isinstance(data, nx.Graph):
-            data = nx.relabel_nodes(data, lambda x: str(x))
-            data = json_graph.node_link_data(data)
-        _js = self._fetch_layer_file("GraphLayer.js")
 
-        node_dict = {n['id']: n for n in data['nodes']}
+        pts = None
 
-        PARTICLE_RADIUS_SCALE = 50
-        mult_radius: Union[float, List[float]]
-        if isinstance(radius, (float, int)):
-            if mesh_nodes:
-                mult_radius = radius
-            else:
-                mult_radius = radius * PARTICLE_RADIUS_SCALE
-        else:
-            if mesh_nodes:
-                mult_radius = radius
-            else:
-                mult_radius = [r * PARTICLE_RADIUS_SCALE for r in radius]
+        if len(args) == 1:
+            if isinstance(args[0], (np.ndarray, Iterable)):
+                pts = np.asarray(args[0])
 
-        return self.add_layer(_js, {
-            "nodeDict": node_dict,
-            "graph": data,
-            "radius": mult_radius,
-            "nodeColor": node_color,
-            "linkColor": link_color,
-            "meshNodes": mesh_nodes
-        }, name=name)
+        if len(args) == 3 and isinstance(args[0], (list, np.ndarray)):
+            pts = np.asarray([i for i in zip(args[0], args[1], args[2])])
 
+        if pts is None:
+            raise ValueError("Unsupported arguments to scatter.")
 
-    def fibers(self, data, c=0xbabe00, alpha=0.5, name=None) -> str:
-        """
-        Add a fiber group to the visualizer.
+        color = kwargs.get("c") if "c" in kwargs else None
+        if color is None:
+            color = kwargs.get("color", None)
+        if color is None:
+            color = pts / pts.max()
+        if len(color) != len(pts):
+            color = [color for _ in pts]
 
-        Arguments:
-            data (List[][])
-            c (hex)
-            alpha (0..1)
-
-        Returns:
-            str: Name, as inserted
-
-        """
-        if isinstance(data, np.ndarray):
-            data = data.tolist()
-
-        _js = self._fetch_layer_file("FibersLayer.js")
-        return self.add_layer(_js, {
-            "data": data,
-            "colors": c,
-            "alpha": alpha
-        }, name=name)
-
-    def mesh(
-            self,
-            data,
-            opacity=None,
-            origin=None,
-            scale=None,
-            name=None) -> str:
-        """
-        Add a mesh to the scene. Currently only supports OBJ.
-
-        Arguments:
-            data (List[str]): OBJ file
-
-        Returns:
-            str: Name, as inserted
-
-        """
-        props = dict()
-        if "\n" in data:
-            props["data"] = data
-        else:
-            props["path"] = data
-
-        if opacity:
-            props["opacity"] = opacity
-        if origin:
-            props["origin"] = json.dumps(origin)
-        if scale:
-            props["scale"] = json.dumps(scale)
-
-        if name is None:
-            name = str(uuid.uuid4())
-        _js = "V['{}'].addLayer('{}', new window.substrate.layers.MeshLayer({}))".format(
-            self.uid, name, json.dumps(props)
+        colors = (
+            BufferAttribute(array=color, dtype=np.float32)
+            if color is not None
+            else BufferAttribute(array=np.asarray(pts / pts.max(), dtype=np.float32))
         )
-        self._execute_js(_js)
-        self.layers.add(name)
-        return name
+        geometry = BufferGeometry(
+            attributes={
+                "position": BufferAttribute(array=np.asarray(pts, dtype=np.float32)),
+                "color": colors,
+            }
+        )
+
+        tex = CIRCLE_MAP
+        if kwargs.get("marker") in [".", "o", "circle"]:
+            tex = CIRCLE_MAP
+        elif kwargs.get("marker") in ["[]", "r", "q", "square"]:
+            tex = None
+        elif "map" in kwargs:
+            tex = kwargs.get("map")
+
+        material = PointsMaterial(
+            vertexColors="VertexColors",
+            size=kwargs.get("size", 5),
+            sizeAttenuation=kwargs.get("attenuate_size", False),
+            **({"map": tex} if tex else {}),
+        )
+        p = Points(geometry=geometry, material=material)
+        return self._add_layer(p)
+
+    def mesh(self, *args, **kwargs):
+        """
+        Add a mesh to the scene.
+
+        There are several supported types of argument.
+
+            Figure#mesh(obj=Union[List[List], np.ndarray])
+
+            Figure#mesh(str)
+
+        Returns:
+            UUID
+
+        """
+        mesh = None
+        if len(args) > 0 and isinstance(args[0], str):
+            # perhaps this is a filename?
+            try:
+                mesh = trimesh.load(args[0])
+            except Exception as e:
+                raise ValueError(
+                    "Did not understand arguments to method Figure#mesh"
+                ) from e
+
+        if "obj" in kwargs:
+            if isinstance(kwargs["obj"], np.ndarray):
+                obj_data = kwargs["obj"]
+            elif isinstance(kwargs["obj"], list):
+                obj_data = np.asarray(kwargs["obj"])
+                # Do something with this obj_data?
+            elif isinstance(kwargs["obj"], str):
+                if "\n" in kwargs["obj"]:
+                    # this is the file contents.
+                    raise NotImplementedError()
+                else:
+                    try:
+                        # open the mesh file
+                        mesh = trimesh.load(kwargs["obj"])
+
+                    except Exception as e:
+                        raise ValueError("Could not read file as OBJ") from e
+        if 'mesh' in kwargs:
+            if hasattr(kwargs['mesh'], "vertices") and hasattr(kwargs['mesh'], "faces"):
+                mesh = kwargs['mesh']
+        if mesh is None:
+            raise ValueError("Could not understand how to parse mesh.")
+
+        _transform = kwargs.get("transform", lambda x: x)
+
+        verts = _transform(mesh.vertices)
+        faces = mesh.faces
+
+        geo = BufferGeometry(
+            attributes={
+                "position": BufferAttribute(
+                    array=verts.astype("float32"),
+                    normalized=False,
+                    # dtype=np.float64
+                ),
+                "index": BufferAttribute(
+                    array=faces.astype("uint64").ravel(),
+                    normalized=False,
+                    # dtype=np.float64,
+                ),
+            }
+        )
+
+        geo.exec_three_obj_method("computeFaceNormals")
+        color = kwargs.get("color", "#00bbee")
+
+        mesh = Mesh(geometry=geo, material=MeshBasicMaterial(color=color))
+        return self._add_layer(mesh)
+
