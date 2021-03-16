@@ -1,10 +1,4 @@
-mypy
-typing
-nose
-coverage
-nose-progressive
-IPython
-requests
-networkx
+pythreejs>=2.2.1
 numpy
-pillow
+networkx
+trimesh
