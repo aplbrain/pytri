@@ -83,7 +83,7 @@ class Figure:
             aspect=self._figsize[0] / self._figsize[1],
         )
         self._scene = Scene(
-            background=None,
+            background=kwargs.get("background", None),
             children=[
                 self._camera,
                 DirectionalLight(color="#ffffff", position=[0, 100, 100]),
@@ -447,9 +447,9 @@ class Figure:
 
                     except Exception as e:
                         raise ValueError("Could not read file as OBJ") from e
-        if 'mesh' in kwargs:
-            if hasattr(kwargs['mesh'], "vertices") and hasattr(kwargs['mesh'], "faces"):
-                mesh = kwargs['mesh']
+        if "mesh" in kwargs:
+            if hasattr(kwargs["mesh"], "vertices") and hasattr(kwargs["mesh"], "faces"):
+                mesh = kwargs["mesh"]
         if mesh is None:
             raise ValueError("Could not understand how to parse mesh.")
 
@@ -478,4 +478,3 @@ class Figure:
 
         mesh = Mesh(geometry=geo, material=MeshBasicMaterial(color=color))
         return self._add_layer(mesh)
-
