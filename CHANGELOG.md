@@ -1,7 +1,8 @@
 # CHANGELOG
 
 -   **0.6.0**
-    -   Use a Lambert shader as the default for new meshes
+    -   Use a Lambert shader as the default for new meshes (#115)
+    -   Enable rapid snap of camera to see the full scene bounding box (#116)
 -   **0.5.0**
     -   Upgrade to substrate v1.1.0
     -   Remove remote TrackballControls requirement

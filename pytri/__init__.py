@@ -78,6 +78,9 @@ class Figure:
         self._layer_lookup = dict()
         imscale = kwargs.get("imscale", 1)
 
+        self._object_centers = []
+        self._object_bounding_box_maxes = []
+
         self._camera = PerspectiveCamera(
             position=tuple(np.array([0, 0, 5]) * imscale),
             up=(0, 1, 0),
@@ -120,6 +123,18 @@ class Figure:
         for obj in object_set:
             self._scene.add(obj)
         return _id
+
+    def _reposition_camera_on_bbs(self):
+        """
+        Re-orient the camera to view everything in the scene.
+        """
+        max_vector = np.max(self._object_bounding_box_maxes, axis=0)
+        min_vector = np.min(self._object_bounding_box_maxes, axis=0)
+        range_vector = max_vector - min_vector
+        average_center = np.mean(self._object_centers, axis=0)
+        # This seems to give a good representation of the vector, might change in the future
+        self._camera.position = tuple(average_center + range_vector * 2)
+        self._camera.lookAt(tuple(average_center))
 
     def remove(self, object_set: Union[List[str], str]) -> bool:
         """
@@ -424,6 +439,10 @@ class Figure:
 
             Figure#mesh(str)
 
+        Arguments:
+            normalize (bool: False): Normalize the coordinates of the vertices
+                to be between -1 and 1
+
         Returns:
             UUID
 
@@ -488,6 +507,9 @@ class Figure:
                 ),
             }
         )
+
+        self._object_bounding_box_maxes.append(np.max(verts, axis=0))
+        self._object_centers.append(np.mean(verts, axis=0))
 
         geo.exec_three_obj_method("computeVertexNormals")
         color = kwargs.get("color", "#00bbee")
