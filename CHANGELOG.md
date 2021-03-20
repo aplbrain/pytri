@@ -1,28 +1,32 @@
-- **0.5.0**
-    - Upgrade to substrate v1.1.0
-    - Remove remote TrackballControls requirement
-    - Remove inline `substrate#AxisLayer` declaration
-    - Remove reliance upon downloaded CDN three.js
-    - Enable `figsize` specification during construction
-    - Add debug mode with `debug=True` constructor arg
-    - Improve `pytri#show` logic
-    - Implement `pytri#resize`
-    - **Run pytri offline!**
-    - Enable `pytri#mesh` from path in addition to OBJ data
-- **0.4.1** Unreleased
-    - Resolve integer-label graph conflict (#80)
-- **0.4.0** (July 31, 2018)
-    - Reimplement graphs for scalability (@hpcowley)
-- **0.3.0**
-    - Change image planes to render double-sided (@hpcowley)
-- **0.2.0** (January 22, 2018)
-    - Fix coloring of edges/nodes in `pytri#graph` and `pytri#large_graph` (@mlw214)
-    - `pytri#imshow` (@jtpdowns)
-- **0.1.2** (November 20, 2017)
-    - `pytri#mesh`: Add a obj-formatted mesh to the scene
-    - `pytri#clear`: Clears all objects from a visualizer
-    - Remote (HTTP) layer fetching (@hpcowley)
-- **0.1.0** (October 31, 2017)
-    - `pytri#fibers`
-- **0.0.1** (October 26, 2017)
-    - Initial push to PyPI
+# CHANGELOG
+
+-   **0.6.0**
+    -   Use a Lambert shader as the default for new meshes
+-   **0.5.0**
+    -   Upgrade to substrate v1.1.0
+    -   Remove remote TrackballControls requirement
+    -   Remove inline `substrate#AxisLayer` declaration
+    -   Remove reliance upon downloaded CDN three.js
+    -   Enable `figsize` specification during construction
+    -   Add debug mode with `debug=True` constructor arg
+    -   Improve `pytri#show` logic
+    -   Implement `pytri#resize`
+    -   **Run pytri offline!**
+    -   Enable `pytri#mesh` from path in addition to OBJ data
+-   **0.4.1** Unreleased
+    -   Resolve integer-label graph conflict (#80)
+-   **0.4.0** (July 31, 2018)
+    -   Reimplement graphs for scalability (@hpcowley)
+-   **0.3.0**
+    -   Change image planes to render double-sided (@hpcowley)
+-   **0.2.0** (January 22, 2018)
+    -   Fix coloring of edges/nodes in `pytri#graph` and `pytri#large_graph` (@mlw214)
+    -   `pytri#imshow` (@jtpdowns)
+-   **0.1.2** (November 20, 2017)
+    -   `pytri#mesh`: Add a obj-formatted mesh to the scene
+    -   `pytri#clear`: Clears all objects from a visualizer
+    -   Remote (HTTP) layer fetching (@hpcowley)
+-   **0.1.0** (October 31, 2017)
+    -   `pytri#fibers`
+-   **0.0.1** (October 26, 2017)
+    -   Initial push to PyPI
