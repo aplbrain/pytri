@@ -20,3 +20,17 @@ CIRCLE_MAP = DataTexture(
     type="FloatType",
     format="RGBAFormat",
 )
+
+
+def _normalize_shift(x):
+    """
+    Normalize a vector between -1,1, attempting to center on 0.
+
+    Arguments:
+        x (np.ndarray)
+
+    Returns:
+        np.ndarray
+
+    """
+    return (x - np.mean(x)) / np.max(x)

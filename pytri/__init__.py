@@ -42,13 +42,14 @@ from pythreejs import (
     Mesh,
     MeshBasicMaterial,
     MeshNormalMaterial,
+    MeshLambertMaterial,
     # for lines:
     LineSegmentsGeometry,
     LineMaterial,
     LineSegments2,
 )
 
-from .utils import CIRCLE_MAP
+from .utils import CIRCLE_MAP, _normalize_shift
 
 _DEFAULT_FIGURE_WIDTH = 600
 _DEFAULT_FIGURE_HEIGHT = 400
@@ -75,18 +76,25 @@ class Figure:
         )
 
         self._layer_lookup = dict()
+        imscale = kwargs.get("imscale", 1)
 
         self._camera = PerspectiveCamera(
-            position=[0, 0, 100],
-            up=[0, 1, 0],
-            far=1_000_000,
+            position=tuple(np.array([0, 0, 5]) * imscale),
+            up=(0, 1, 0),
+            far=1e6,
             aspect=self._figsize[0] / self._figsize[1],
+            children=[
+                DirectionalLight(
+                    color="#ffffff",
+                    position=tuple(np.array([3, 5, 1]) * imscale),
+                    intensity=0.6,
+                ),
+            ],
         )
         self._scene = Scene(
             background=None,
             children=[
                 self._camera,
-                DirectionalLight(color="#ffffff", position=[0, 100, 100]),
                 AmbientLight(color="#cccccc"),
             ],
         )
@@ -447,9 +455,9 @@ class Figure:
 
                     except Exception as e:
                         raise ValueError("Could not read file as OBJ") from e
-        if 'mesh' in kwargs:
-            if hasattr(kwargs['mesh'], "vertices") and hasattr(kwargs['mesh'], "faces"):
-                mesh = kwargs['mesh']
+        if "mesh" in kwargs:
+            if hasattr(kwargs["mesh"], "vertices") and hasattr(kwargs["mesh"], "faces"):
+                mesh = kwargs["mesh"]
         if mesh is None:
             raise ValueError("Could not understand how to parse mesh.")
 
@@ -457,6 +465,14 @@ class Figure:
 
         verts = _transform(mesh.vertices)
         faces = mesh.faces
+
+        if kwargs.get("normalize", False):
+            # Normalize the vertex indices to be between -1,1
+            # Shifting these does change the coordinate system,
+            # so visualizing multiple meshes won't work
+            verts[:, 0] = _normalize_shift(verts[:, 0])
+            verts[:, 1] = _normalize_shift(verts[:, 1])
+            verts[:, 2] = _normalize_shift(verts[:, 2])
 
         geo = BufferGeometry(
             attributes={
@@ -473,9 +489,8 @@ class Figure:
             }
         )
 
-        geo.exec_three_obj_method("computeFaceNormals")
+        geo.exec_three_obj_method("computeVertexNormals")
         color = kwargs.get("color", "#00bbee")
 
-        mesh = Mesh(geometry=geo, material=MeshBasicMaterial(color=color))
+        mesh = Mesh(geometry=geo, material=MeshLambertMaterial(color=color))
         return self._add_layer(mesh)
-
