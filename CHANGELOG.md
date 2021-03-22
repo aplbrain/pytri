@@ -1,8 +1,10 @@
 # CHANGELOG
 
--   **0.6.0**
+-   **2.0.0**
+    -   Allow for a custom background color. Default is none (transparent)
     -   Use a Lambert shader as the default for new meshes
-    -   Allow for a custom background color. Default is none (transparent).
+-   **1.0.0**
+    - Overhaul of the pytri system forthcoming; this release is the last time we will directly manipulate JS hooks.
 -   **0.5.0**
     -   Upgrade to substrate v1.1.0
     -   Remove remote TrackballControls requirement
