@@ -92,7 +92,7 @@ class Figure:
             ],
         )
         self._scene = Scene(
-            background=None,
+            background=kwargs.get("background", None),
             children=[
                 self._camera,
                 AmbientLight(color="#cccccc"),
