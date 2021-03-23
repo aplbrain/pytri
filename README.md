@@ -84,7 +84,6 @@ f.show()
 ```python
 f.imshow(
     "https://i.imgur.com/VK8Tp5q.jpeg",
-    # np.random.random((1000, 1000, 3)),
     width=100, height=100,
     rotation=(0, 3.14/2, 0)
 )
