@@ -1,5 +1,7 @@
 - **2.0.0**
-    - Allow for a custom background color. Default is none (transparent).
+    -   Allow for a custom background color. Default is none (transparent).
+    -   Use a Lambert shader as the default for new meshes (#115)
+    -   Enable rapid snap of camera to see the full scene bounding box (#116)
 - **1.0.0**
     - Overhaul of the pytri system forthcoming; this release is the last time we will directly manipulate JS hooks.
 - **0.5.0**

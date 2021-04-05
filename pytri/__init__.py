@@ -42,13 +42,14 @@ from pythreejs import (
     Mesh,
     MeshBasicMaterial,
     MeshNormalMaterial,
+    MeshLambertMaterial,
     # for lines:
     LineSegmentsGeometry,
     LineMaterial,
     LineSegments2,
 )
 
-from .utils import CIRCLE_MAP
+from .utils import CIRCLE_MAP, _normalize_shift
 
 _DEFAULT_FIGURE_WIDTH = 600
 _DEFAULT_FIGURE_HEIGHT = 400
@@ -75,18 +76,28 @@ class Figure:
         )
 
         self._layer_lookup = dict()
+        imscale = kwargs.get("imscale", 1)
+
+        self._object_centers = []
+        self._object_bounding_box_maxes = []
 
         self._camera = PerspectiveCamera(
-            position=[0, 0, 100],
-            up=[0, 1, 0],
-            far=1_000_000,
+            position=tuple(np.array([0, 0, 5]) * imscale),
+            up=(0, 1, 0),
+            far=1e6,
             aspect=self._figsize[0] / self._figsize[1],
+            children=[
+                DirectionalLight(
+                    color="#ffffff",
+                    position=tuple(np.array([3, 5, 1]) * imscale),
+                    intensity=0.6,
+                ),
+            ],
         )
         self._scene = Scene(
             background=kwargs.get("background", None),
             children=[
                 self._camera,
-                DirectionalLight(color="#ffffff", position=[0, 100, 100]),
                 AmbientLight(color="#cccccc"),
             ],
         )
@@ -112,6 +123,18 @@ class Figure:
         for obj in object_set:
             self._scene.add(obj)
         return _id
+
+    def _reposition_camera_on_bbs(self):
+        """
+        Re-orient the camera to view everything in the scene.
+        """
+        max_vector = np.max(self._object_bounding_box_maxes, axis=0)
+        min_vector = np.min(self._object_bounding_box_maxes, axis=0)
+        range_vector = max_vector - min_vector
+        average_center = np.mean(self._object_centers, axis=0)
+        # This seems to give a good representation of the vector, might change in the future
+        self._camera.position = tuple(average_center + range_vector * 2)
+        self._camera.lookAt(tuple(average_center))
 
     def remove(self, object_set: Union[List[str], str]) -> bool:
         """
@@ -416,6 +439,10 @@ class Figure:
 
             Figure#mesh(str)
 
+        Arguments:
+            normalize (bool: False): Normalize the coordinates of the vertices
+                to be between -1 and 1
+
         Returns:
             UUID
 
@@ -458,6 +485,14 @@ class Figure:
         verts = _transform(mesh.vertices)
         faces = mesh.faces
 
+        if kwargs.get("normalize", False):
+            # Normalize the vertex indices to be between -1,1
+            # Shifting these does change the coordinate system,
+            # so visualizing multiple meshes won't work
+            verts[:, 0] = _normalize_shift(verts[:, 0])
+            verts[:, 1] = _normalize_shift(verts[:, 1])
+            verts[:, 2] = _normalize_shift(verts[:, 2])
+
         geo = BufferGeometry(
             attributes={
                 "position": BufferAttribute(
@@ -473,8 +508,11 @@ class Figure:
             }
         )
 
-        geo.exec_three_obj_method("computeFaceNormals")
+        self._object_bounding_box_maxes.append(np.max(verts, axis=0))
+        self._object_centers.append(np.mean(verts, axis=0))
+
+        geo.exec_three_obj_method("computeVertexNormals")
         color = kwargs.get("color", "#00bbee")
 
-        mesh = Mesh(geometry=geo, material=MeshBasicMaterial(color=color))
+        mesh = Mesh(geometry=geo, material=MeshLambertMaterial(color=color))
         return self._add_layer(mesh)
