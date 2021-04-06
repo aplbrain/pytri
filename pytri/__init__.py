@@ -101,6 +101,7 @@ class Figure:
                 AmbientLight(color="#cccccc"),
             ],
         )
+        self.controls = OrbitControls(controlling=self._camera)
         self._renderer = Renderer(
             width=self._figsize[0],
             height=self._figsize[1],
@@ -108,8 +109,9 @@ class Figure:
             scene=self._scene,
             alpha=True,
             clearOpacity=0,
-            controls=[OrbitControls(controlling=self._camera)],
+            controls=[self.controls],
         )
+        
 
     @staticmethod
     def _new_id():
@@ -136,6 +138,9 @@ class Figure:
         self._camera.position = tuple(average_center + range_vector * 2)
         self._camera.lookAt(tuple(average_center))
 
+        self.controls.exec_three_obj_method("reset")
+        self.controls.target = tuple(average_center)
+        self.controls.exec_three_obj_method("update")
     def remove(self, object_set: Union[List[str], str]) -> bool:
         """
         Remove a single layer from the scene.
@@ -515,4 +520,6 @@ class Figure:
         color = kwargs.get("color", "#00bbee")
 
         mesh = Mesh(geometry=geo, material=MeshLambertMaterial(color=color))
-        return self._add_layer(mesh)
+        ret = self._add_layer(mesh)
+        self._reposition_camera_on_bbs()
+        return ret
