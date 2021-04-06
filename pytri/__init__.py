@@ -19,7 +19,7 @@ from IPython.display import display
 import uuid
 import numpy as np
 import networkx as nx
-
+from warnings import warn
 import trimesh
 
 from pythreejs import (
@@ -126,20 +126,32 @@ class Figure:
             self._scene.add(obj)
         return _id
 
-    def _reposition_camera_on_bbs(self):
+    def recenter_camera(self, position=None, target=None):
         """
         Re-orient the camera to view everything in the scene.
         """
-        max_vector = np.max(self._object_bounding_box_maxes, axis=0)
-        min_vector = np.min(self._object_bounding_box_maxes, axis=0)
-        range_vector = max_vector - min_vector
-        average_center = np.mean(self._object_centers, axis=0)
-        # This seems to give a good representation of the vector, might change in the future
-        self._camera.position = tuple(average_center + range_vector * 2)
-        self._camera.lookAt(tuple(average_center))
-
+        if position is None or target is None:
+            try:
+                # This seems to give a good representation of the vector, might change in the future
+                max_vector = np.max(self._object_bounding_box_maxes, axis=0)
+                min_vector = np.min(self._object_bounding_box_maxes, axis=0)
+                range_vector = max_vector - min_vector
+                average_center = np.mean(self._object_centers, axis=0)
+            except ValueError:
+                warn("No objects to center around")
+                position = position or self._camera.position
+                target = target or self.controls.target
+            
+            if position is None:
+                position = tuple(average_center + range_vector * 2)
+            if target is None:
+                target = tuple(average_center)
+        
+        
         self.controls.exec_three_obj_method("reset")
-        self.controls.target = tuple(average_center)
+        self.controls.target = tuple(target)
+        self._camera.position = tuple(position)
+        self._camera.lookAt(tuple(target))
         self.controls.exec_three_obj_method("update")
     def remove(self, object_set: Union[List[str], str]) -> bool:
         """
@@ -518,8 +530,11 @@ class Figure:
 
         geo.exec_three_obj_method("computeVertexNormals")
         color = kwargs.get("color", "#00bbee")
-
-        mesh = Mesh(geometry=geo, material=MeshLambertMaterial(color=color))
+        alpha = kwargs.get('alpha', 1.)
+        transparent = alpha != 1.
+        mat = MeshLambertMaterial(color=color, alpha=alpha, transparent=transparent)
+        mesh = Mesh(geometry=geo, material=mat)
         ret = self._add_layer(mesh)
-        self._reposition_camera_on_bbs()
+        if kwargs.get("auto_camera", False):
+            self.recenter_camera()
         return ret
