@@ -34,3 +34,10 @@ def _normalize_shift(x):
 
     """
     return (x - np.mean(x)) / np.max(x)
+
+
+class MouseEvent:
+    ...
+    
+class KeyboardEvent:
+    ...
