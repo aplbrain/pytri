@@ -21,7 +21,16 @@ import uuid
 import numpy as np
 import networkx as nx
 from warnings import warn
-from pytri.layers import Layer
+from pytri.layers import (
+    Layer,
+    MeshLayer,
+    ScatterLayer,
+    LinesLayer,
+    AxesLayer,
+    GraphLayer,
+    ImshowLayer,
+    GridLayer,
+)
 
 from pythreejs import (
     # Cinematography:
@@ -67,6 +76,7 @@ class Figure:
     def __init__(self, 
         figsize: Tuple[int, int]=None, 
         background: Union[str, Tuple[float, float, float]]=None,
+        register_default:bool=True,
         **kwargs):
         """
         Create a new figure.
@@ -74,8 +84,9 @@ class Figure:
         All arguments are optional.
 
         Arguments:
-            figsize (Tuple[float, float]): The size to make the visualization
-
+            figsize: The size to make the visualization
+            background: color to make background
+            register_default: register the default layers
         """
         if figsize is None:
             figsize = (_DEFAULT_FIGURE_WIDTH, _DEFAULT_FIGURE_HEIGHT)
@@ -100,6 +111,15 @@ class Figure:
         self.controls = [OrbitControls(controlling=self._camera)]
         self._controllable_layers = []
         self.background = background
+        if register_default:
+            for layer in [MeshLayer,
+                    ScatterLayer,
+                    LinesLayer,
+                    AxesLayer,
+                    GraphLayer,
+                    ImshowLayer,
+                    GridLayer,]:
+                    self.register_layer(layer)
     @staticmethod
     def _new_id():
         return str(uuid.uuid4())
