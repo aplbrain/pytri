@@ -16,6 +16,7 @@ limitations under the License.
 
 from typing import Any, Union, List, Iterable, Tuple
 from IPython.display import display
+from ipywidgets import HTML
 import uuid
 import numpy as np
 import networkx as nx
@@ -39,6 +40,7 @@ from pythreejs import (
     PointsMaterial,
     PlaneGeometry,
     Picker,
+    Group,
     # for meshes:
     Mesh,
     MeshBasicMaterial,
@@ -94,41 +96,36 @@ class Figure:
                 ),
             ],
         )
-        self._scene = Scene(
-            background=background,
-            children=[
-                self._camera,
-                AmbientLight(color="#cccccc"),
-            ],
-        )
+        self._click_callbacks = dict()
         self.controls = [OrbitControls(controlling=self._camera)]
-        
-
+        self._controllable_layers = []
+        self.background = background
     @staticmethod
     def _new_id():
         return str(uuid.uuid4())
     def _layer_decorator(self, cls):
         def fn(*args, **kwargs):
             inst = cls(*args, **kwargs)
-            _id = self._add_layer(inst.group)
+            _id = self._add_layer(inst)
             inst._id = _id
             return inst
         return fn
-    def register_layer(self, layer, cls):
+    def register_layer(self, cls):
+        layer = cls._LAYER_NAME
         self.__dict__[layer] = self._layer_decorator(cls)
 
-    def _add_layer(self, object_set: Union[List, Any]) -> str:
-        if not isinstance(object_set, list):
-            object_set = [object_set]
+    def _add_layer(self, layer: Layer) -> str:
+        object_set = layer.group
         _id = self._new_id()
+        for c in object_set.children:
+            c.name = _id
+        self._click_callbacks[_id] = layer.on_click
         self._layer_lookup[_id] = object_set
-        for obj in object_set:
-            self._scene.add(obj)
         return _id
 
     def recenter_camera(self, target:Union[Layer, Tuple[float, float, float], None]=None):
         """
-        Re-orient the camera to view everything in the scene.
+        Re-orient the camera to view everything in the scene or a particular layer.
         Arguments:
 
             target: Either a Layer, a vector, or None. If none, tries its best
@@ -171,8 +168,7 @@ class Figure:
         if not isinstance(layer, list):
             layer = [layer]
         for l in layer:
-            for obj in l._objects:
-                self._scene.remove(obj)
+            self._scene.remove(l.group)
         return True
 
     def clear(self):
@@ -188,7 +184,10 @@ class Figure:
         """
         for layer in self._layer_lookup.values():
             self.remove(layer)
+    def _interact_callback(self, change):
+        layer_id = change["owner"].object.name
 
+        self.html.value = str(self._click_callbacks[layer_id](change["owner"]))
     def show(self):
         """
         Render the scene for the viewer.
@@ -197,13 +196,32 @@ class Figure:
         visualizations which are "yoked" together.
 
         """
+        scene = Scene(
+            background=self.background,
+            children=[
+                self._camera,
+                AmbientLight(color="#cccccc"),
+            ],
+        )
+        g = Group()
+        for k,v in self._layer_lookup.items():
+            g.add(v)
+
+        p = Picker(controlling=g,event='click')
+        p.observe(self._interact_callback, names=["point"])
+        self.html = HTML("")
+        
+        scene.add(g)
+        self.controls.append(p)
+
         self._renderer = Renderer(
             width=self._figsize[0],
             height=self._figsize[1],
             camera=self._camera,
-            scene=self._scene,
+            scene=scene,
             alpha=True,
             clearOpacity=0,
             controls=self.controls,
         )
-        display(self._renderer)
+        self._scene = scene
+        display(self.html, self._renderer)

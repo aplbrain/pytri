@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod,abstractproperty
-from typing import Tuple,Iterable,Union
+from typing import Tuple,Iterable,Union, Dict, Hashable
 import numpy as np
 import networkx as nx
 import trimesh
@@ -31,49 +31,90 @@ from pythreejs import (
     LineSegments2,
 )
 from .utils import CIRCLE_MAP, _normalize_shift
-
+Coord3 = Tuple[float, float, float]
+ColorRGB = Tuple[float,float,float]
+Edge = Tuple[Coord3, Coord3]
 class Layer(ABC):
-    
-    def __init__(self, *args, **kwargs) -> None:
+    _LAYER_NAME = "layer"
+    def __init__(self,*args, **kwargs) -> None:
         self._id = None
         self._objects = []
         self._group = None
-    def on_click(self, MouseEvent) -> any:
-        ...
-    
-    def on_keyup(self, KeyboardEvent) -> any:
+    @abstractmethod
+    def get_bounding_box(self) -> Tuple[Coord3, Coord3]:
         ...
     @abstractmethod
-    def get_bounding_box(self) -> Tuple[Tuple, Tuple]:
-        ...
-    @abstractmethod
-    def get_preferred_camera_view(self) -> Tuple[Tuple]:
+    def get_preferred_camera_view(self) -> Coord3:
         return None
     @property
     def group(self) -> Group:
+        """
+        The pythreejs Group for all the objects in the layer
+        """
         if self._group is None:
             self._group = Group()
             for obj in self._objects:
                 self._group.add(obj)
 
         return self._group
+    @property
     def affine(self) -> np.ndarray:
+        """
+        The affine transform of the entire layer
+        """
         return self.group.matrix
         
     def set_affine(self, a: np.ndarray):
+        """
+        Set affine transform for the entire layer
+        """
         self._affine = a
         sc = self.group
         sc.matrix = self._affine
-    def rotate(self, x,y,z,order="XYZ"):
+    def rotate(self, 
+        x:float,
+        y:float,
+        z:float,
+        order:str="XYZ"
+        ):
+        """
+        Sets the rotation of the entire layer.
+        x,y,z: the rotation around each axes, in degrees.
+        order: the order of rotation
+        """
         sc = self.group
         sc.rotation = (x,y,z,order)
     def translate(self, x,y,z):
+        """
+        Sets the translation of the entire layer.
+        x,y,z: translation along each axis
+        """
         sc = self.group
         xyz = np.array(sc.position)
         sc.position = tuple(xyz + [x,y,z])
-    
+    def on_click(self, picker):
+        """
+        Click callback. See 
+        https://pythreejs.readthedocs.io/en/stable/api/controls/Picker_autogen.html#
+        for docs on picker
+        args:
+            picker: Picker instance
+        """
+        s = f"""
+layer: {self._LAYER_NAME}
+point clicked: {picker.point}
+        """
+
+        return s
 
 class AxesLayer(Layer):
+    _LAYER_NAME = 'axes'
+    """
+    Add a set of axes to the origin.
+
+    Arguments:
+        size (float: 20): The length of each axis into the positive values.
+    """
     def __init__(self, size: float = 20, *args, **kwargs):
         """
         Add a set of axes to the origin.
@@ -92,6 +133,11 @@ class AxesLayer(Layer):
     def get_preferred_camera_view(self):
         return (0,0,0)
 class CoordinateLayer(Layer):
+    """
+    Subclass for layers that depends on coordinates or sets of points for viewing.
+    Not meant to be used directly.
+    """
+    _LAYER_NAME = 'coordinate'
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
         self._coords = [[0,0,0]]
@@ -110,21 +156,38 @@ class CoordinateLayer(Layer):
             self._calc_coord_metrics()
         return self._mean_coords
 class LinesLayer(CoordinateLayer):
+    """
+    Plots a series of line segments.
 
-    def __init__(self,lines, colors=None, width=10, *args, **kwargs):
+    Arguments:
+        lines: Iterable of (u,v), where u,v are 3 tuples of float coordinates. Lines are drawn between each u and v.
+        colors: Either 
+            * An iterable of (u,c), where u is a coordinate, and c is a color.
+            * a list of c (3coord, RGB), the same length as lines
+            * single 3 tuple (RGB) applied to all lines
+
+
+    """
+    _LAYER_NAME = 'lines'
+    def __init__(self,
+        lines: Iterable[Edge], 
+        colors: Union[Iterable[Tuple[Coord3, ColorRGB]], Iterable[ColorRGB], ColorRGB, None] = None, 
+        width:int = 10, 
+        *args, 
+        **kwargs):
         """
         Plots a series of line segments.
 
         Arguments:
-            lines: list of lists of 2-tuples of 3coords
-            colors: Either list of list of 2-tuples of 3coords, 
-            a list of lists of 3coords, or a single 3 tuple (RGB) applied to all lines
+            lines: Iterable of (u,v), where u,v are 3 tuples of float coordinates. Lines are drawn between each u and v.
+            colors: Either 
+                * An iterable of (u,c), where u is a coordinate, and c is a color.
+                * a list of c (3coord, RGB), the same length as lines
+                * single 3 tuple (RGB) applied to all lines
 
-        Returns:
-            UUID
 
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(layer_name='lines',*args, **kwargs)
         if isinstance(colors, tuple):
             color = colors
             colors = None
@@ -146,6 +209,27 @@ class LinesLayer(CoordinateLayer):
         self._objects.append(LineSegments2(geo, mat))
 
 class ScatterLayer(CoordinateLayer):
+    _LAYER_NAME = 'scatter'
+    """
+    There are several options for arguments this this function.
+
+    One positional array-like
+        Figure#scatter(np.random.randint(0, 10, (10, 3)))
+
+    Three positional list-likes
+        Figure#scatter(xs, ys, zs)
+
+    Three named list-likes
+        Figure#scatter(xs=[1, 2], ys=[2, 3], zs=[10, 20])
+
+    Three positional column names and a dataframe
+        Figure#scatter("x", "y", "depth", my_dataframe)
+
+    Arguments:
+        attenuate_size (False): Whether items further from
+            the camera should appear smaller
+
+    """
     def __init__(self,*args, **kwargs):
         """
         There are several options for arguments this this function.
@@ -218,27 +302,43 @@ class ScatterLayer(CoordinateLayer):
         self._objects.append(p)
     
 class GraphLayer(ScatterLayer,LinesLayer):
-    def __init__(self, graph : nx.Graph, **kwargs):
+    """
+    Plot a networkx graph.
+
+    Arguments:
+        graph: NetworkX graph
+        pos: positions to assign to each node.
+        pos_attribute: The node attribute to use as a 3coord.
+        edge_width: The line width to pass to layers#LineLayers
+
+        
+
+    """
+    _LAYER_NAME = 'graph'
+    def __init__(self, 
+        graph : nx.Graph, 
+        pos_attribute:str = None, 
+        pos:Union[Iterable[Coord3], Dict[Hashable, Coord3]] = None,
+        node_size: float = 5.,
+        edge_width: float = 5,
+        **kwargs):
         """
         Plot a networkx graph.
 
         Arguments:
-            pos (List[3coords], Dict[Hashable, 3coords]): positions to
-                assign to each node.
-            pos_attribute (str): The node attribute to use as a 3coord.
-            edge_width (int: 5): The line width to pass to Figure#lines
+            graph: NetworkX graph
+            pos: positions to assign to each node.
+            pos_attribute: The node attribute to use as a 3coord.
+            edge_width: The line width to pass to layers#LineLayers
 
-        Returns:
-            UUID
+        
 
         """
-        # This is the same as adding a scatter and a lines layer.
-        if "pos_attribute" in kwargs:
-            attr = kwargs.get("pos_attribute")
+        if pos_attribute is not None:
+            attr = pos_attribute
             pos = {n: a[attr] for n, a in graph.nodes(data=True)}
-        elif "pos" in kwargs:
-            pos = kwargs.get("pos")
-            if isinstance(pos, list):
+        elif pos is not None:
+            if isinstance(pos, Iterable):
                 pos = {n: p for n, p in zip(graph.nodes(), pos)}
         else:
             try:
@@ -249,14 +349,31 @@ class GraphLayer(ScatterLayer,LinesLayer):
         scatter_points = [i for i in pos.values()]
         
         lines = [[pos[u], pos[v]] for u, v in graph.edges()]
-        super().__init__(scatter_points,lines=lines, size=kwargs.get("node_size", 5),width=kwargs.get("edge_width", 5))
+        super().__init__(scatter_points,lines=lines, size=node_size,width=edge_width)
         
 class ImshowLayer(Layer):
+    """
+    Plot an image as a plane.
+
+    Arguments:
+        image (Union[str, np.ndarray]): The image to plot. This can be a
+            URL, a blob, or a numpy array. If it is a numpy array, it must
+            be either 2D (greyscale), 3D (RGB), or 4D (RGBA).
+        center_pos: Center pos
+        rotation: Rotation of the img
+            plane, in radians
+        width (float: 10): The width of the final rendered plane
+        height (float: 10): The height of the final rendered plane
+
+    
+
+    """
+    _LAYER_NAME = 'imshow'
     def __init__(
         self, 
         image: Union[str, np.ndarray],
-        center_pos: Tuple[float, float, float] = (0, 0, 0),
-        rotation: Tuple[float, float, float] = (0, 0, 0),
+        center_pos: Coord3 = (0, 0, 0),
+        rotation: Coord3 = (0, 0, 0),
         width: float = 10,
         height: float = 10,
         *args,
@@ -269,14 +386,11 @@ class ImshowLayer(Layer):
             image (Union[str, np.ndarray]): The image to plot. This can be a
                 URL, a blob, or a numpy array. If it is a numpy array, it must
                 be either 2D (greyscale), 3D (RGB), or 4D (RGBA).
-            center_pos (Tuple[float, float, float]: (0,0,0)): Center pos
-            rotation (Tuple[float, float, float]: (0,0,0)): Rotation of the img
+            center_pos: Center pos
+            rotation: Rotation of the img
                 plane, in radians
             width (float: 10): The width of the final rendered plane
             height (float: 10): The height of the final rendered plane
-
-        Returns:
-            UUID
 
         """
         super().__init__(*args, **kwargs)
@@ -313,24 +427,32 @@ class ImshowLayer(Layer):
 
 
 class GridLayer(LinesLayer):
+    _LAYER_NAME = 'grid'
+    """
+    Add a grid to the scene to help with orienting the viewer.
+
+    Arguments:
+        plane: Which axes to add grid lines along
+        radius: The distance in + and - to stretch
+        grid_size: The distance between grid marks
+        color: The color of the grid
+
+    """
     def __init__(
         self,
         plane: str = "xz",
         radius: int = 10000,
         grid_size: int = 500,
-        color: Tuple[float, float, float] = (0.74, 0.74, 0.74),
+        color: ColorRGB = (0.74, 0.74, 0.74),
     ):
         """
         Add a grid to the scene to help with orienting the viewer.
 
         Arguments:
-            plane (str: "xz"): Which axes to add grid lines along
-            radius (float: 10000): The distance in + and - to stretch
-            grid_size (float: 500): The distance between grid marks
-            color (Tuple[float, float, float]): The color of the grid
-
-        Returns:
-            UUID
+            plane: Which axes to add grid lines along
+            radius: The distance in + and - to stretch
+            grid_size: The distance between grid marks
+            color: The color of the grid
 
         """
         all_children = []
@@ -367,22 +489,42 @@ class GridLayer(LinesLayer):
             
         super().__init__(all_children, colors=color, width=0.5,)
 class MeshLayer(CoordinateLayer):
-    def __init__(self,mesh=None,obj=None, normalize=False,color="#00bbee", alpha=1.,*args, **kwargs):
+    """
+    Add a mesh to the scene.
+
+    
+
+    Arguments:
+        mesh: Mesh object, with attributes verticies, faces
+        obj: object filename
+        normalize : Normalize the coordinates of the vertices
+            to be between -1 and 1
+        color: Color for the mesh
+        alpha: transparency of the mesh
+
+    """
+    _LAYER_NAME = 'mesh'
+    def __init__(self,
+        mesh: trimesh.Trimesh = None,
+        obj: str = None, 
+        normalize: bool =False,
+        color: Union[str,ColorRGB] ="#00bbee", 
+        alpha: float=1.,
+        *args, 
+        **kwargs
+        ):
         """
         Add a mesh to the scene.
 
-        There are several supported types of argument.
-
-            Figure#mesh(obj=Union[List[List], np.ndarray])
-
-            Figure#mesh(str)
+        
 
         Arguments:
-            normalize (bool: False): Normalize the coordinates of the vertices
+            mesh: Mesh object, with attributes verticies, faces
+            obj: object filename
+            normalize : Normalize the coordinates of the vertices
                 to be between -1 and 1
-
-        Returns:
-            UUID
+            color: Color for the mesh
+            alpha: transparency of the mesh
 
         """
         if mesh is not None and obj is not None:
