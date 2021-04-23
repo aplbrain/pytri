@@ -14,54 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import Any, Union, List, Iterable, Tuple
+import uuid
+from typing import Any, Iterable, List, Tuple, Union
+from warnings import warn
+
+import networkx as nx
+import numpy as np
 from IPython.display import display
 from ipywidgets import HTML
-import uuid
-import numpy as np
-import networkx as nx
-from warnings import warn
-from pytri.layers import (
-    Layer,
-    MeshLayer,
-    ScatterLayer,
-    LinesLayer,
-    AxesLayer,
-    GraphLayer,
-    ImshowLayer,
-    GridLayer,
-)
-
 from pythreejs import (
-    # Cinematography:
-    AmbientLight,
-    DirectionalLight,
-    Scene,
-    PerspectiveCamera,
-    Renderer,
-    BufferAttribute,
-    OrbitControls,
-    DataTexture,
-    ImageTexture,
-    AxesHelper,
-    Points,
-    BufferGeometry,
-    PointsMaterial,
-    PlaneGeometry,
-    Picker,
-    Group,
-    # for meshes:
-    Mesh,
-    MeshBasicMaterial,
-    MeshNormalMaterial,
-    MeshLambertMaterial,
-    # for lines:
-    LineSegmentsGeometry,
-    LineMaterial,
-    LineSegments2,
-)
+    AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, DataTexture,
+    DirectionalLight, Group, ImageTexture, LineMaterial, LineSegments2,
+    LineSegmentsGeometry, Mesh, MeshBasicMaterial, MeshLambertMaterial,
+    MeshNormalMaterial, OrbitControls, PerspectiveCamera, Picker,
+    PlaneGeometry, Points, PointsMaterial, Renderer, Scene)
 
-
+from pytri.layers import (AxesLayer, GraphLayer, GridLayer, ImshowLayer, Layer,
+                          LinesLayer, MeshLayer, ScatterLayer)
 
 _DEFAULT_FIGURE_WIDTH = 600
 _DEFAULT_FIGURE_HEIGHT = 400
@@ -72,12 +41,12 @@ class Figure:
     Generic class for a new Pytri figure.
 
     """
-
-    def __init__(self, 
+    # pylint: disable=protected-access,attribute-defined-outside-init
+    def __init__(self,
         figsize: Tuple[int, int]=None, 
         background: Union[str, Tuple[float, float, float]]=None,
         register_default:bool=True,
-        **kwargs):
+        ):
         """
         Create a new figure.
 
@@ -119,7 +88,7 @@ class Figure:
                     GraphLayer,
                     ImshowLayer,
                     GridLayer,]:
-                    self.register_layer(layer)
+                self.register_layer(layer)
     @staticmethod
     def _new_id():
         return str(uuid.uuid4())
@@ -130,8 +99,12 @@ class Figure:
             inst._id = _id
             return inst
         return fn
-    def register_layer(self, cls):
-        layer = cls._LAYER_NAME
+    def register_layer(self, cls:Layer, layername:str=None):
+        """
+        Registers the Layer class cls with the name layername such that
+        calling fig.layername instantiates the class.
+        """
+        layer = cls._LAYER_NAME if layername is None else layername
         self.__dict__[layer] = self._layer_decorator(cls)
 
     def _add_layer(self, layer: Layer) -> str:
@@ -139,7 +112,7 @@ class Figure:
         _id = self._new_id()
         for c in object_set.children:
             c.name = _id
-        self._click_callbacks[_id] = layer.on_click
+        self._click_callbacks[_id] = layer._on_click
         self._layer_lookup[_id] = object_set
         return _id
 
@@ -224,13 +197,12 @@ class Figure:
             ],
         )
         g = Group()
-        for k,v in self._layer_lookup.items():
+        for _,v in self._layer_lookup.items():
             g.add(v)
 
         p = Picker(controlling=g,event='click')
         p.observe(self._interact_callback, names=["point"])
         self.html = HTML("")
-        
         scene.add(g)
         self.controls.append(p)
 

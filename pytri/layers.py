@@ -1,50 +1,63 @@
-from abc import ABC, abstractmethod,abstractproperty
-from typing import Tuple,Iterable,Union, Dict, Hashable
-import numpy as np
+"""
+Copyright 2021 The Johns Hopkins University Applied Physics Laboratory.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+from abc import ABC, abstractmethod
+from typing import Callable, Dict, Hashable, Iterable, Tuple, Union
+from warnings import warn
 import networkx as nx
+import numpy as np
 import trimesh
 from pythreejs import (
-    # Cinematography:
-    AmbientLight,
-    DirectionalLight,
-    Scene,
-    PerspectiveCamera,
-    Renderer,
-    BufferAttribute,
-    OrbitControls,
-    DataTexture,
-    ImageTexture,
-    AxesHelper,
-    Points,
-    BufferGeometry,
-    PointsMaterial,
+    AxesHelper, BufferAttribute, BufferGeometry, DataTexture,
+    Group, ImageTexture, LineMaterial, LineSegments2,
+    LineSegmentsGeometry, Mesh, MeshBasicMaterial, MeshLambertMaterial,
     PlaneGeometry,
-    Group,
-    # for meshes:
-    Mesh,
-    MeshBasicMaterial,
-    MeshNormalMaterial,
-    MeshLambertMaterial,
-    # for lines:
-    LineSegmentsGeometry,
-    LineMaterial,
-    LineSegments2,
-)
+    Points, PointsMaterial)
+
 from .utils import CIRCLE_MAP, _normalize_shift
+# pylint: disable=keyword-arg-before-vararg,attribute-defined-outside-init
 Coord3 = Tuple[float, float, float]
 ColorRGB = Tuple[float,float,float]
 Edge = Tuple[Coord3, Coord3]
 class Layer(ABC):
+    """
+    Abstract Layer class. Not meant to be used on its own.
+    """
     _LAYER_NAME = "layer"
     def __init__(self,*args, **kwargs) -> None:
+        """
+        Abstract Layer class. Not meant to be used on its own.
+        """
+        if len(args) > 0:
+            warn(f'Unused args : {args}')
+        if len(kwargs) > 0:
+            warn(f'Unused kwargs : {kwargs}')
         self._id = None
         self._objects = []
         self._group = None
     @abstractmethod
     def get_bounding_box(self) -> Tuple[Coord3, Coord3]:
+        """
+        Gets the bounding box as two coordinates representing opposite corners.
+        """
         ...
     @abstractmethod
     def get_preferred_camera_view(self) -> Coord3:
+        """
+        Gets preferred camera view, as a target tuple to orbit around
+        """
         return None
     @property
     def group(self) -> Group:
@@ -63,7 +76,7 @@ class Layer(ABC):
         The affine transform of the entire layer
         """
         return self.group.matrix
-        
+
     def set_affine(self, a: np.ndarray):
         """
         Set affine transform for the entire layer
@@ -71,7 +84,7 @@ class Layer(ABC):
         self._affine = a
         sc = self.group
         sc.matrix = self._affine
-    def rotate(self, 
+    def rotate(self,
         x:float,
         y:float,
         z:float,
@@ -94,27 +107,29 @@ class Layer(ABC):
         sc.position = tuple(xyz + [x,y,z])
     def on_click(self, picker):
         """
-        Click callback. See 
+        Click callback. See
         https://pythreejs.readthedocs.io/en/stable/api/controls/Picker_autogen.html#
         for docs on picker
         args:
             picker: Picker instance
         """
         s = f"""
-layer: {self._LAYER_NAME}
-point clicked: {picker.point}
-        """
+            layer: {self._LAYER_NAME}
+            point clicked: {picker.point}
+            """
 
         return s
+    def _on_click(self, picker):
+        return self.on_click(picker)
 
 class AxesLayer(Layer):
-    _LAYER_NAME = 'axes'
     """
     Add a set of axes to the origin.
 
     Arguments:
         size (float: 20): The length of each axis into the positive values.
     """
+    _LAYER_NAME = 'axes'
     def __init__(self, size: float = 20, *args, **kwargs):
         """
         Add a set of axes to the origin.
@@ -138,6 +153,7 @@ class CoordinateLayer(Layer):
     Not meant to be used directly.
     """
     _LAYER_NAME = 'coordinate'
+    #pylint: disable=attribute-defined-outside-init
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
         self._coords = [[0,0,0]]
@@ -152,7 +168,7 @@ class CoordinateLayer(Layer):
             self._calc_coord_metrics()
         return (self._coord_min, self._coord_max)
     def get_preferred_camera_view(self):
-        if not (hasattr(self, '_mean_coords')):
+        if not hasattr(self, '_mean_coords'):
             self._calc_coord_metrics()
         return self._mean_coords
 class LinesLayer(CoordinateLayer):
@@ -160,8 +176,9 @@ class LinesLayer(CoordinateLayer):
     Plots a series of line segments.
 
     Arguments:
-        lines: Iterable of (u,v), where u,v are 3 tuples of float coordinates. Lines are drawn between each u and v.
-        colors: Either 
+        lines: Iterable of (u,v), where u,v are 3 tuples of float coordinates.
+            Lines are drawn between each u and v.
+        colors: Either
             * An iterable of (u,c), where u is a coordinate, and c is a color.
             * a list of c (3coord, RGB), the same length as lines
             * single 3 tuple (RGB) applied to all lines
@@ -179,8 +196,9 @@ class LinesLayer(CoordinateLayer):
         Plots a series of line segments.
 
         Arguments:
-            lines: Iterable of (u,v), where u,v are 3 tuples of float coordinates. Lines are drawn between each u and v.
-            colors: Either 
+            lines: Iterable of (u,v), where u,v are 3 tuples of float coordinates.
+            Lines are drawn between each u and v.
+            colors: Either
                 * An iterable of (u,c), where u is a coordinate, and c is a color.
                 * a list of c (3coord, RGB), the same length as lines
                 * single 3 tuple (RGB) applied to all lines
@@ -209,7 +227,7 @@ class LinesLayer(CoordinateLayer):
         self._objects.append(LineSegments2(geo, mat))
 
 class ScatterLayer(CoordinateLayer):
-    _LAYER_NAME = 'scatter'
+    
     """
     There are several options for arguments this this function.
 
@@ -230,6 +248,7 @@ class ScatterLayer(CoordinateLayer):
             the camera should appear smaller
 
     """
+    _LAYER_NAME = 'scatter'
     def __init__(self,*args, **kwargs):
         """
         There are several options for arguments this this function.
@@ -253,7 +272,6 @@ class ScatterLayer(CoordinateLayer):
         """
         super().__init__(**kwargs)
         pts = None
-        
         if len(args) == 1:
             if isinstance(args[0], (np.ndarray, Iterable)):
                 pts = np.asarray(args[0], dtype=np.float32)
@@ -300,7 +318,7 @@ class ScatterLayer(CoordinateLayer):
         )
         p = Points(geometry=geometry, material=material)
         self._objects.append(p)
-    
+
 class GraphLayer(ScatterLayer,LinesLayer):
     """
     Plot a networkx graph.
@@ -309,15 +327,12 @@ class GraphLayer(ScatterLayer,LinesLayer):
         graph: NetworkX graph
         pos: positions to assign to each node.
         pos_attribute: The node attribute to use as a 3coord.
-        edge_width: The line width to pass to layers#LineLayers
-
-        
-
+        edge_width: The line width to pass to layers#LineLayers  
     """
     _LAYER_NAME = 'graph'
-    def __init__(self, 
-        graph : nx.Graph, 
-        pos_attribute:str = None, 
+    def __init__(self,
+        graph : nx.Graph,
+        pos_attribute:str = None,
         pos:Union[Iterable[Coord3], Dict[Hashable, Coord3]] = None,
         node_size: float = 5.,
         edge_width: float = 5,
@@ -370,7 +385,7 @@ class ImshowLayer(Layer):
     """
     _LAYER_NAME = 'imshow'
     def __init__(
-        self, 
+        self,
         image: Union[str, np.ndarray],
         center_pos: Coord3 = (0, 0, 0),
         rotation: Coord3 = (0, 0, 0),
@@ -415,9 +430,6 @@ class ImshowLayer(Layer):
         self.center = center_pos
         self.size = (width,height)
         self._objects.append(mesh)
-
-
-        
     def get_bounding_box(self):
         x,y,z = self.center
         h,w = self.size
@@ -458,41 +470,29 @@ class GridLayer(LinesLayer):
         all_children = []
         if "z" in plane:
             all_children.extend(
-                
                     [
                         [[-radius, 0, z], [radius, 0, z]]
                         for z in range(-radius, radius, grid_size)
                     ]
-                    
                 )
-            
-
         if "y" in plane:
             all_children.extend(
-                
                     [
                         [[0, y, -radius], [0, y, radius]]
                         for y in range(-radius, radius, grid_size)
                     ]
-                    
                 )
-            
         if "x" in plane:
             all_children.extend(
-                
                     [
                         [[x, 0, -radius], [x, 0, radius]]
                         for x in range(-radius, radius, grid_size)
                     ],
-                    
                 )
-            
         super().__init__(all_children, colors=color, width=0.5,)
 class MeshLayer(CoordinateLayer):
     """
     Add a mesh to the scene.
-
-    
 
     Arguments:
         mesh: Mesh object, with attributes verticies, faces
@@ -504,12 +504,14 @@ class MeshLayer(CoordinateLayer):
 
     """
     _LAYER_NAME = 'mesh'
+    # pylint: disable=unused-variable,too-many-locals,too-many-branches
     def __init__(self,
         mesh: trimesh.Trimesh = None,
         obj: str = None, 
         normalize: bool =False,
         color: Union[str,ColorRGB] ="#00bbee", 
         alpha: float=1.,
+        transform: Union[Callable, None] = None,
         *args, 
         **kwargs
         ):
@@ -525,6 +527,7 @@ class MeshLayer(CoordinateLayer):
                 to be between -1 and 1
             color: Color for the mesh
             alpha: transparency of the mesh
+            transform: a function to transform the vertices
 
         """
         if mesh is not None and obj is not None:
@@ -537,8 +540,6 @@ class MeshLayer(CoordinateLayer):
                 raise ValueError(
                     "Did not understand arguments to method Figure#mesh"
                 ) from e
-
-        
         if isinstance(obj, np.ndarray):
             obj_data = obj
         elif isinstance(obj, list):
@@ -555,9 +556,7 @@ class MeshLayer(CoordinateLayer):
 
                 except Exception as e:
                     raise ValueError("Could not read file as OBJ") from e
-       
-        if hasattr(mesh, "vertices") and hasattr(mesh, "faces"):
-            mesh = mesh
+        assert hasattr(mesh, "vertices") and hasattr(mesh, "faces"), "Invalid mesh object"
         if mesh is None:
             raise ValueError("Could not understand how to parse mesh.")
 
@@ -590,10 +589,9 @@ class MeshLayer(CoordinateLayer):
             }
         )
         self._coords = verts
-        
         transparent = alpha != 1.
         mat = MeshLambertMaterial(color=color, opacity=alpha, transparent=transparent)
         mesh = Mesh(geometry=geo, material=mat)
         geo.exec_three_obj_method("computeVertexNormals")
-        
+        super().__init__(*args, **kwargs)
         self._objects.append(mesh)
