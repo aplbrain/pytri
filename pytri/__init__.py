@@ -43,7 +43,7 @@ class Figure:
     """
     # pylint: disable=protected-access,attribute-defined-outside-init
     def __init__(self,
-        figsize: Tuple[int, int]=None, 
+        figsize: Tuple[int, int]=None,
         background: Union[str, Tuple[float, float, float]]=None,
         register_default:bool=True,
         ):
@@ -129,7 +129,6 @@ class Figure:
                 If a vector, points the camera at the vector.
 
         """
-        
         if target is None:
             try:
                 pcv = [l.get_preferred_camera_view() for l in self._layer_lookup.values()]

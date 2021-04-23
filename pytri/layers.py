@@ -187,10 +187,10 @@ class LinesLayer(CoordinateLayer):
     """
     _LAYER_NAME = 'lines'
     def __init__(self,
-        lines: Iterable[Edge], 
-        colors: Union[Iterable[Tuple[Coord3, ColorRGB]], Iterable[ColorRGB], ColorRGB, None] = None, 
-        width:int = 10, 
-        *args, 
+        lines: Iterable[Edge],
+        colors: Union[Iterable[Tuple[Coord3, ColorRGB]], Iterable[ColorRGB], ColorRGB, None] = None,
+        width:int = 10,
+        *args,
         **kwargs):
         """
         Plots a series of line segments.
@@ -218,7 +218,6 @@ class LinesLayer(CoordinateLayer):
         for uv in lines:
             coords.extend(uv)
         self._coords = np.array(coords)
-        
         geo = LineSegmentsGeometry(
             positions=np.array(lines,dtype=np.float32),
             colors=colors,
@@ -227,7 +226,6 @@ class LinesLayer(CoordinateLayer):
         self._objects.append(LineSegments2(geo, mat))
 
 class ScatterLayer(CoordinateLayer):
-    
     """
     There are several options for arguments this this function.
 
@@ -327,7 +325,7 @@ class GraphLayer(ScatterLayer,LinesLayer):
         graph: NetworkX graph
         pos: positions to assign to each node.
         pos_attribute: The node attribute to use as a 3coord.
-        edge_width: The line width to pass to layers#LineLayers  
+        edge_width: The line width to pass to layers#LineLayers
     """
     _LAYER_NAME = 'graph'
     def __init__(self,
@@ -345,9 +343,6 @@ class GraphLayer(ScatterLayer,LinesLayer):
             pos: positions to assign to each node.
             pos_attribute: The node attribute to use as a 3coord.
             edge_width: The line width to pass to layers#LineLayers
-
-        
-
         """
         if pos_attribute is not None:
             attr = pos_attribute
@@ -362,10 +357,8 @@ class GraphLayer(ScatterLayer,LinesLayer):
                 raise ValueError("You must pass a valid position argument.") from e
 
         scatter_points = [i for i in pos.values()]
-        
         lines = [[pos[u], pos[v]] for u, v in graph.edges()]
         super().__init__(scatter_points,lines=lines, size=node_size,width=edge_width)
-        
 class ImshowLayer(Layer):
     """
     Plot an image as a plane.
@@ -379,9 +372,6 @@ class ImshowLayer(Layer):
             plane, in radians
         width (float: 10): The width of the final rendered plane
         height (float: 10): The height of the final rendered plane
-
-    
-
     """
     _LAYER_NAME = 'imshow'
     def __init__(
@@ -439,7 +429,6 @@ class ImshowLayer(Layer):
 
 
 class GridLayer(LinesLayer):
-    _LAYER_NAME = 'grid'
     """
     Add a grid to the scene to help with orienting the viewer.
 
@@ -450,6 +439,7 @@ class GridLayer(LinesLayer):
         color: The color of the grid
 
     """
+    _LAYER_NAME = 'grid'
     def __init__(
         self,
         plane: str = "xz",
@@ -507,18 +497,16 @@ class MeshLayer(CoordinateLayer):
     # pylint: disable=unused-variable,too-many-locals,too-many-branches
     def __init__(self,
         mesh: trimesh.Trimesh = None,
-        obj: str = None, 
+        obj: str = None,
         normalize: bool =False,
-        color: Union[str,ColorRGB] ="#00bbee", 
+        color: Union[str,ColorRGB] ="#00bbee",
         alpha: float=1.,
         transform: Union[Callable, None] = None,
-        *args, 
+        *args,
         **kwargs
         ):
         """
         Add a mesh to the scene.
-
-        
 
         Arguments:
             mesh: Mesh object, with attributes verticies, faces
