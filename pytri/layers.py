@@ -156,7 +156,8 @@ class CoordinateLayer(Layer):
     #pylint: disable=attribute-defined-outside-init
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._coords = [[0,0,0]]
+        if not hasattr(self, '_coords'):
+            self._coords = [[0,0,0]]
 
     def _calc_coord_metrics(self):
         coords = self._coords
@@ -523,7 +524,7 @@ class MeshLayer(CoordinateLayer):
         if isinstance(mesh, str):
             # perhaps this is a filename?
             try:
-                mesh = trimesh.load(args[0])
+                mesh = trimesh.load(mesh)
             except Exception as e:
                 raise ValueError(
                     "Did not understand arguments to method Figure#mesh"
@@ -567,12 +568,10 @@ class MeshLayer(CoordinateLayer):
                 "position": BufferAttribute(
                     array=verts.astype("float32"),
                     normalized=False,
-                    # dtype=np.float64
                 ),
                 "index": BufferAttribute(
                     array=faces.astype("uint64").ravel(),
                     normalized=False,
-                    # dtype=np.float64,
                 ),
             }
         )

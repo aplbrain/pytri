@@ -142,7 +142,7 @@ class Figure:
             target = tuple(target.astype(np.float32))
         elif isinstance(target, Layer):
             target = tuple(target.get_preferred_camera_view())
-        self.controls.target = target
+        self.controls[0].target = target
     def remove(self, layer: Union[Layer, Iterable[Layer]]) -> bool:
         """
         Remove a single layer from the scene.
