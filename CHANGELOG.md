@@ -1,3 +1,5 @@
+- **2.0.1**
+    -   Add `__version__` to module to sync with setup.py.
 - **2.0.0**
     -   Allow for a custom background color. Default is none (transparent).
     -   Use a Lambert shader as the default for new meshes (#115)
