@@ -35,6 +35,7 @@ from pytri.layers import (AxesLayer, GraphLayer, GridLayer, ImshowLayer, Layer,
 _DEFAULT_FIGURE_WIDTH = 600
 _DEFAULT_FIGURE_HEIGHT = 400
 
+__version__ = "2.0.1"
 
 class Figure:
     """
