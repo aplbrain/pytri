@@ -123,13 +123,13 @@ morgan2020 = intern.array("bossdb://morgan2020/lgn/em", resolution=2)
 em_excerpt = morgan2020[1000:1050, 25000:25000+300, 25000:25000+300]
 
 coords = []
-for z in range(small.shape[0]):
-    for y in range(small.shape[1]):
-        for x in range(small.shape[2]):
+for z in range(em_excerpt.shape[0]):
+    for y in range(em_excerpt.shape[1]):
+        for x in range(em_excerpt.shape[2]):
             coords.append((x, y, z*10))
 
 f = Figure()
-f.scatter(coords, color=[[i,i,i] for i in small.ravel()], attenuate_size=True, size=5)
+f.scatter(coords, color=[[i,i,i] for i in em_excerpt.ravel()], attenuate_size=True, size=5)
 f.show()
 ```
 
