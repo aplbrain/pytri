@@ -27,9 +27,9 @@ import numpy as np
 
 fig = Figure()
 
-xs = np.random(0, 100)
-ys = np.random(0, 100)
-zs = np.random(0, 100)
+xs = np.random.randn(100)
+ys = np.random.randn(100)
+zs = np.random.randn(100)
 
 fig.scatter(xs, ys, zs)
 
