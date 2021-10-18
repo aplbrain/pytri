@@ -385,9 +385,11 @@ class NeuronMorphologyLayer(GraphLayer):
     """
     _LAYER_NAME = 'swc'
 
-    def __init__(self,
-        swc: 'NeuronMorphology',
-        **kwargs):
+    def __init__(
+        self,
+        swc: 'NeuronMorphology', # noqa: F821
+        **kwargs
+    ):
         """
         Plot a SWC morphology.
 
