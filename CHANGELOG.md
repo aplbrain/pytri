@@ -1,3 +1,7 @@
+# CHANGELOG
+
+- **?.?.?**
+    -   Add Neuron Morphology rendering with `neuromorpholib` in `Figure#swc`
 - **2.0.1**
     -   Add `__version__` to module to sync with setup.py.
 - **2.0.0**

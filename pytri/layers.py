@@ -27,15 +27,19 @@ from pythreejs import (
     Points, PointsMaterial)
 
 from .utils import CIRCLE_MAP, _normalize_shift
+
 # pylint: disable=keyword-arg-before-vararg,attribute-defined-outside-init
 Coord3 = Tuple[float, float, float]
 ColorRGB = Tuple[float,float,float]
 Edge = Tuple[Coord3, Coord3]
+
 class Layer(ABC):
     """
     Abstract Layer class. Not meant to be used on its own.
     """
+    
     _LAYER_NAME = "layer"
+    
     def __init__(self,*args, **kwargs) -> None:
         """
         Abstract Layer class. Not meant to be used on its own.
@@ -47,18 +51,21 @@ class Layer(ABC):
         self._id = None
         self._objects = []
         self._group = None
+    
     @abstractmethod
     def get_bounding_box(self) -> Tuple[Coord3, Coord3]:
         """
         Gets the bounding box as two coordinates representing opposite corners.
         """
         ...
+    
     @abstractmethod
     def get_preferred_camera_view(self) -> Coord3:
         """
         Gets preferred camera view, as a target tuple to orbit around
         """
         return None
+    
     @property
     def group(self) -> Group:
         """
@@ -70,6 +77,7 @@ class Layer(ABC):
                 self._group.add(obj)
 
         return self._group
+    
     @property
     def affine(self) -> np.ndarray:
         """
@@ -84,6 +92,7 @@ class Layer(ABC):
         self._affine = a
         sc = self.group
         sc.matrix = self._affine
+    
     def rotate(self,
         x:float,
         y:float,
@@ -97,6 +106,7 @@ class Layer(ABC):
         """
         sc = self.group
         sc.rotation = (x,y,z,order)
+    
     def translate(self, x,y,z):
         """
         Sets the translation of the entire layer.
@@ -105,6 +115,7 @@ class Layer(ABC):
         sc = self.group
         xyz = np.array(sc.position)
         sc.position = tuple(xyz + [x,y,z])
+    
     def on_click(self, picker):
         """
         Click callback. See
@@ -119,6 +130,7 @@ class Layer(ABC):
             """
 
         return s
+    
     def _on_click(self, picker):
         return self.on_click(picker)
 
@@ -359,6 +371,37 @@ class GraphLayer(ScatterLayer,LinesLayer):
         scatter_points = [i for i in pos.values()]
         lines = [[pos[u], pos[v]] for u, v in graph.edges()]
         super().__init__(scatter_points,lines=lines, size=node_size,width=edge_width)
+
+
+class NeuronMorphologyLayer(GraphLayer):
+    """
+    Plot a neuromorpholib.NeuronMorphology
+
+    Arguments:
+        graph: NetworkX graph
+        pos: positions to assign to each node.
+        pos_attribute: The node attribute to use as a 3coord.
+        edge_width: The line width to pass to layers#LineLayers
+    """
+    _LAYER_NAME = 'swc'
+
+    def __init__(
+        self,
+        swc: 'NeuronMorphology', # noqa: F821
+        **kwargs
+    ):
+        """
+        Plot a SWC morphology.
+
+        Arguments:
+            graph: NetworkX graph
+            pos: positions to assign to each node.
+            pos_attribute: The node attribute to use as a 3coord.
+            edge_width: The line width to pass to layers#LineLayers
+        """
+
+        super().__init__(graph=swc.get_graph(), pos_attribute='xyz', **kwargs)
+
 class ImshowLayer(Layer):
     """
     Plot an image as a plane.

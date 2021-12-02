@@ -30,7 +30,7 @@ from pythreejs import (
     PlaneGeometry, Points, PointsMaterial, Renderer, Scene)
 
 from pytri.layers import (AxesLayer, GraphLayer, GridLayer, ImshowLayer, Layer,
-                          LinesLayer, MeshLayer, ScatterLayer)
+                          LinesLayer, MeshLayer, ScatterLayer, NeuronMorphologyLayer)
 
 _DEFAULT_FIGURE_WIDTH = 600
 _DEFAULT_FIGURE_HEIGHT = 400
@@ -88,7 +88,8 @@ class Figure:
                     AxesLayer,
                     GraphLayer,
                     ImshowLayer,
-                    GridLayer,]:
+                    GridLayer,
+                    NeuronMorphologyLayer]:
                 self.register_layer(layer)
     @staticmethod
     def _new_id():
